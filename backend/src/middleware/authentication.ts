@@ -4,6 +4,13 @@ import type { IdentityProvider } from '../identity.js';
 import { verifiedIdentity } from '../identity.js';
 import { ApiError } from '../errors.js';
 
+/**
+ * Express middleware extracting and validating Bearer tokens against the identity provider and database.
+ * Attaches the authenticated UserProfile to res.locals.user.
+ *
+ * @param db - Prisma client
+ * @param identity - Identity provider
+ */
 export function authenticate(db: PrismaClient, identity: IdentityProvider): RequestHandler {
   return async (req, res, next) => {
     try {

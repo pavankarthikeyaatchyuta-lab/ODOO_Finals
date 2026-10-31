@@ -5,6 +5,9 @@ import { ApiError, missing } from '../errors.js';
 import { agreementAccess, createAgreement, presentAgreement, sendAgreement, submitSignature, verifySignature } from '../services/agreements.js';
 import { requireDocument } from '../services/documents.js';
 
+/**
+ * Registers digital service agreement creation, transmission, and signature review routes.
+ */
 export function registerAgreementsRoutes(route: RouteRegistrar) {
   route('post', '/weddings/:id/agreement', { summary: 'Create a draft service agreement', roles: staffWrite, body: w.agreementInput, response: w.agreementDto,
     async guard({ tx, user, params }) { await weddingAccess(tx, user, params.id!, true); }, handler: ({ tx, user, params, body }) => createAgreement(tx, user, params.id!, body),

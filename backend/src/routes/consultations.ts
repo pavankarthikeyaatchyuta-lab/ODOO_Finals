@@ -4,6 +4,9 @@ import { ApiError, missing } from '../errors.js';
 import { audit, presentConsultation, weddingAccess, weddingFilter } from '../access.js';
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
 
+/**
+ * Registers consultation booking, scheduling, and outcome logging routes.
+ */
 export function registerConsultationsRoutes(route: RouteRegistrar) {
   route('post', '/consultations', { summary: 'Request consultation; never confirms a booking', body: c.requestConsultation, response: c.consultationDto,
     roles: ['FOUNDER', 'PLANNER', 'CLIENT'], async guard({ tx, user, body }) {

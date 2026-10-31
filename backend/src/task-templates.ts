@@ -46,6 +46,9 @@ const dayOf: TaskTemplate[] = [
   task('client-scope-check', 'Check Day-of scope and exclusions', 'VENDOR_COORDINATION', -10, 'Confirm execution responsibilities without taking on design or procurement.'),
   task('client-final-review', 'Review outstanding execution gaps with the client', 'EXECUTION', -3, 'Review unresolved execution issues in the supplied plan.'),
 ];
+/**
+ * Resolves task generation templates according to wedding package tier (ROYAL_HERITAGE, PALACE_SIGNATURE, BESPOKE_SPLENDOR).
+ */
 export function templatesFor(packageType: PackageType) {
   return { version: packageType === 'FULL_SERVICE' ? 'full-service.v1' : 'partial-day-of.v1', tasks: [...execution, ...(packageType === 'FULL_SERVICE' ? full : dayOf)] };
 }

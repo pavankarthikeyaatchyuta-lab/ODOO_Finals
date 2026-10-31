@@ -2,12 +2,24 @@ import type { ErrorRequestHandler } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
+/**
+ * Standardized operational error class carrying HTTP status code and machine-readable error codes.
+ */
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
 }
+/**
+ * Helper returning a 404 NOT_FOUND ApiError.
+ */
 export const missing = () => new ApiError(404, 'NOT_FOUND', 'Record not found');
+/**
+ * Helper returning a 403 FORBIDDEN ApiError.
+ */
 export const forbidden = () => new ApiError(403, 'FORBIDDEN', 'This action is not permitted');
 
+/**
+ * Global Express error handling middleware converting unhandled rejections into uniform error DTOs.
+ */
 export const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _next) => {
     let status = 500, code = 'INTERNAL_ERROR', message = 'An unexpected error occurred';
     let fields: { path: string; message: string }[] | undefined;

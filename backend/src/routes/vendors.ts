@@ -7,6 +7,9 @@ import { ApiError, missing } from '../errors.js';
 import { agreementGate } from '../services/workflow-access.js';
 
 const staff = everyone.filter(role => role !== 'CLIENT');
+/**
+ * Registers vendor directory, category catalog, and vendor profile routes.
+ */
 export function registerVendorsRoutes(route: RouteRegistrar) {
   route('get', '/vendor-categories', { summary: 'List configured vendor categories', roles: staff, response: z.array(w.categoryDto), handler: ({ tx }) => tx.vendorCategory.findMany({ orderBy: { code: 'asc' } }) });
   route('post', '/vendors', { summary: 'Create vendor directory contact', roles: staffWrite, body: w.vendorInput, response: w.vendorDto, async handler({ tx, user, body }) {

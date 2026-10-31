@@ -4,6 +4,9 @@ import { audit, weddingAccess } from '../access.js';
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
 import type { IdentityProvider } from '../identity.js';
 
+/**
+ * Registers user governance, team invitations, and role management routes.
+ */
 export function registerUsersRoutes(route: RouteRegistrar, identity: IdentityProvider) {
   route('get', '/users/:id', { summary: 'Founder reads a user profile', roles: ['FOUNDER'], response: c.profileDto, async handler({ tx, params }) {
     const row = await tx.userProfile.findUnique({ where: { id: params.id } });

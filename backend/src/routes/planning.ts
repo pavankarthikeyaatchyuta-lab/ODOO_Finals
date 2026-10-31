@@ -6,6 +6,9 @@ import { ApiError, missing } from '../errors.js';
 import { mutableWedding } from '../services/workflow-access.js';
 import { claimPayment, confirmProposal, decidePayment, generateTasks, paymentAccess, presentGeneration, presentPayment, taskAccess, updateTask } from '../services/planning.js';
 
+/**
+ * Registers milestone task planning, deposit verification, and task board routes.
+ */
 export function registerPlanningRoutes(route: RouteRegistrar) {
   const staff = everyone.filter(role => role !== 'CLIENT');
   route('post', '/weddings/:id/confirm-proposal', { summary: 'Confirm proposal and required deposit; generate tasks if the verified deposit qualifies', roles: staffWrite, body: w.proposalInput, response: w.proposalDto,

@@ -5,6 +5,9 @@ import { weddingAccess } from '../access.js';
 import { missing } from '../errors.js';
 import { createRound, roundAccess, presentRound, selectQuote, submitQuote } from '../services/quotations.js';
 
+/**
+ * Registers RFQ rounds, caterer proposals, and decision matrix routes.
+ */
 export function registerQuotationsRoutes(route: RouteRegistrar) {
   const readers = [...staffWrite, 'FINANCE' as const];
   route('post', '/weddings/:id/quotation-rounds', { summary: 'Request quotations from vendors; exactly three for catering', roles: staffWrite, body: w.roundInput, response: w.roundDto,

@@ -3,6 +3,9 @@ import * as clients from '../controllers/clients.js';
 import { missing } from '../errors.js';
 import { staffWrite, everyone, type RouteRegistrar } from '../http/routes.js';
 
+/**
+ * Registers client contact management and CRM profile routes.
+ */
 export function registerClientsRoutes(route: RouteRegistrar) {
   route('post', '/clients', { summary: 'Create a client contact', roles: staffWrite, body: c.clientInput, response: c.clientDto, handler: clients.create });
   route('get', '/clients', { summary: 'List accessible clients', roles: everyone.filter(r => r !== 'CLIENT'), query: c.pageQuery, response: c.listOf(c.clientDto), handler: clients.list });

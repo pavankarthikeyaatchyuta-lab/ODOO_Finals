@@ -6,6 +6,9 @@ import { ApiError, forbidden, missing } from '../errors.js';
 import { assertOwner, mutableWedding } from '../services/workflow-access.js';
 import * as ops from '../services/operations.js';
 
+/**
+ * Registers wedding day run-sheet, vendor docking, delay tracking, and incident routes.
+ */
 export function registerOperationsRoutes(route: RouteRegistrar) {
   const staff = everyone.filter(role => role !== 'CLIENT'), field = [...staffWrite, 'COORDINATOR' as const];
   route('post', '/weddings/:id/vendors/client-provided', { summary: 'Explicitly associate an existing client-contracted vendor without fabricating a quotation', roles: staffWrite, body: o.associationInput, response: o.associationDto,

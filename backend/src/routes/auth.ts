@@ -6,6 +6,9 @@ import * as c from '../contracts.js';
 import { authController } from '../controllers/auth.js';
 import { consumeAuthLimit } from '../services/rate-limit.js';
 
+/**
+ * Registers public authentication endpoints (sign in, token refresh, password recovery, logout).
+ */
 export function registerAuthRoutes(app: Express, db: PrismaClient, identity: IdentityProvider) {
   const controller = authController(db, identity);
   // Authentication tokens/passwords must never enter the business idempotency cache.

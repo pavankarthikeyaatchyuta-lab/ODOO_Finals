@@ -1,17 +1,35 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Global Design System & Luxury Theme Tokens
+ * =============================================================================
+ * Configures the royal color palette, typographic scales, motion easing curves,
+ * financial tabular numeric alignments, and strict accessibility media queries.
+ */
+
 @import "tailwindcss";
 
+/* Royal Theme Design Tokens */
 @theme {
+  /* Midnight Navy & Slate Dominants */
   --color-royal-navy: #0D1B2A;
   --color-royal-blue: #1B3B6F;
   --color-royal-slate: #212F45;
+
+  /* Rajasthani Heritage Gold Accents */
   --color-royal-gold: #C5A059;
   --color-royal-gold-light: #DFCA9B;
   --color-royal-gold-dark: #9D7C36;
+
+  /* Warm Palace Ivory & Parchment Surfaces */
   --color-royal-ivory: #FDFBF7;
   --color-royal-cream: #F5F1E8;
   --color-royal-card: #FFFFFF;
+
+  /* Heritage & UI Font Stacks */
   --font-serif: "Playfair Display", "Cinzel", Georgia, serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Bespoke Fluid & Spring Motion Curves */
   --ease-royal: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -21,6 +39,7 @@
   --ease-spring-curve: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Base Body Surface & Typography */
 body {
   background-color: #FDFBF7;
   color: #0D1B2A;
@@ -30,18 +49,27 @@ body {
   min-height: 100vh;
 }
 
-/* Tabular figures for instant financial and numeric readability */
+/**
+ * Tabular figures utility for instant financial & numeric column alignment.
+ * Prevents layout shift during high-frequency currency recalculation.
+ */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Luxury smooth scroll behavior respecting user motion preferences */
+/**
+ * Smooth scrolling enabled exclusively when user has no reduced-motion preference.
+ */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
 }
 
+/**
+ * WCAG 2.1 AA Compliance: Complete disabling of animations and transitions
+ * when the user system prefers reduced motion.
+ */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

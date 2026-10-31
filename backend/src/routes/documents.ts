@@ -7,6 +7,9 @@ import { agreementGate } from '../services/workflow-access.js';
 import type { DocumentStore } from '../storage.js';
 import { ApiError } from '../errors.js';
 
+/**
+ * Registers document upload, verification, and artifact download routes.
+ */
 export function registerDocumentsRoutes(route: RouteRegistrar, store: DocumentStore) {
   route('post', '/weddings/:id/documents', { summary: 'Register private document upload metadata', body: w.documentInput, response: w.documentDto,
     async guard({ tx, user, params }) { await weddingAccess(tx, user, params.id!); },

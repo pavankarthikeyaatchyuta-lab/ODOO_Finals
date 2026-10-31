@@ -7,6 +7,9 @@ import { audit, presentEnquiry, presentWedding, weddingFilter } from '../access.
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
 import { mutableWedding } from '../services/workflow-access.js';
 
+/**
+ * Registers bridal enquiry pipeline and qualification transition routes.
+ */
 export function registerEnquiriesRoutes(route: RouteRegistrar) {
   route('post', '/enquiries/:id/assignment', { summary: 'Founder assigns the enquiry owner and grants wedding membership', roles: ['FOUNDER'], body: z.object({ userId: c.uuid }).strict(), response: c.enquiryDto,
     async guard({ tx, user, params }) { if (!await tx.enquiry.findFirst({ where: { id: params.id, wedding: weddingFilter(user) } })) throw missing(); },

@@ -1,16 +1,33 @@
 <!doctype html>
+<!-- 
+  =============================================================================
+  THE ROYAL KNOT - Luxury Wedding Operations & Stakeholder Intelligence Portal
+  Root HTML Document Shell
+  =============================================================================
+  - Configures responsive viewport scaling for desktop, tablet, and mobile displays
+  - Loads luxury serif typography (Cinzel, Playfair Display) and neutral sans (Inter)
+  - Preconnects to Google Fonts CDN for optimized sub-second font delivery
+  - Mounts single-page React 19 application at #root with module bundler entry
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/royal-knot-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Royal Knot — Wedding Operations & Intelligence Platform</title>
+
+    <!-- Optimized font CDN preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Luxury Brand Typography: Playfair Display (Headings), Cinzel (Regal Crests), Inter (Numbers & Clean UI) -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   </head>
   <body class="bg-[#FDFBF7] text-[#0D1B2A] antialiased">
+    <!-- Single-Page Application DOM Mount Target -->
     <div id="root"></div>
+
+    <!-- Vite ESModule Entry Point -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

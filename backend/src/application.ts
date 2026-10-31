@@ -27,6 +27,15 @@ import { unavailableStore, type DocumentStore } from './storage.js';
 export interface AppConfig { allowedOrigins: string[]; documents?: DocumentStore }
 const base = '/api/v1';
 
+/**
+ * Express application factory that configures security headers (Helmet, CORS),
+ * JSON body parsing, health checks, authentication middleware, and registers all API routes.
+ *
+ * @param db - Prisma client instance
+ * @param identity - Supabase identity provider
+ * @param config - Application security configuration (allowed origins, storage bucket)
+ * @param app - Express application instance
+ */
 export function createApp(db: PrismaClient, identity: IdentityProvider, config: AppConfig, app = express()) {
   app.disable('x-powered-by');
   app.use((_req, res, next) => { res.locals.requestId = randomUUID(); res.setHeader('X-Request-Id', res.locals.requestId); next(); });

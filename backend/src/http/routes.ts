@@ -13,6 +13,13 @@ const empty = z.object({}).strict();
 const base = '/api/v1';
 const json = (value: unknown): Prisma.InputJsonValue => JSON.parse(JSON.stringify(value));
 
+/**
+ * Factory generating declarative type-safe route registration with OpenAPI schema reflection,
+ * automated input validation, transactional scoping, and idempotency key enforcement.
+ *
+ * @param app - Express application instance
+ * @param db - Prisma database client
+ */
 export function createRouteRegistrar(app: Express, db: PrismaClient) {
   const paths: Record<string, Record<string, unknown>> = {};
   const security = [{ bearerAuth: [] }];

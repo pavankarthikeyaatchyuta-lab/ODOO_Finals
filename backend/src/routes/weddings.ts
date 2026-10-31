@@ -6,6 +6,9 @@ import { ApiError, forbidden } from '../errors.js';
 import { audit, weddingAccess } from '../access.js';
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
 
+/**
+ * Registers wedding portfolio CRUD, lifecycle transitions, and assignment routes.
+ */
 export function registerWeddingsRoutes(route: RouteRegistrar) {
   route('post', '/weddings', { summary: 'Create a provisional wedding without an enquiry', roles: staffWrite, body: c.createWeddingInput, response: c.weddingDto,
     async guard({ tx, user, body }) { await assertClients(tx, user, body.clientIds); }, handler: weddings.create,

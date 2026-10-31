@@ -4,6 +4,9 @@ import { z } from 'zod';
 import * as o from '../operations-contracts.js';
 import { capabilityNotification, presentNotification, respondNotification } from '../services/operations.js';
 
+/**
+ * Registers magic link token vendor notification and acknowledgment endpoints.
+ */
 export function registerVendorInbox(app: Express, db: PrismaClient) {
   const token = z.string().regex(/^[0-9a-f]{64}$/);
   for (const method of ['get', 'post'] as const) {

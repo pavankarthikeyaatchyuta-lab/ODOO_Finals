@@ -10,6 +10,9 @@ const schema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   DOCUMENT_BUCKET: z.string().regex(/^[a-z0-9-]+$/).default('wedding-documents'),
 });
+/**
+ * Parses and validates environment variables using strict Zod schema checking.
+ */
 export function readConfig(input: NodeJS.ProcessEnv) {
   const env = schema.parse(input);
   const allowedOrigins = env.ALLOWED_ORIGINS.split(',').map(value => {

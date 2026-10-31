@@ -7,6 +7,9 @@ import { audit, weddingAccess } from '../access.js';
 import { lockWedding } from '../services/workflow-access.js';
 import { ApiError, forbidden, missing } from '../errors.js';
 
+/**
+ * Registers analytic accounting, change orders, billing, and vendor reconciliation routes.
+ */
 export function registerFinanceRoutes(route: RouteRegistrar) {
   const finance = ['FOUNDER', 'FINANCE'] as const;
   const clients = ['FOUNDER', 'FINANCE', 'CLIENT'] as const;

@@ -5,6 +5,9 @@ import { clientFilter } from '../services/foundation.js';
 import { weddingFilter, presentConsultation } from '../access.js';
 import { missing } from '../errors.js';
 
+/**
+ * Registers audit log and operational activity stream HTTP routes.
+ */
 export function registerActivityRoutes(route: RouteRegistrar) {
   const staff = everyone.filter(role => role !== 'CLIENT');
   route('get', '/clients/:id/consultations', { summary: 'Read consultation history for an accessible client contact', roles: staff, query: c.pageQuery, response: c.listOf(c.consultationDto), async handler({ tx, user, params, query }) {

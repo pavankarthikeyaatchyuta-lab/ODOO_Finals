@@ -6,11 +6,17 @@ export interface DocumentStore {
   read(path: string): Promise<{ bytes: Uint8Array; contentType: string }>;
   downloadUrl(path: string): Promise<string>;
 }
+/**
+ * Fallback document store implementation when storage is unconfigured.
+ */
 export const unavailableStore: DocumentStore = {
   async uploadUrl() { throw new ApiError(503, 'STORAGE_UNAVAILABLE', 'Private document storage is not configured'); },
   async read() { throw new ApiError(503, 'STORAGE_UNAVAILABLE', 'Private document storage is not configured'); },
   async downloadUrl() { throw new ApiError(503, 'STORAGE_UNAVAILABLE', 'Private document storage is not configured'); },
 };
+/**
+ * S3/Supabase cloud document storage provider for contracts, agreements, and invoice PDFs.
+ */
 export function supabaseDocuments(url: string, serviceKey: string, bucket: string): DocumentStore {
   const storage = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(15000) }) } }).storage.from(bucket);
   return {
