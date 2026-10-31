@@ -1,3 +1,10 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Operations & Day-of Execution Validation Contracts
+ * =============================================================================
+ * Zod validation schemas for timeline events DAG, vendor dock arrivals,
+ * live schedule ripple proposals, closed-loop acknowledgements, and incidents.
+ */
 import { z } from 'zod';
 import { uuid, timestamp, pageQuery } from './contracts.js';
 

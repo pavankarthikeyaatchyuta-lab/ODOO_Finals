@@ -1,3 +1,10 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Financial & Analytic Accounting Validation Contracts
+ * =============================================================================
+ * Zod validation schemas for revenue recognition policies, client milestone billing,
+ * change order extras, vendor disbursements, 3-way reconciliation, and profitability.
+ */
 import { z } from 'zod';
 import { uuid, timestamp, pageQuery } from './contracts.js';
 import { money, positiveMoney, currency, reviewNoteInput, paymentReviewInput } from './workflow-contracts.js';

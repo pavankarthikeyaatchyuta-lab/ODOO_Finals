@@ -1,3 +1,10 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Workflow, Agreements & Quotations Validation Contracts
+ * =============================================================================
+ * Zod validation schemas for digital service agreements, document uploads,
+ * 3-caterer quotation rounds, ceremonial functions, and automated task blueprints.
+ */
 import { z } from 'zod';
 import { uuid, timestamp, pageQuery, email } from './contracts.js';
 

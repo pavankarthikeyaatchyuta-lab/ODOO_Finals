@@ -1,3 +1,15 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Core TypeScript Domain Models & Interfaces
+ * =============================================================================
+ * Contains complete data structures for luxury palace weddings, including:
+ * - Client milestone payment schedules (Booking Deposit, Advance, Final)
+ * - 3-Way RFQ caterer comparison quotes and items
+ * - Day-of minute-by-minute execution run-sheet and docking statuses
+ * - Closed-loop vendor schedule changes, delays, and incident problem logs
+ * - Change order extras (extra plates, DJ overtime, emergency generators)
+ * - Post-event 3-way reconciliation settlements and seasonal analytics
+ */
 
 // --- Client Payment Lifecycle (3 Stages) ---
 export type ClientMilestoneType = 'BOOKING_DEPOSIT' | 'ADVANCE_PAYMENT' | 'FINAL_SETTLEMENT';

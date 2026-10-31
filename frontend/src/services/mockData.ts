@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Realistic Production Demo Mock Datasets
+ * =============================================================================
+ * Seed data capturing 25 Rajasthan palace destination weddings across Udaipur,
+ * Jaipur, and Jodhpur with calibrated budgets (₹2.5 Cr - ₹5.5 Cr), live 400-guest
+ * catering RFQs, multi-day ceremonial timelines, and verified payment milestones.
+ */
 import {
   Wedding,
   Enquiry,

@@ -1,3 +1,10 @@
+/**
+ * =============================================================================
+ * THE ROYAL KNOT - Core Backend API Validation Contracts (Zod & OpenAPI)
+ * =============================================================================
+ * Runtime schema validation, sanitization transforms, and OpenAPI 3.1 DTO types
+ * for authentication, user profiles, clients, destination weddings, and enquiries.
+ */
 import { z } from 'zod';
 
 export const uuid = z.uuid();
