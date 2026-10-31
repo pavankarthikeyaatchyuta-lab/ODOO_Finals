@@ -12,7 +12,8 @@ import {
   Sparkles,
   Calendar,
   CheckCircle2,
-  Users
+  Users,
+  UserPlus
 } from 'lucide-react';
 import {
   BarChart,
@@ -51,19 +52,31 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     <div className="space-y-6">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-[#0D1B2A] to-[#1B3B6F] text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
-        <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-[#C5A059]" />
-            <span className="text-xs uppercase tracking-widest text-[#DFCA9B] font-semibold">
-              The Royal Knot Season Intelligence
-            </span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-[#C5A059]" />
+              <span className="text-xs uppercase tracking-widest text-[#DFCA9B] font-semibold">
+                The Royal Knot Season Intelligence
+              </span>
+            </div>
+            <h2 className="font-serif text-2xl font-bold tracking-tight">
+              Jaipur & Udaipur Season Command Dashboard
+            </h2>
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              Consolidated operational and financial performance across all 25 destination weddings. Real-time margin tracking incorporating direct vendor bills, event-day extras, and internal planner timesheet labor.
+            </p>
           </div>
-          <h2 className="font-serif text-2xl font-bold tracking-tight">
-            Jaipur & Udaipur Season Command Dashboard
-          </h2>
-          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-            Consolidated operational and financial performance across all 25 destination weddings. Real-time margin tracking incorporating direct vendor bills, event-day extras, and internal planner timesheet labor.
-          </p>
+
+          <div className="shrink-0 flex items-center gap-2">
+            <button
+              onClick={() => onNavigateToTab('accounts')}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#DFCA9B] to-[#C5A059] text-[#0D1B2A] font-bold text-xs uppercase tracking-wider hover:from-[#e8d7b3] hover:to-[#d4b069] transition-all shadow-md flex items-center gap-2 cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Invite & Manage Accounts</span>
+            </button>
+          </div>
         </div>
       </div>
 

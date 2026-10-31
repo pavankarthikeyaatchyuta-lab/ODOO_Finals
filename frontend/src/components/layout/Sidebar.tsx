@@ -13,9 +13,11 @@ import {
   Sliders,
   Sparkles,
   X,
-  Shield
+  Shield,
+  UserPlus
 } from 'lucide-react';
 import { useAuth, AppRole } from '../../context/AuthContext';
+import { RoyalLogo } from '../common/RoyalLogo';
 
 export type NavItemKey =
   | 'overview'
@@ -28,6 +30,7 @@ export type NavItemKey =
   | 'command-centre'
   | 'finance'
   | 'reports'
+  | 'accounts'
   | 'settings';
 
 export interface SidebarProps {
@@ -71,12 +74,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     { key: 'finance', label: 'Finance', icon: Coins },
     { key: 'reports', label: 'Reports', icon: BarChart3 },
+    { key: 'accounts', label: 'Team & Accounts', icon: UserPlus, badge: 'Staff' },
     { key: 'settings', label: 'Settings', icon: Sliders }
   ];
 
   // Role-Aware Navigation Mapping
   const roleAllowedTabs: Record<AppRole, NavItemKey[]> = {
-    FOUNDER: ['overview', 'enquiries', 'clients', 'weddings', 'vendors', 'quotations', 'tasks', 'command-centre', 'finance', 'reports', 'settings'],
+    FOUNDER: ['overview', 'enquiries', 'clients', 'weddings', 'vendors', 'quotations', 'tasks', 'command-centre', 'finance', 'reports', 'accounts', 'settings'],
     PLANNER: ['overview', 'weddings', 'enquiries', 'clients', 'vendors', 'quotations', 'tasks', 'command-centre', 'reports'],
     COORDINATOR: ['weddings', 'command-centre', 'tasks'],
     FINANCE: ['overview', 'finance', 'reports'],
@@ -112,9 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="p-5 border-b border-[#1B3B6F]/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DFCA9B] to-[#C5A059] flex items-center justify-center text-[#0D1B2A] shadow-md shadow-[#C5A059]/20">
-              <Crown className="w-6 h-6 stroke-[2.2]" />
-            </div>
+            <RoyalLogo size="sm" />
             <div>
               <h1 className="font-serif font-bold text-lg text-white tracking-wide leading-none">
                 The Royal Knot

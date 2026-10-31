@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole } from '../../context/AuthContext';
-import { Crown, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Building, Store, Heart, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { RoyalLogo } from '../../components/common/RoyalLogo';
 
 interface LoginPageProps {
   onNavigateToRegister?: () => void;
@@ -16,7 +17,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 }) => {
   const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('founder@theroyalknot.com');
-  const [password, setPassword] = useState('••••••••••••');
+  const [password, setPassword] = useState('royalKnot2026!');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedPresetRole, setSelectedPresetRole] = useState<AppRole>('FOUNDER');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,8 +50,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       if (!success) {
         setErrorMessage('Authentication rejected. Please check credentials or select a verified demo persona.');
       }
-    } catch {
-      setErrorMessage('A network error occurred while connecting to the authorization service.');
+    } catch (err: any) {
+      setErrorMessage(err.message || 'A network error occurred while connecting to the authorization service.');
     }
   };
 
@@ -78,8 +79,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Brand Logo & Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-[#0D1B2A] rounded-2xl border border-[#C5A059]/40 shadow-md flex items-center justify-center mx-auto">
-            <Crown className="w-7 h-7 text-[#DFCA9B]" />
+          <div className="flex justify-center">
+            <RoyalLogo size="lg" />
           </div>
           <h1 className="font-serif font-bold text-2xl sm:text-3xl text-[#0D1B2A]">
             The Royal Knot

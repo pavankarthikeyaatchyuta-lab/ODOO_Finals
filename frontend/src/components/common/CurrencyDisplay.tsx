@@ -26,7 +26,7 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   };
 
   return (
-    <span className={`font-mono font-semibold tracking-tight ${className}`}>
+    <span className={`font-mono font-semibold tracking-tight tabular-nums ${className}`}>
       {formatValue()}
     </span>
   );

@@ -12,6 +12,13 @@
   --color-royal-card: #FFFFFF;
   --font-serif: "Playfair Display", "Cinzel", Georgia, serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --ease-royal: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root {
+  --ease-royal-curve: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-curve: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body {
@@ -21,4 +28,25 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+}
+
+/* Tabular figures for instant financial and numeric readability */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Luxury smooth scroll behavior respecting user motion preferences */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

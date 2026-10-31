@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole, PortalType } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Button } from '../components/common/Button';
@@ -31,6 +31,12 @@ import {
   Sliders,
   DollarSign
 } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { StaticHeroCrest } from '../components/landing/StaticHeroCrest';
+import { RoyalLogo } from '../components/common/RoyalLogo';
+const HeroScene3D = React.lazy(() => import('../components/landing/HeroScene3D'));
+
+import { PalaceGalleryScrub } from '../components/landing/PalaceGalleryScrub';
 
 interface LandingPageProps {
   onEnterPortal: (role?: AppRole, portal?: PortalType) => void;
@@ -42,7 +48,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToLogin
 }) => {
   const { login } = useAuth();
+  const shouldReduceMotion = useReducedMotion();
   const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+  const [shouldMount3D, setShouldMount3D] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    try {
+      const probeCanvas = document.createElement('canvas');
+      const gl = probeCanvas.getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+      if (!gl) return;
+    } catch {
+      return;
+    }
+
+    if ('requestIdleCallback' in window) {
+      const handle = (window as any).requestIdleCallback(() => setShouldMount3D(true), { timeout: 1500 });
+      return () => (window as any).cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(() => setShouldMount3D(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submissionRef, setSubmissionRef] = useState('');
 
@@ -122,9 +151,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo & Brand Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#0D1B2A] border border-[#C5A059]/40 flex items-center justify-center text-[#C5A059] shadow-md shadow-[#0D1B2A]/5">
-              <Crown className="w-6 h-6" />
-            </div>
+            <RoyalLogo size="sm" />
             <div>
               <span className="font-serif font-bold text-lg tracking-wider text-[#0D1B2A] block leading-none">
                 THE ROYAL KNOT
@@ -184,7 +211,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="absolute top-10 right-10 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto space-y-6">
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center max-w-4xl mx-auto space-y-6"
+          >
+
+            {/* Stage 1 Centerpiece: Static Royal Seal Crest with Deferred 3D Progressive Upgrade */}
+            <div className="flex justify-center pb-2">
+              {shouldMount3D ? (
+                <React.Suspense fallback={<StaticHeroCrest />}>
+                  <HeroScene3D />
+                </React.Suspense>
+              ) : (
+                <StaticHeroCrest />
+              )}
+            </div>
 
             {/* Main Title */}
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0D1B2A] leading-[1.12]">
@@ -250,7 +293,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -543,104 +586,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 6. Iconic Palace Venues Gallery */}
-      <section id="destinations" className="py-20 bg-[#F5F1E8]/40 border-t border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#C5A059]">
-                Curated Sanctuaries
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#0D1B2A] mt-1">
-                Destinations Under Active Management
-              </h2>
-            </div>
-            <p className="text-xs text-slate-500 max-w-md">
-              Specialized infrastructure tailored for high-security heritage monuments, private lake islands, and UNESCO heritage forts.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all">
-              <div className="h-48 bg-gradient-to-tr from-[#0D1B2A] to-slate-800 p-6 flex flex-col justify-between text-white">
-                <span className="text-xs uppercase font-bold tracking-wider text-[#C5A059]">Udaipur · Lake Pichola</span>
-                <div>
-                  <h3 className="font-serif font-bold text-xl">Taj Lake Palace & Jagmandir</h3>
-                  <p className="text-xs text-slate-300">Sunset Mandap & Royal Promenade</p>
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Capacity:</span>
-                  <strong className="text-slate-900">450 Guests</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Ceremonies:</span>
-                  <strong className="text-slate-900">Mehendi, Sangeet, Pheras, Reception</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Live Event Status:</span>
-                  <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
-                    Execution in Progress
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all">
-              <div className="h-48 bg-gradient-to-tr from-[#1a2d42] to-[#0D1B2A] p-6 flex flex-col justify-between text-white">
-                <span className="text-xs uppercase font-bold tracking-wider text-[#C5A059]">Jaipur · Heritage Gardens</span>
-                <div>
-                  <h3 className="font-serif font-bold text-xl">Rambagh Palace & Jai Mahal</h3>
-                  <p className="text-xs text-slate-300">Polo Lawns & Mughal Pavilions</p>
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Capacity:</span>
-                  <strong className="text-slate-900">800 Guests</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Ceremonies:</span>
-                  <strong className="text-slate-900">Baraat Procession & Gala Ball</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Live Event Status:</span>
-                  <span className="text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md">
-                    Pre-Production Active
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all">
-              <div className="h-48 bg-gradient-to-tr from-slate-900 to-[#C5A059]/40 p-6 flex flex-col justify-between text-white">
-                <span className="text-xs uppercase font-bold tracking-wider text-[#C5A059]">Jodhpur · Sandstone Citadel</span>
-                <div>
-                  <h3 className="font-serif font-bold text-xl">Umaid Bhawan Palace</h3>
-                  <p className="text-xs text-slate-300">Art Deco Grand Ballroom</p>
-                </div>
-              </div>
-              <div className="p-6 space-y-3">
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Capacity:</span>
-                  <strong className="text-slate-900">600 Guests</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Ceremonies:</span>
-                  <strong className="text-slate-900">Sangeet & Royal Vows</strong>
-                </div>
-                <div className="text-xs text-slate-600 flex items-center justify-between">
-                  <span>Live Event Status:</span>
-                  <span className="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md">
-                    Design Intake Scheduled
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 6. Iconic Palace Estates Showcase */}
+      <PalaceGalleryScrub />
 
       {/* 7. Call To Action Banner */}
       <section className="py-20 bg-[#0D1B2A] text-white relative overflow-hidden">

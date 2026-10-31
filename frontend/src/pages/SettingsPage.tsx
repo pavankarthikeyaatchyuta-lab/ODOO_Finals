@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, Shield, Building, Database, Activity, Server, CheckCircle2, Lock, Key } from 'lucide-react';
+import { Sliders, Shield, Building, Database, Activity, Server, CheckCircle2, Lock, Key, UserPlus } from 'lucide-react';
 import { api } from '../services/api';
 
-export const SettingsPage: React.FC = () => {
+export interface SettingsPageProps {
+  onNavigateToTab?: (tab: any) => void;
+}
+
+export const SettingsPage: React.FC<SettingsPageProps> = ({ onNavigateToTab }) => {
   const [backendStatus, setBackendStatus] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
 
@@ -94,6 +98,19 @@ export const SettingsPage: React.FC = () => {
               <span className="font-bold text-slate-800 block">Finance & Settlement (Devendra Kaviraj)</span>
               <p className="text-slate-500 text-[11px]">Authorized: Advance netting, change order reconciliation, final vendor disbursement.</p>
             </div>
+
+            {onNavigateToTab && (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => onNavigateToTab('accounts')}
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#0D1B2A] text-[#C5A059] font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-900 transition-all shadow-xs cursor-pointer border border-[#C5A059]/40"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Provision & Invite Stakeholder Accounts &rarr;</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

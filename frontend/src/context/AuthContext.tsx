@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../services/api';
 
 export type AppRole = 'FOUNDER' | 'PLANNER' | 'COORDINATOR' | 'FINANCE' | 'VENDOR' | 'CLIENT' | 'FAMILY';
 export type PortalType = 'AGENCY' | 'VENDOR' | 'CLIENT';
@@ -109,15 +110,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const demoParam = urlParams?.get('demo')?.toUpperCase() as AppRole | undefined;
+      if (demoParam && DEMO_PROFILES[demoParam]) {
+        return DEMO_PROFILES[demoParam];
+      }
       const stored = localStorage.getItem('TRK_AUTH_USER');
-      return stored ? JSON.parse(stored) : DEMO_PROFILES.FOUNDER;
+      return stored ? JSON.parse(stored) : null;
     } catch {
-      return DEMO_PROFILES.FOUNDER;
+      return null;
     }
   });
 
   const [portal, setPortal] = useState<PortalType>(() => {
     try {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const demoParam = urlParams?.get('demo')?.toUpperCase() as AppRole | undefined;
+      if (demoParam === 'VENDOR') return 'VENDOR';
+      if (demoParam === 'CLIENT' || demoParam === 'FAMILY') return 'CLIENT';
+      if (demoParam) return 'AGENCY';
       const stored = localStorage.getItem('TRK_PORTAL');
       return (stored as PortalType) || 'AGENCY';
     } catch {
@@ -126,7 +137,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('TRK_AUTH_TOKEN') || 'trk-demo-token-active';
+    try {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      if (urlParams?.get('demo')) {
+        return `trk-demo-${Date.now()}`;
+      }
+      return localStorage.getItem('TRK_AUTH_TOKEN') || null;
+    } catch {
+      return null;
+    }
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -152,48 +171,155 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
+  // Client-side rate-limiting and brute-force safeguard
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const [lockoutTimestamp, setLockoutTimestamp] = useState<number>(0);
+
   const login = async (
     email: string,
-    _pass: string,
+    pass: string,
     presentationPortal?: PortalType
   ): Promise<boolean> => {
     setIsLoading(true);
+
+    // 1. Check for active rate-limiting lockout
+    const now = Date.now();
+    if (lockoutTimestamp > now) {
+      const remainingSeconds = Math.ceil((lockoutTimestamp - now) / 1000);
+      setIsLoading(false);
+      throw new Error(`Security Lockout: Too many failed login attempts. Please wait ${remainingSeconds}s before retrying.`);
+    }
+
     try {
-      // Find matching demo user by email or fallback to role lookup
-      const foundRole = (Object.keys(DEMO_PROFILES) as AppRole[]).find(
-        r => DEMO_PROFILES[r].email.toLowerCase() === email.toLowerCase()
-      );
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPassword = pass.trim();
 
-      const resolvedProfile = foundRole ? DEMO_PROFILES[foundRole] : DEMO_PROFILES.FOUNDER;
+      // 2. Try real backend authorization first
+      let authenticatedUser: AuthUser | null = null;
+      let sessionToken: string | null = null;
 
-      setUser(resolvedProfile);
-      setToken(`trk-token-${Date.now()}`);
+      try {
+        const backendSession = await api.login(cleanEmail, cleanPassword);
+        if (backendSession && backendSession.accessToken) {
+          sessionToken = backendSession.accessToken;
+          const u = backendSession.user;
+          authenticatedUser = {
+            id: u.id,
+            email: u.email,
+            displayName: u.displayName || u.email,
+            name: u.displayName,
+            role: u.role as AppRole,
+            active: u.active ?? true,
+            assignedWeddingIds: ['wed-001']
+          };
+        }
+      } catch (backendErr: any) {
+        if (backendErr.message !== 'BACKEND_OFFLINE') {
+          // Backend is running but rejected credentials or returned rate-limit
+          setFailedAttempts(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+              setLockoutTimestamp(Date.now() + 30000);
+            }
+            return next;
+          });
+          throw new Error(backendErr.message || 'Invalid email or security passphrase.');
+        }
+        // Backend offline: proceed to verified offline demo persona validation
+      }
+
+      // 3. If offline/mock demo mode, strictly authenticate against registered DEMO_PROFILES + dynamically invited users
+      if (!authenticatedUser) {
+        let matchedUser: AuthUser | null = null;
+
+        const foundRole = (Object.keys(DEMO_PROFILES) as AppRole[]).find(
+          r => DEMO_PROFILES[r].email.toLowerCase() === cleanEmail
+        );
+
+        if (foundRole) {
+          matchedUser = DEMO_PROFILES[foundRole];
+        } else {
+          // Check dynamically created/invited accounts in local storage
+          try {
+            const raw = localStorage.getItem('TRK_managed_users');
+            if (raw) {
+              const managed: AuthUser[] = JSON.parse(raw);
+              const found = managed.find(u => u.email.toLowerCase() === cleanEmail);
+              if (found) {
+                matchedUser = found;
+              }
+            }
+          } catch {}
+        }
+
+        if (!matchedUser) {
+          setFailedAttempts(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+              setLockoutTimestamp(Date.now() + 30000);
+            }
+            return next;
+          });
+          throw new Error('Access Denied: No account registered under this email address. Please select an authorized demo persona or verify your email.');
+        }
+
+        if (!matchedUser.active) {
+          throw new Error('Access Denied: This account has been deactivated by the Founder. Please contact agency administration.');
+        }
+
+        // Validate security passphrase for demo personas
+        const validDemoPasswords = ['royalKnot2026!', 'royalKnot2026', 'RoyalKnot2026!'];
+        if (!validDemoPasswords.includes(cleanPassword)) {
+          setFailedAttempts(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+              setLockoutTimestamp(Date.now() + 30000);
+            }
+            return next;
+          });
+          throw new Error('Access Denied: Incorrect passphrase. For authorized demo accounts, enter: royalKnot2026!');
+        }
+
+        authenticatedUser = matchedUser;
+        sessionToken = `trk-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      }
+
+      // 4. Successful Authentication: clear failure counters
+      setFailedAttempts(0);
+      setLockoutTimestamp(0);
+      setUser(authenticatedUser);
+      setToken(sessionToken);
 
       // Auto-set the portal based on the resolved role or parameter
       if (presentationPortal) {
         setPortal(presentationPortal);
-      } else if (resolvedProfile.role === 'VENDOR') {
+      } else if (authenticatedUser.role === 'VENDOR') {
         setPortal('VENDOR');
-      } else if (resolvedProfile.role === 'CLIENT' || resolvedProfile.role === 'FAMILY') {
+      } else if (authenticatedUser.role === 'CLIENT' || authenticatedUser.role === 'FAMILY') {
         setPortal('CLIENT');
       } else {
         setPortal('AGENCY');
       }
 
       return true;
-    } catch (err) {
-      console.error('Login error:', err);
-      return false;
+    } catch (err: any) {
+      console.warn('Authentication rejected:', err.message);
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = () => {
+    api.logout().catch(() => {});
     setUser(null);
     setToken(null);
     localStorage.removeItem('TRK_AUTH_USER');
     localStorage.removeItem('TRK_AUTH_TOKEN');
+    localStorage.removeItem('TRK_PORTAL');
+    try {
+      sessionStorage.removeItem('TRK_SHOW_LANDING');
+    } catch {}
   };
 
   const switchPortal = (newPortal: PortalType) => {

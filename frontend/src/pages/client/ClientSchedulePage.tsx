@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import {
-  Calendar,
   Clock,
   MapPin,
   Sparkles,
-  Info,
-  CheckCircle2,
-  Shirt
+  Shirt,
+  ChevronDown
 } from 'lucide-react';
 
 interface CeremonyEvent {
@@ -25,6 +24,8 @@ interface CeremonyEvent {
 
 export const ClientSchedulePage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<'ALL' | 'DAY_1' | 'DAY_2'>('ALL');
+  const [expandedId, setExpandedId] = useState<string | null>('c-03');
+  const shouldReduceMotion = useReducedMotion();
 
   const events: CeremonyEvent[] = [
     {
@@ -87,6 +88,10 @@ export const ClientSchedulePage: React.FC = () => {
     return true;
   });
 
+  const toggleExpand = (id: string) => {
+    setExpandedId(prev => (prev === id ? null : id));
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
@@ -99,25 +104,25 @@ export const ClientSchedulePage: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Section 3.2: Curated flow of celebrations for Rahul & Ananya and their honoured guests.
+            Live-synchronized run sheet curated by The Royal Knot lead planning architects.
           </p>
         </div>
 
-        {/* Day Filters */}
-        <div className="flex items-center gap-1.5 bg-[#F5F1E8]/70 p-1 rounded-xl border border-slate-200/60">
+        {/* Day Filter Tabs */}
+        <div className="flex items-center p-1 bg-slate-100 rounded-xl">
           <button
             onClick={() => setSelectedDay('ALL')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               selectedDay === 'ALL'
                 ? 'bg-white text-[#0D1B2A] shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            All Events
+            All Itinerary
           </button>
           <button
             onClick={() => setSelectedDay('DAY_1')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               selectedDay === 'DAY_1'
                 ? 'bg-white text-[#0D1B2A] shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -127,7 +132,7 @@ export const ClientSchedulePage: React.FC = () => {
           </button>
           <button
             onClick={() => setSelectedDay('DAY_2')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               selectedDay === 'DAY_2'
                 ? 'bg-white text-[#0D1B2A] shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -140,75 +145,106 @@ export const ClientSchedulePage: React.FC = () => {
 
       {/* Events Timeline List */}
       <div className="space-y-4">
-        {filteredEvents.map(event => (
-          <div
-            key={event.id}
-            className={`bg-white rounded-2xl border p-6 shadow-xs space-y-4 transition-all ${
-              event.isLiveUpdated ? 'border-[#C5A059] ring-1 ring-[#C5A059]/30' : 'border-slate-200/80'
-            }`}
-          >
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#C5A059] uppercase tracking-wider">
-                    {event.day}
-                  </span>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-xs font-semibold text-slate-500">{event.timeRange}</span>
+        {filteredEvents.map(event => {
+          const isExpanded = expandedId === event.id;
+
+          return (
+            <div
+              key={event.id}
+              className={`bg-white rounded-2xl border shadow-xs overflow-hidden transition-all duration-200 ${
+                event.isLiveUpdated ? 'border-[#C5A059] ring-1 ring-[#C5A059]/30' : 'border-slate-200/80'
+              }`}
+            >
+              {/* Clickable Header Card */}
+              <div
+                onClick={() => toggleExpand(event.id)}
+                className="p-6 cursor-pointer hover:bg-slate-50/50 transition-colors flex items-start justify-between gap-4 select-none"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[#C5A059] uppercase tracking-wider">
+                      {event.day}
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-xs font-semibold text-slate-500">{event.timeRange}</span>
+                  </div>
+                  <h3 className="font-serif font-bold text-lg text-[#0D1B2A] mt-1">
+                    {event.name}
+                  </h3>
                 </div>
-                <h3 className="font-serif font-bold text-lg text-[#0D1B2A] mt-1">
-                  {event.name}
-                </h3>
+
+                <div className="flex items-center gap-3">
+                  <StatusBadge
+                    label={event.status}
+                    variant={
+                      event.status === 'COMPLETED'
+                        ? 'success'
+                        : event.status === 'IN_PROGRESS'
+                        ? 'warning'
+                        : 'info'
+                    }
+                    size="sm"
+                  />
+                  <motion.div
+                    animate={shouldReduceMotion ? undefined : { rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  </motion.div>
+                </div>
               </div>
 
-              <StatusBadge
-                label={event.status}
-                variant={
-                  event.status === 'COMPLETED'
-                    ? 'success'
-                    : event.status === 'IN_PROGRESS'
-                    ? 'warning'
-                    : 'info'
-                }
-                size="sm"
-              />
+              {/* Accordion Expandable Body with Spring Reveal */}
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 pt-2 border-t border-slate-100 space-y-4">
+                      <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+                        {event.description}
+                      </p>
+
+                      {/* Details Pills: Location & Dress Code */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                        <div className="flex items-start gap-2.5 text-xs text-slate-600">
+                          <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                          <div>
+                            <strong className="text-slate-800">Venue Location:</strong>
+                            <div className="text-slate-600">{event.venueArea}</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2.5 text-xs text-slate-600">
+                          <Shirt className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                          <div>
+                            <strong className="text-slate-800">Dress Code:</strong>
+                            <div className="text-slate-600">{event.dressCode}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Reassuring Live Update Banner */}
+                      {event.isLiveUpdated && (
+                        <div className="p-3 rounded-xl bg-[#F5F1E8]/80 border border-[#C5A059]/40 flex items-start gap-2.5 text-xs">
+                          <Sparkles className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                          <div>
+                            <strong className="text-[#0D1B2A]">Planner Note:</strong>{' '}
+                            <span className="text-slate-700">{event.liveNote}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
-              {event.description}
-            </p>
-
-            {/* Details Pills: Location & Dress Code */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
-              <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Venue Location:</strong>
-                  <div className="text-slate-600">{event.venueArea}</div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                <Shirt className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-800">Dress Code:</strong>
-                  <div className="text-slate-600">{event.dressCode}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Reassuring Live Update Banner */}
-            {event.isLiveUpdated && (
-              <div className="p-3 rounded-xl bg-[#F5F1E8]/80 border border-[#C5A059]/40 flex items-start gap-2.5 text-xs">
-                <Sparkles className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-[#0D1B2A]">Planner Note:</strong>{' '}
-                  <span className="text-slate-700">{event.liveNote}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ let cachedBackendStatus: boolean | null = null;
 let lastHealthCheck = 0;
 
 export const getAuthToken = (): string => {
-  return localStorage.getItem('TRK_AUTH_TOKEN') || 'demo-bearer-token-trk-founder';
+  return localStorage.getItem('TRK_AUTH_TOKEN') || '';
 };
 
 export const checkBackendHealth = async (): Promise<boolean> => {
@@ -91,6 +91,207 @@ const setItem = <T>(key: string, value: T): void => {
 export const api = {
   checkBackendHealth,
   getApiBase: () => API_BASE,
+  login: async (email: string, password: string): Promise<{ accessToken: string; user: any }> => {
+    const isHealthy = await checkBackendHealth();
+    if (isHealthy) {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || (res.status === 401 ? 'Invalid email or password' : res.status === 429 ? 'Too many attempts. Rate limit exceeded.' : 'Authentication failed'));
+      }
+      return await res.json();
+    }
+    throw new Error('BACKEND_OFFLINE');
+  },
+  logout: async (): Promise<void> => {
+    const token = getAuthToken();
+    if (!token) return;
+    const isHealthy = await checkBackendHealth();
+    if (isHealthy) {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      }).catch(() => {});
+    }
+  },
+  // User Governance & Invitations
+  getUsers: async (): Promise<any[]> => {
+    const isHealthy = await checkBackendHealth();
+    if (isHealthy) {
+      try {
+        const token = getAuthToken();
+        const res = await fetch(`${API_BASE}/users`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.data) return json.data;
+        }
+      } catch {}
+    }
+    return getItem<any[]>('managed_users', [
+      {
+        id: 'usr-founder-001',
+        email: 'founder@theroyalknot.com',
+        displayName: 'Devendra Kaviraj',
+        role: 'FOUNDER',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-002', 'wed-003', 'wed-004', 'wed-005']
+      },
+      {
+        id: 'usr-planner-002',
+        email: 'planner@theroyalknot.com',
+        displayName: 'Priya Mehra',
+        role: 'PLANNER',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-002']
+      },
+      {
+        id: 'usr-coord-003',
+        email: 'coordinator@theroyalknot.com',
+        displayName: 'Siddharth Jain',
+        role: 'COORDINATOR',
+        active: true,
+        assignedWeddingIds: ['wed-001']
+      },
+      {
+        id: 'usr-fin-004',
+        email: 'finance@theroyalknot.com',
+        displayName: 'Rameshwar Vyas',
+        role: 'FINANCE',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-002']
+      },
+      {
+        id: 'usr-vendor-005',
+        email: 'catering@spiceheaven.com',
+        displayName: 'Chef Vikramaditya',
+        vendorCategory: 'Catering & Hospitality',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-001']
+      },
+      {
+        id: 'usr-client-006',
+        email: 'rahul.singh@royalwedding.com',
+        displayName: 'Rahul Sharma & Ananya Singh',
+        role: 'CLIENT',
+        active: true,
+        clientId: 'cli-001',
+        assignedWeddingIds: ['wed-001']
+      },
+      {
+        id: 'usr-family-007',
+        email: 'vikram.singh@royalwedding.com',
+        displayName: 'Mr. Vikram Singh (Father of Bride)',
+        role: 'FAMILY',
+        active: true,
+        isFamilyMember: true,
+        clientId: 'cli-001',
+        assignedWeddingIds: ['wed-001']
+      }
+    ]);
+  },
+  inviteUser: async (input: {
+    email: string;
+    displayName: string;
+    role: string;
+    clientId?: string;
+    weddingId?: string;
+    vendorCategory?: string;
+  }): Promise<any> => {
+    const isHealthy = await checkBackendHealth();
+    if (isHealthy) {
+      try {
+        const token = getAuthToken();
+        const res = await fetch(`${API_BASE}/invitations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            email: input.email.trim().toLowerCase(),
+            displayName: input.displayName.trim(),
+            role: input.role,
+            ...(input.clientId ? { clientId: input.clientId } : {}),
+            ...(input.weddingId ? { weddingId: input.weddingId } : {})
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || 'Invitation request rejected by backend.');
+        }
+        const created = await res.json();
+        const currentList = getItem<any[]>('managed_users', []);
+        setItem('managed_users', [created, ...currentList.filter(u => u.email !== created.email)]);
+        return created;
+      } catch (err: any) {
+        if (err.message !== 'BACKEND_OFFLINE' && !err.message.includes('fetch')) {
+          throw err;
+        }
+      }
+    }
+
+    const currentList = await api.getUsers();
+    const existing = currentList.find(u => u.email.toLowerCase() === input.email.trim().toLowerCase());
+    if (existing) {
+      throw new Error(`An account with email ${input.email} already exists in the system.`);
+    }
+
+    const newUser = {
+      id: `usr-inv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      email: input.email.trim().toLowerCase(),
+      displayName: input.displayName.trim(),
+      role: input.role,
+      active: true,
+      clientId: input.clientId,
+      vendorCategory: input.vendorCategory,
+      assignedWeddingIds: input.weddingId ? [input.weddingId] : ['wed-001'],
+      invitationToken: `trk-invite-${Date.now().toString(36)}`,
+      invitedAt: new Date().toISOString()
+    };
+
+    setItem('managed_users', [newUser, ...currentList]);
+    return newUser;
+  },
+  updateUserStatus: async (id: string, active: boolean): Promise<any> => {
+    const isHealthy = await checkBackendHealth();
+    if (isHealthy) {
+      try {
+        const token = getAuthToken();
+        const res = await fetch(`${API_BASE}/users/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ active })
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          const currentList = getItem<any[]>('managed_users', []);
+          setItem('managed_users', currentList.map(u => u.id === id ? { ...u, active } : u));
+          return updated;
+        }
+      } catch {}
+    }
+
+    const currentList = await api.getUsers();
+    const updatedList = currentList.map(u => u.id === id ? { ...u, active } : u);
+    setItem('managed_users', updatedList);
+    return updatedList.find(u => u.id === id);
+  },
   // Weddings
   getWeddings: async (): Promise<Wedding[]> => {
     return getItem('weddings', INITIAL_WEDDINGS);

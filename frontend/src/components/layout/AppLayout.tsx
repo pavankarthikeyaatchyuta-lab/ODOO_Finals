@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { Sidebar, NavItemKey } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { Wedding } from '../../types';
@@ -31,6 +32,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   children
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="flex h-screen bg-[#FDFBF7] text-[#0D1B2A] overflow-hidden">
@@ -58,9 +60,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
         />
 
-        {/* Dynamic Page Content */}
+        {/* Dynamic Page Content with Smooth, Accessible Route Transitions */}
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
-          {children}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentTab}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

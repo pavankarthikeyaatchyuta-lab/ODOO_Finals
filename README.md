@@ -28,7 +28,41 @@ $$\text{Public Showcase} \longrightarrow \text{Enquiry Intake} \longrightarrow \
 
 ---
 
-## 2. Technology Stack
+## 2. Visual Platform Tour
+
+### 2.1 Cinematic Public Showcase & Interactive 3D Imperial Seal
+The public landing experience combines luxury editorial typography, smooth progressive entrance animations, and an interactive 3D WebGL2 royal crest medallion rendered in Three.js with golden specular lighting and cursor parallax:
+
+![The Royal Knot 3D Landing Page](docs/screenshots/01_landing_hero_3d.png)
+
+### 2.2 Founder Season Command Dashboard
+Consolidated operational and financial analytics across all 25 active and completed palace weddings in Jaipur & Udaipur with real-time margin tracking and day-of operations radar:
+
+![Jaipur & Udaipur Season Command Dashboard](docs/screenshots/02_agency_command_dashboard.png)
+
+### 2.3 Team Governance & Account Provisioning
+Exclusive to the Founder role: provision official credentials, invite field coordinators, grant portal access to couples and vendor partners, and toggle account security:
+
+![Team Governance & Stakeholder Accounts](docs/screenshots/03_team_governance.png)
+
+### 2.4 Couple & Client Heritage Suite
+Dedicated couple portal providing royal ceremony countdown, day-by-day event flow, verified digital agreements, and payment milestone tracking:
+
+![Couple Celebration Overview Suite](docs/screenshots/04_client_suite.png)
+
+### 2.5 Vendor Partner Extranet
+Dedicated extranet with closed-loop delay acknowledgments, real-time call-times, station check-in status, and invoice disbursements:
+
+![Vendor Partner Extranet](docs/screenshots/05_vendor_extranet.png)
+
+### 2.6 Security-Hardened Authentication & Quick Persona Switcher
+Strict role-based gating, client-side rate-limiting and brute-force protection, official email verification, and rapid evaluation switcher:
+
+![The Royal Knot Authentication](docs/screenshots/06_login_auth.png)
+
+---
+
+## 3. Technology Stack
 
 | Layer | Technology | Key Libraries & Purpose |
 | :--- | :--- | :--- |
@@ -41,7 +75,7 @@ $$\text{Public Showcase} \longrightarrow \text{Enquiry Intake} \longrightarrow \
 
 ---
 
-## 3. Monorepo Structure
+## 4. Monorepo Structure
 
 ```text
 ODOO_Finals/
@@ -92,7 +126,7 @@ ODOO_Finals/
 
 ---
 
-## 4. Multi-Stakeholder Role Architecture
+## 5. Multi-Stakeholder Role Architecture
 
 The Royal Knot provides tailored, role-specific portal experiences while strictly enforcing data segregation and privacy guardrails.
 
@@ -133,7 +167,7 @@ flowchart TD
 
 ---
 
-## 5. Standout Operational Differentiators
+## 6. Standout Operational Differentiators
 
 ### 5.1 Closed-Loop Schedule Change Engine
 During live celebrations, timeline shifts (e.g. Baraat arriving 30 minutes late) are broadcast via the Command Centre:

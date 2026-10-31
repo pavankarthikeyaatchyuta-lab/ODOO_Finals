@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
+import { DashboardUiProvider } from './context/DashboardUiContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { NavItemKey } from './components/layout/Sidebar';
 import { api } from './services/api';
 
 // Public Showcase & Landing Page
 import { LandingPage } from './pages/LandingPage';
+import { PageLoadingScreen } from './components/common/PageLoadingScreen';
 
 // Authentication Pages
 import { LoginPage } from './pages/auth/LoginPage';
@@ -25,6 +27,7 @@ import { PlanningTasksPage } from './pages/PlanningTasksPage';
 import { CommandCentrePage } from './pages/CommandCentrePage';
 import { FinancePage } from './pages/FinancePage';
 import { ReportsPage } from './pages/ReportsPage';
+import { TeamAccountsPage } from './pages/TeamAccountsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 // Vendor Portal
@@ -61,11 +64,44 @@ function MainApplicationRouter() {
   const weddingCtx = useWedding();
 
   // Navigation tab states
-  const [currentAgencyTab, setCurrentAgencyTab] = useState<NavItemKey>('overview');
+  const [currentAgencyTab, setCurrentAgencyTab] = useState<NavItemKey>(() => {
+    try {
+      const t = new URLSearchParams(window.location.search).get('tab') as NavItemKey | null;
+      if (t) return t;
+      return 'overview';
+    } catch {
+      return 'overview';
+    }
+  });
   const [currentVendorTab, setCurrentVendorTab] = useState<VendorTabKey>('overview');
   const [currentClientTab, setCurrentClientTab] = useState<ClientTabKey>('overview');
-  const [authView, setAuthView] = useState<'landing' | 'login' | 'invite' | 'forgot' | 'reset'>('landing');
-  const [showPublicLanding, setShowPublicLanding] = useState<boolean>(false);
+  const [authView, setAuthView] = useState<'landing' | 'login' | 'invite' | 'forgot' | 'reset'>(() => {
+    try {
+      const v = new URLSearchParams(window.location.search).get('view');
+      if (v === 'login' || v === 'invite' || v === 'forgot' || v === 'reset') return v;
+      return 'landing';
+    } catch {
+      return 'landing';
+    }
+  });
+  const [showPublicLanding, setShowPublicLanding] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('TRK_SHOW_LANDING') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSetShowPublicLanding = (show: boolean) => {
+    setShowPublicLanding(show);
+    try {
+      if (show) {
+        sessionStorage.setItem('TRK_SHOW_LANDING', 'true');
+      } else {
+        sessionStorage.removeItem('TRK_SHOW_LANDING');
+      }
+    } catch {}
+  };
 
   // Operational state
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
@@ -290,15 +326,15 @@ function MainApplicationRouter() {
             </span>
           </div>
           <button
-            onClick={() => setShowPublicLanding(false)}
+            onClick={() => handleSetShowPublicLanding(false)}
             className="px-3 py-1 rounded-lg bg-[#C5A059] text-[#0D1B2A] font-bold text-xs hover:bg-[#d8b46e] transition-colors"
           >
             &larr; Return to Workspace
           </button>
         </div>
         <LandingPage
-          onEnterPortal={() => setShowPublicLanding(false)}
-          onNavigateToLogin={() => setShowPublicLanding(false)}
+          onEnterPortal={() => handleSetShowPublicLanding(false)}
+          onNavigateToLogin={() => handleSetShowPublicLanding(false)}
         />
       </div>
     );
@@ -421,12 +457,10 @@ function MainApplicationRouter() {
   // 4. Default: Agency Workspace (Founder, Planner, Coordinator, Finance)
   if (!currentWedding || !metrics) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#FDFBF7] text-[#0D1B2A]">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-[#C5A059] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="font-serif font-bold text-lg">Initializing The Royal Knot Platform...</p>
-        </div>
-      </div>
+      <PageLoadingScreen
+        message="Initializing The Royal Knot Platform..."
+        submessage="Synchronizing luxury wedding operations and high-security palace protocol"
+      />
     );
   }
 
@@ -441,7 +475,7 @@ function MainApplicationRouter() {
       weddingsList={weddings}
       onSelectWedding={handleSelectWedding}
       onResetDemoData={api.resetDemoData}
-      onViewShowcase={() => setShowPublicLanding(true)}
+      onViewShowcase={() => handleSetShowPublicLanding(true)}
       activeLateCount={activeLateCount}
       openIncidentsCount={openIncidentsCount}
       isBackendConnected={isBackendConnected}
@@ -543,8 +577,15 @@ function MainApplicationRouter() {
         <ReportsPage metrics={metrics} weddingsList={weddings} />
       )}
 
+      {currentAgencyTab === 'accounts' && (
+        <TeamAccountsPage
+          weddings={weddings}
+          onNavigateToTab={setCurrentAgencyTab}
+        />
+      )}
+
       {currentAgencyTab === 'settings' && (
-        <SettingsPage />
+        <SettingsPage onNavigateToTab={setCurrentAgencyTab} />
       )}
     </AppLayout>
   );
@@ -555,7 +596,9 @@ export function App() {
   return (
     <AuthProvider>
       <WeddingProvider>
-        <MainApplicationRouter />
+        <DashboardUiProvider>
+          <MainApplicationRouter />
+        </DashboardUiProvider>
       </WeddingProvider>
     </AuthProvider>
   );
