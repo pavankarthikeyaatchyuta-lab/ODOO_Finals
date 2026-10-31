@@ -17,6 +17,7 @@ export interface TopHeaderProps {
   onResetDemoData: () => void;
   activeLateCount?: number;
   onOpenMobileMenu?: () => void;
+  isBackendConnected?: boolean;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -25,7 +26,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onSelectWedding,
   onResetDemoData,
   activeLateCount = 1,
-  onOpenMobileMenu
+  onOpenMobileMenu,
+  isBackendConnected = false
 }) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
@@ -84,6 +86,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2.5">
+        {/* Live Backend / Standalone Engine Status Badge */}
+        <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors bg-slate-50 border-slate-200" title={isBackendConnected ? "Connected to Express Backend /api/v1" : "Running on Enterprise Dual-Mode Client"}>
+          <span className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-[#C5A059]'}`}></span>
+          <span className="text-slate-600 font-mono text-[10px] font-semibold">
+            {isBackendConnected ? 'API: LIVE' : 'API: READY'}
+          </span>
+        </div>
+
         {/* Reset Demo State Button */}
         <button
           onClick={onResetDemoData}

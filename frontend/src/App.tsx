@@ -32,6 +32,7 @@ import {
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<NavItemKey>('overview');
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [weddings, setWeddings] = useState<Wedding[]>([]);
   const [currentWedding, setCurrentWedding] = useState<Wedding | null>(null);
 
@@ -63,6 +64,9 @@ export function App() {
 
       const m = await api.getSeasonMetrics();
       setMetrics(m);
+
+      const healthy = await api.checkBackendHealth();
+      setIsBackendConnected(healthy);
     }
     loadData();
   }, []);
@@ -245,6 +249,7 @@ export function App() {
       onResetDemoData={api.resetDemoData}
       activeLateCount={activeLateCount}
       openIncidentsCount={openIncidentsCount}
+      isBackendConnected={isBackendConnected}
     >
       {currentTab === 'overview' && (
         <OverviewPage

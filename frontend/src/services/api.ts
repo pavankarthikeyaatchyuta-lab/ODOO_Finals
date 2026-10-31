@@ -39,6 +39,38 @@ import {
 
 // Storage keys for persistence across reloads in demo mode
 const STORAGE_PREFIX = 'TRK_';
+
+const API_BASE = (typeof window !== 'undefined' && (window as any).__API_BASE__) ||
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:3000/api/v1';
+
+let cachedBackendStatus: boolean | null = null;
+let lastHealthCheck = 0;
+
+export const getAuthToken = (): string => {
+  return localStorage.getItem('TRK_AUTH_TOKEN') || 'demo-bearer-token-trk-founder';
+};
+
+export const checkBackendHealth = async (): Promise<boolean> => {
+  const now = Date.now();
+  if (cachedBackendStatus !== null && now - lastHealthCheck < 15000) {
+    return cachedBackendStatus;
+  }
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1000);
+    const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    cachedBackendStatus = res.ok;
+    lastHealthCheck = now;
+    return res.ok;
+  } catch {
+    cachedBackendStatus = false;
+    lastHealthCheck = now;
+    return false;
+  }
+};
+
 const getItem = <T>(key: string, fallback: T): T => {
   try {
     const data = localStorage.getItem(STORAGE_PREFIX + key);
@@ -57,6 +89,8 @@ const setItem = <T>(key: string, value: T): void => {
 };
 
 export const api = {
+  checkBackendHealth,
+  getApiBase: () => API_BASE,
   // Weddings
   getWeddings: async (): Promise<Wedding[]> => {
     return getItem('weddings', INITIAL_WEDDINGS);

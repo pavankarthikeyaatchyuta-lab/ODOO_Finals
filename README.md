@@ -215,7 +215,8 @@ npm test
 | **Phase 4B** | Real-time WebSocket Notifications & Dispatch Automation | ⏳ Upcoming |
 | **Phase 5A** | Client & Vendor Payments, Change Orders (+60 Guests), 5-Way Reconciliation & Founder Dashboard | ✅ **Completed** |
 | **Phase 5B** | Backend Automated Payment Webhooks & Ledger Synchronization | ⏳ Upcoming |
-| **Phase 6** | Advanced Multi-Season Forecasting & Cross-Year Benchmarking | ⏳ Upcoming |
+| **Phase 6A** | Complete Frontend Integration, 11-Screen Interaction QA & Demo Readiness | ✅ **Completed** |
+| **Phase 6B** | Advanced Multi-Season Forecasting & Cross-Year Benchmarking | ⏳ Upcoming |
 
 ---
 
@@ -226,3 +227,29 @@ npm test
 * **Architecture Separation**: Frontend code lives in `frontend/`; backend services live in `backend/`.
 * **Zero Fake UI**: All frontend elements have real state handlers; no nonfunctional buttons.
 * **Financial Authority**: Financial values and reconciliation calculations are authoritative on the backend.
+
+---
+
+## 10. End-to-End Executive Demo Walkthrough
+
+The Royal Knot platform is primed for stakeholder demonstration following this 6-stage operational narrative:
+
+1. **Intake & Agreement Gating (`/enquiries`)**:
+   - Inspect the 400+ guest enquiry for Rahul Sharma & Ananya Singh at Jagmandir Palace.
+   - Click "Review & Attach Signed Agreement" and verify the manual review note to unlock gated vendor quotation records.
+2. **Procurement & 3-Caterer RFQ Matrix (`/quotations`)**:
+   - Compare SpiceHeaven Royal Caterers against competing bidders across price/plate, extra-hour rates, and menu inclusions.
+   - Click "Select Caterer" to award the contract, which automatically marks losing bidders as rejected.
+3. **Workspace & Task Automation (`/tasks`)**:
+   - Review 35 automated planning tasks seeded for the Full-Service package across Mehendi, Sangeet, Pheras, and Reception.
+   - Filter by function or owner, drag/click stage to *In Progress* or *Done*, and inspect milestone deadlines.
+4. **Day-of Command Centre (`/command-centre`)**:
+   - Monitor the minute-by-minute run sheet with live IST time tracking.
+   - Check in late vendors on the Vendor Arrival Board with real-time delay tags.
+   - Execute the **Closed-Loop Schedule Change Engine**: Propose a 25-minute delay on Varmala, observe cascade instructions to affected vendors, publish the change, and verify that notifications marked `SENT` remain unconfirmed until explicit vendor acknowledgement.
+5. **Change Orders, Reconciliation & Anti-Duplicate Shield (`/finance`)**:
+   - Create and approve change orders for 60 unexpected banquet guests (₹1,50,000) and an extended DJ hour (₹15,000).
+   - Inspect the 5-way reconciliation comparison: Net Due = (Quotation + Extras) - Advances Paid.
+   - Disburse the final balance and observe the **Anti-Duplicate Payment Shield** preventing double payments.
+6. **Founder Executive Dashboard (`/reports`)**:
+   - Review the official Season P&L statement, wedding-by-wedding profitability ledger, and interactive Recharts visualizations.

@@ -12,6 +12,7 @@ export interface AppLayoutProps {
   onResetDemoData: () => void;
   activeLateCount?: number;
   openIncidentsCount?: number;
+  isBackendConnected?: boolean;
   children: React.ReactNode;
 }
 
@@ -24,6 +25,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   onResetDemoData,
   activeLateCount = 0,
   openIncidentsCount = 0,
+  isBackendConnected = false,
   children
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,6 +50,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           onSelectWedding={onSelectWedding}
           onResetDemoData={onResetDemoData}
           activeLateCount={activeLateCount}
+          isBackendConnected={isBackendConnected}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
         />
 
