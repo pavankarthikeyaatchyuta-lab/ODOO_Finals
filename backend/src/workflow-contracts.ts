@@ -39,6 +39,18 @@ export const functionInput = z.object({ type: functionType, name: text, startAt:
   if (Boolean(v.startAt) !== Boolean(v.endAt) || (v.startAt && v.endAt && Date.parse(v.endAt) <= Date.parse(v.startAt))) ctx.addIssue({ code: 'custom', message: 'Provide both times with endAt after startAt, or neither' });
 });
 export const functionDto = z.object({ id: uuid, weddingId: uuid, type: functionType, name: z.string(), startAt: timestamp.nullable(), endAt: timestamp.nullable(), venue: z.string().nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
+export const proposalInput = z.object({ bookingDepositRequired: positiveMoney }).strict();
+export const generationDto = z.object({ id: uuid, weddingId: uuid, templateVersion: z.string(), packageType: z.enum(['FULL_SERVICE', 'PARTIAL_DAY_OF']), dateBasis: z.iso.date(), taskCount: z.number().int(), createdAt: timestamp }).strict();
+export const proposalDto = z.object({ weddingId: uuid, status: z.literal('CONFIRMED'), currency, bookingDepositRequired: z.string(), confirmedAt: timestamp, taskGeneration: generationDto.nullable() }).strict();
+export const paymentInput = z.object({ amount: positiveMoney, reference: z.string().trim().min(3).max(150).transform(v => v.toUpperCase()), evidenceDocumentId: uuid.optional() }).strict();
+export const paymentReviewInput = z.object({ verifiedEvidence: z.literal(true), note: z.string().trim().min(10).max(2000) }).strict();
+export const paymentDto = z.object({ id: uuid, weddingId: uuid, amount: z.string(), currency, reference: z.string(), status: z.enum(['CLAIMED', 'VERIFIED', 'REJECTED']), evidenceDocumentId: uuid.nullable(), createdAt: timestamp, reviewedAt: timestamp.nullable() }).strict();
+export const paymentDecisionDto = z.object({ payment: paymentDto, taskGeneration: generationDto.nullable() }).strict();
+export const taskStatus = z.enum(['TO_PLAN', 'IN_PROGRESS', 'DONE', 'BLOCKED']);
+export const taskPriority = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
+export const taskPatch = z.object({ title: text.optional(), description: longText.optional(), ownerId: uuid.nullable().optional(), deadline: timestamp.optional(), status: taskStatus.optional(), priority: taskPriority.optional(), functionId: uuid.nullable().optional() }).strict().refine(v => Object.keys(v).length > 0);
+export const taskDto = z.object({ id: uuid, weddingId: uuid, generationId: uuid, templateKey: z.string(), title: z.string(), description: z.string(), category: z.string(), ownerId: uuid.nullable(), deadline: timestamp, status: taskStatus, priority: taskPriority, functionId: uuid.nullable(), completedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
+export const taskQuery = pageQuery.extend({ status: taskStatus.optional(), ownerId: uuid.optional(), functionId: uuid.optional(), priority: taskPriority.optional() });
 export const activityDto = z.object({ id: uuid, action: z.string(), entityId: uuid, createdAt: timestamp }).strict();
 
 export type VendorRequest = z.infer<typeof vendorInput>;
@@ -47,3 +59,6 @@ export type AgreementResponse = z.infer<typeof agreementDto>;
 export type DocumentResponse = z.infer<typeof documentDto>;
 export type QuotationRequest = z.infer<typeof quoteInput>;
 export type QuotationRoundResponse = z.infer<typeof roundDto>;
+export type BookingPaymentResponse = z.infer<typeof paymentDto>;
+export type TaskResponse = z.infer<typeof taskDto>;
+export type TaskGenerationResponse = z.infer<typeof generationDto>;

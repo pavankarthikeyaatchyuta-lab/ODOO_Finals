@@ -17,6 +17,7 @@ import { registerDocumentsRoutes } from './routes/documents.js';
 import { registerAgreementsRoutes } from './routes/agreements.js';
 import { registerVendorsRoutes } from './routes/vendors.js';
 import { registerQuotationsRoutes } from './routes/quotations.js';
+import { registerPlanningRoutes } from './routes/planning.js';
 import { registerActivityRoutes } from './routes/activity.js';
 import { unavailableStore, type DocumentStore } from './storage.js';
 
@@ -51,6 +52,7 @@ export function createApp(db: PrismaClient, identity: IdentityProvider, config: 
   registerAgreementsRoutes(route);
   registerVendorsRoutes(route);
   registerQuotationsRoutes(route);
+  registerPlanningRoutes(route);
   registerActivityRoutes(route);
   app.use((_req, _res, next) => next(missing()));
   app.use(errorHandler);

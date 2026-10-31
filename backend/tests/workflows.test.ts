@@ -55,6 +55,11 @@ async function round(weddingId: string) {
   const vendorIds = await Promise.all([vendor(), vendor(), vendor()]);
   return (await api('post', `/weddings/${weddingId}/quotation-rounds`, 'planner', { categoryCode: 'CATERING', vendorIds }).expect(201)).body;
 }
+async function claim(weddingId: string, amount = '100.00', actor = 'client') {
+  return (await api('post', `/weddings/${weddingId}/booking-payments`, actor, { amount, reference: `bank-${randomUUID()}` }).expect(201)).body.id as string;
+}
+async function verify(paymentId: string) { return api('post', `/booking-payments/${paymentId}/verify`, 'finance', { verifiedEvidence: true, note: 'Bank reference and received amount independently verified.' }).expect(201); }
+async function confirm(weddingId: string, amount = '100.00') { return api('post', `/weddings/${weddingId}/confirm-proposal`, 'planner', { bookingDepositRequired: amount }).expect(201); }
 
 before(async () => {
   for (const [actor, id] of Object.entries(ids)) await owner.userProfile.create({ data: { id, displayName: actor, email: `${actor}@workflow.invalid`, role: actor === 'founder' ? 'FOUNDER' : actor === 'finance' ? 'FINANCE' : actor === 'coordinator' ? 'COORDINATOR' : actor === 'client' ? 'CLIENT' : 'PLANNER' } });
@@ -213,3 +218,113 @@ describe('Phase 2 vendor and quotation workflows', () => {
   });
 });
 
+describe('Phase 3 proposal, verified deposits and package task automation', () => {
+  it('rejects an unconfirmed proposal even when a deposit was verified first', async () => {
+    const id = await wedding();
+    const paid = await verify(await claim(id));
+    assert.equal(paid.body.taskGeneration, null);
+    const missing = await api('post', `/weddings/${id}/tasks/generate`).expect(409);
+    assert.equal(missing.body.error.code, 'PROPOSAL_UNCONFIRMED');
+    const confirmed = await confirm(id);
+    assert.ok(confirmed.body.taskGeneration.taskCount >= 25);
+  });
+  it('does not treat client claims as verified payments and rejects unauthorized verification', async () => {
+    const id = await wedding();
+    await confirm(id);
+    const payment = await claim(id, '1000.00');
+    const denied = await api('post', `/weddings/${id}/tasks/generate`).expect(409);
+    assert.equal(denied.body.error.code, 'DEPOSIT_UNVERIFIED');
+    const body = { verifiedEvidence: true, note: 'Manually reviewed the bank reference and amount.' };
+    for (const actor of ['client', 'planner', 'coordinator']) await api('post', `/booking-payments/${payment}/verify`, actor, body).expect(403);
+    await api('post', `/booking-payments/${payment}/verify`, 'outsider', body).expect(403);
+    await api('post', `/booking-payments/${payment}/verify`, 'finance', { ...body, verifiedEvidence: false }).expect(400);
+    assert.equal((await owner.bookingPayment.findUniqueOrThrow({ where: { id: payment } })).status, 'CLAIMED');
+  });
+  it('generates at least 25 relevant tasks for each package and records the template version', async () => {
+    for (const packageType of ['FULL_SERVICE', 'PARTIAL_DAY_OF'] as const) {
+      const id = await wedding(packageType);
+      await confirm(id);
+      const result = await verify(await claim(id));
+      const generation = result.body.taskGeneration;
+      assert.equal(generation.taskCount, packageType === 'FULL_SERVICE' ? 35 : 30);
+      assert.equal(generation.templateVersion, packageType === 'FULL_SERVICE' ? 'full-service.v1' : 'partial-day-of.v1');
+      const tasks = await api('get', `/weddings/${id}/tasks?pageSize=100`).expect(200);
+      assert.equal(tasks.body.data.length, generation.taskCount);
+      assert.ok(tasks.body.data.every((task: { ownerId: string; status: string }) => task.ownerId === ids.planner && task.status === 'TO_PLAN'));
+      if (packageType === 'PARTIAL_DAY_OF') assert.ok(tasks.body.data.every((task: { category: string; templateKey: string }) => task.category !== 'DESIGN' && !['venue-shortlist', 'venue-confirm'].includes(task.templateKey)));
+      assert.equal(await owner.weddingFunction.count({ where: { weddingId: id } }), 3);
+      assert.equal((await owner.wedding.findUniqueOrThrow({ where: { id } })).state, 'PLANNING');
+      await api('patch', `/weddings/${id}`, 'planner', { packageType: packageType === 'FULL_SERVICE' ? 'PARTIAL_DAY_OF' : 'FULL_SERVICE' }).expect(409);
+    }
+  });
+  it('requires the complete verified deposit amount and ignores unverified excess claims', async () => {
+    const id = await wedding();
+    await confirm(id, '100.00');
+    assert.equal((await verify(await claim(id, '40.00'))).body.taskGeneration, null);
+    await claim(id, '10000.00');
+    await api('post', `/weddings/${id}/tasks/generate`).expect(409);
+    const final = await verify(await claim(id, '60.00'));
+    assert.equal(final.body.taskGeneration.taskCount, 35);
+  });
+  it('serializes concurrent verified-payment triggers and repeated generation requests', async () => {
+    const id = await wedding();
+    await confirm(id);
+    const payments = [await claim(id, '40.00'), await claim(id, '60.00')];
+    const results = await Promise.all(payments.map(verify));
+    assert.equal(results.filter(row => row.body.taskGeneration).length, 1);
+    const generated = await Promise.all([api('post', `/weddings/${id}/tasks/generate`), api('post', `/weddings/${id}/tasks/generate`), api('post', `/weddings/${id}/tasks/generate`)]);
+    assert.ok(generated.every(row => row.status === 201));
+    assert.equal(new Set(generated.map(row => row.body.id)).size, 1);
+    assert.equal(await owner.taskGeneration.count({ where: { weddingId: id } }), 1);
+    assert.equal(await owner.weddingTask.count({ where: { weddingId: id } }), 35);
+    await api('post', `/booking-payments/${payments[0]}/verify`, 'finance', { verifiedEvidence: true, note: 'Bank reference and received amount independently verified.' }).expect(409);
+  });
+  it('defers task deadlines for an unknown wedding date and generates when the date is supplied', async () => {
+    const id = await wedding('FULL_SERVICE', null);
+    await confirm(id);
+    const verified = await verify(await claim(id));
+    assert.equal(verified.body.payment.status, 'VERIFIED');
+    assert.equal(verified.body.taskGeneration, null);
+    await api('post', `/weddings/${id}/tasks/generate`).expect(409);
+    const updated = await api('patch', `/weddings/${id}`, 'planner', { weddingDate: '2027-12-20' }).expect(200);
+    assert.equal(updated.body.state, 'PLANNING');
+    assert.equal(await owner.weddingTask.count({ where: { weddingId: id } }), 35);
+  });
+  it('supports task reassignment, deadlines, filtering and completion while enforcing ownership', async () => {
+    const id = await wedding();
+    await confirm(id); await verify(await claim(id));
+    const tasks = await api('get', `/weddings/${id}/tasks`).expect(200);
+    const taskId = tasks.body.data[0].id;
+    await api('patch', `/tasks/${taskId}`, 'coordinator', { status: 'IN_PROGRESS' }).expect(403);
+    await api('patch', `/tasks/${taskId}`, 'planner', { ownerId: ids.coordinator, deadline: '2027-12-01T10:00:00.000Z', priority: 'HIGH' }).expect(200);
+    await api('patch', `/tasks/${taskId}`, 'coordinator', { deadline: '2027-12-02T10:00:00.000Z' }).expect(403);
+    await api('patch', `/tasks/${taskId}`, 'coordinator', { status: 'IN_PROGRESS' }).expect(200);
+    const done = await api('patch', `/tasks/${taskId}`, 'coordinator', { status: 'DONE' }).expect(200);
+    assert.ok(done.body.completedAt);
+    assert.equal((await api('patch', `/tasks/${taskId}`, 'coordinator', { status: 'BLOCKED' }).expect(200)).body.completedAt, null);
+    const filtered = await api('get', `/weddings/${id}/tasks?ownerId=${ids.coordinator}&status=BLOCKED&priority=HIGH`).expect(200);
+    assert.equal(filtered.body.total, 1);
+    await api('patch', `/tasks/${taskId}`, 'planner', { ownerId: ids.outsider }).expect(400);
+    await api('patch', `/tasks/${taskId}`, 'finance', { status: 'DONE' }).expect(403);
+    await api('get', `/tasks/${taskId}`, 'outsider').expect(404);
+    await api('get', `/weddings/${id}/tasks`, 'client').expect(403);
+    await api('patch', `/tasks/${taskId}`, 'planner', { ownerId: ids.planner }).expect(200);
+  });
+  it('protects payment reference uniqueness, proposal confirmation and function ownership', async () => {
+    const id = await wedding();
+    const body = { amount: '100.00', reference: `bank-${randomUUID()}` };
+    await api('post', `/weddings/${id}/booking-payments`, 'client', body).expect(201);
+    await api('post', `/weddings/${id}/booking-payments`, 'client', { ...body, reference: body.reference.toUpperCase() }).expect(409);
+    await confirm(id);
+    await api('post', `/weddings/${id}/confirm-proposal`, 'planner', { bookingDepositRequired: '1.00' }).expect(409);
+    await api('post', `/weddings/${id}/confirm-proposal`, 'client', { bookingDepositRequired: '100.00' }).expect(403);
+    await verify(await claim(id));
+    const task = (await api('get', `/weddings/${id}/tasks`).expect(200)).body.data[0];
+    const other = await wedding();
+    const otherFunction = await api('post', `/weddings/${other}/functions`, 'planner', { type: 'MEHENDI', name: 'Other Mehendi' }).expect(201);
+    await api('patch', `/tasks/${task.id}`, 'planner', { functionId: otherFunction.body.id }).expect(400);
+    const usedFunction = await owner.weddingFunction.findFirstOrThrow({ where: { weddingId: id } });
+    await api('patch', `/functions/${usedFunction.id}`, 'planner', { type: usedFunction.type === 'MEHENDI' ? 'SANGEET' : 'MEHENDI', name: usedFunction.name }).expect(409);
+    await api('post', `/weddings/${id}/functions`, 'client', { type: 'RECEPTION', name: 'Unauthorized' }).expect(403);
+  });
+});

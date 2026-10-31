@@ -58,6 +58,7 @@ model UserProfile {
   client      Client?
   assignments WeddingAssignment[]
   bookings    Consultation[] @relation("Planner")
+  ownedTasks  WeddingTask[]
   enquiries   Enquiry[]
 }
 
@@ -87,6 +88,10 @@ model Wedding {
   location      String?
   requirements  String?
   currency      String @default("INR") @db.VarChar(3)
+  proposalStatus ProposalStatus @default(DRAFT)
+  proposalConfirmedAt DateTime? @db.Timestamptz(3)
+  proposalConfirmedBy String? @db.Uuid
+  bookingDepositRequired Decimal? @db.Decimal(16, 2)
   budgetMax     Decimal?     @db.Decimal(16, 2)
   internalNotes String?
   archivedAt    DateTime? @db.Timestamptz(3)
@@ -101,6 +106,9 @@ model Wedding {
   documents     Document[]
   quotationRounds QuotationRound[]
   vendors       WeddingVendor[]
+  bookingPayments BookingPayment[]
+  taskGeneration TaskGeneration?
+  tasks         WeddingTask[]
   @@index([state, createdAt])
 }
 
@@ -121,6 +129,7 @@ model WeddingFunction {
   venue       String?
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  tasks       WeddingTask[]
   @@unique([weddingId, name])
   @@unique([id, weddingId])
 }
@@ -167,6 +176,11 @@ enum FollowUpStatus {
   CLOSED
 }
 
+enum ProposalStatus {
+  DRAFT
+  CONFIRMED
+}
+
 enum AgreementStatus {
   DRAFT
   SENT
@@ -202,6 +216,7 @@ model Document {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   agreements  Agreement[] @relation("AgreementDocument")
   signatures  Agreement[] @relation("SignatureDocument")
+  payments    BookingPayment[]
   @@index([weddingId, kind])
 }
 
@@ -332,6 +347,85 @@ model WeddingVendor {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   @@unique([weddingId, categoryCode])
   @@index([vendorId])
+}
+
+enum BookingPaymentStatus {
+  CLAIMED
+  VERIFIED
+  REJECTED
+}
+
+model BookingPayment {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  amount      Decimal @db.Decimal(16, 2)
+  currency    String @db.VarChar(3)
+  reference   String @unique
+  status      BookingPaymentStatus @default(CLAIMED)
+  evidenceDocumentId String? @db.Uuid
+  evidenceDocument Document? @relation(fields: [evidenceDocumentId], references: [id], onDelete: Restrict)
+  claimedBy   String @db.Uuid
+  reviewedBy  String? @db.Uuid
+  reviewedAt  DateTime? @db.Timestamptz(3)
+  reviewNote  String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  @@index([weddingId, status])
+}
+
+enum TaskStatus {
+  TO_PLAN
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model TaskGeneration {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @unique @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  templateVersion String
+  packageType PackageType
+  dateBasis   DateTime @db.Date
+  taskCount   Int
+  createdBy   String @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  tasks       WeddingTask[]
+  @@unique([id, weddingId])
+}
+
+model WeddingTask {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  generationId String @db.Uuid
+  generation  TaskGeneration @relation(fields: [generationId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  templateKey String
+  title       String
+  description String
+  category    String
+  ownerId     String? @db.Uuid
+  owner       UserProfile? @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  deadline    DateTime @db.Timestamptz(3)
+  status      TaskStatus @default(TO_PLAN)
+  priority    TaskPriority @default(NORMAL)
+  functionId  String? @db.Uuid
+  function    WeddingFunction? @relation(fields: [functionId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  completedAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([weddingId, templateKey])
+  @@index([weddingId, status, deadline])
+  @@index([ownerId])
+  @@index([functionId, weddingId])
+  @@index([generationId, weddingId])
 }
 
 model RateLimitBucket {

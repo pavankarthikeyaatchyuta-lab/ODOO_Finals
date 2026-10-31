@@ -22,7 +22,7 @@ export function presentWedding(row: WeddingRow, user: UserProfile) {
     id: row.id, title: row.title, weddingDate: row.weddingDate?.toISOString().slice(0, 10) ?? null,
     packageType: row.packageType, state: row.state, guestCount: row.guestCount,
     preferredTheme: row.preferredTheme, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(),
-    coupleDetails: row.coupleDetails, location: row.location, requirements: row.requirements, currency: row.currency,
+    coupleDetails: row.coupleDetails, location: row.location, requirements: row.requirements, currency: row.currency, proposalStatus: row.proposalStatus,
   };
   if (user.role === 'CLIENT') return visible;
   return { ...visible, internalNotes: row.internalNotes, clientIds: row.clients.map(c => c.clientId), assignedUserIds: row.assignments.map(a => a.userId),

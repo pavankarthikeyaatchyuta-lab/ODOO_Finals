@@ -4,6 +4,7 @@ import { audit, presentWedding, weddingAccess, weddingFilter, weddingInclude } f
 import { ApiError, missing } from '../errors.js';
 import type { Context } from '../http/routes.js';
 import { createWedding, archiveWedding } from '../services/foundation.js';
+import { generateTasks } from '../services/planning.js';
 
 export async function create(ctx: Context<z.infer<typeof c.createWeddingInput>, unknown>) {
   return presentWedding(await createWedding(ctx.tx, ctx.user, ctx.body), ctx.user);
@@ -20,10 +21,12 @@ export async function read(ctx: Context<unknown, unknown>) {
 }
 export async function update({ tx, user, params, body }: Context<z.infer<typeof c.weddingPatch>, unknown>) {
   const before = await weddingAccess(tx, user, params.id!, true);
-  if (body.state && !({ ENQUIRY: ['PROPOSAL', 'CANCELLED'], PROPOSAL: ['ENQUIRY', 'CANCELLED'], AGREEMENT: ['CANCELLED'] } as Record<string, string[]>)[before.state]?.includes(body.state)) throw new ApiError(409, 'INVALID_TRANSITION', 'This wedding lifecycle transition is unavailable in Phase 1');
-  if (body.currency && body.currency !== before.currency && await tx.quotationRound.count({ where: { weddingId: before.id } })) throw new ApiError(409, 'CURRENCY_LOCKED', 'Currency cannot change after procurement starts');
+  if (body.state && !({ ENQUIRY: ['PROPOSAL', 'CANCELLED'], PROPOSAL: ['ENQUIRY', 'CANCELLED'], AGREEMENT: ['CANCELLED'], BOOKING_CONFIRMED: ['CANCELLED'], PLANNING: ['CANCELLED'] } as Record<string, string[]>)[before.state]?.includes(body.state)) throw new ApiError(409, 'INVALID_TRANSITION', 'This wedding lifecycle transition is unavailable');
+  if (body.packageType && body.packageType !== before.packageType && await tx.taskGeneration.findUnique({ where: { weddingId: before.id } })) throw new ApiError(409, 'PLAN_PACKAGE_LOCKED', 'Package cannot change after a task plan has been generated');
+  if (body.currency && body.currency !== before.currency && (before.proposalStatus === 'CONFIRMED' || await tx.quotationRound.count({ where: { weddingId: before.id } }) || await tx.bookingPayment.count({ where: { weddingId: before.id } }))) throw new ApiError(409, 'CURRENCY_LOCKED', 'Currency cannot change after proposal confirmation, quotations or payment claims');
   const row = await tx.wedding.update({ where: { id: params.id }, data: { ...body, ...(body.weddingDate !== undefined ? { weddingDate: body.weddingDate ? new Date(body.weddingDate) : null } : {}) }, include: weddingInclude });
   await audit(tx, user.id, 'WEDDING_UPDATED', row.id, row.id, { previousState: before.state, state: row.state });
-  return presentWedding(row, user);
+  if (body.weddingDate && row.proposalStatus === 'CONFIRMED' && !['CANCELLED', 'COMPLETED'].includes(row.state)) await generateTasks(tx, user, row.id, true);
+  return presentWedding(await tx.wedding.findUniqueOrThrow({ where: { id: row.id }, include: weddingInclude }), user);
 }
 export function remove(ctx: Context<unknown, unknown>) { return archiveWedding(ctx.tx, ctx.user, ctx.params.id!); }
