@@ -185,11 +185,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto space-y-6">
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F5F1E8] border border-[#C5A059]/40 text-[#C5A059] text-xs font-bold tracking-wide shadow-xs animate-in fade-in duration-300">
-              <Sparkles className="w-4 h-4 text-[#C5A059]" />
-              <span>THE OPERATING SYSTEM FOR DESTINATION ROYAL WEDDINGS</span>
-            </div>
 
             {/* Main Title */}
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0D1B2A] leading-[1.12]">
