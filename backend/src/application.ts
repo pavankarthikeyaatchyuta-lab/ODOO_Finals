@@ -21,6 +21,7 @@ import { registerPlanningRoutes } from './routes/planning.js';
 import { registerActivityRoutes } from './routes/activity.js';
 import { registerOperationsRoutes } from './routes/operations.js';
 import { registerVendorInbox } from './routes/vendor-inbox.js';
+import { registerFinanceRoutes } from './routes/finance.js';
 import { unavailableStore, type DocumentStore } from './storage.js';
 
 export interface AppConfig { allowedOrigins: string[]; documents?: DocumentStore }
@@ -58,6 +59,7 @@ export function createApp(db: PrismaClient, identity: IdentityProvider, config: 
   registerPlanningRoutes(route);
   registerActivityRoutes(route);
   registerOperationsRoutes(route);
+  registerFinanceRoutes(route);
   app.use((_req, _res, next) => next(missing()));
   app.use(errorHandler);
   return app;

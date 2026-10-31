@@ -43,5 +43,5 @@ try {
     await setup.query(statement.rows[0]!.sql);
   } finally { await setup.end(); }
   await run(['--import', 'tsx', 'scripts/openapi.ts', '--check']);
-  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts']);
+  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts', 'tests/finance.test.ts']);
 } finally { await pg.stop(); }

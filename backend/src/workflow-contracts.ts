@@ -13,7 +13,7 @@ export const vendorDto = vendorInput.extend({ id: uuid, archivedAt: timestamp.nu
 export const categoryDto = z.object({ code: z.string(), name: z.string() }).strict();
 export const publicVendorDto = vendorInput.extend({ id: uuid }).strict();
 export const vendorQuery = pageQuery.extend({ categoryCode: z.string().max(40).optional(), q: z.string().trim().max(200).optional() });
-export const documentKind = z.enum(['AGREEMENT', 'SIGNED_AGREEMENT', 'FLOOR_PLAN', 'PAYMENT_EVIDENCE']);
+export const documentKind = z.enum(['AGREEMENT', 'SIGNED_AGREEMENT', 'FLOOR_PLAN', 'PAYMENT_EVIDENCE', 'EXPENSE_EVIDENCE', 'VENDOR_BILL']);
 export const documentInput = z.object({ kind: documentKind, fileName: z.string().min(1).max(200).regex(/^[^/\\\x00-\x1f]+$/), contentType: z.enum(['application/pdf', 'image/jpeg', 'image/png']), size: z.number().int().min(1).max(10485760) }).strict();
 export const documentDto = z.object({ id: uuid, weddingId: uuid, kind: documentKind, status: z.enum(['PENDING', 'VERIFIED']), fileName: z.string(), contentType: z.string(), size: z.number().int(), sha256: z.string().nullable(), verifiedAt: timestamp.nullable(), createdAt: timestamp }).strict();
 export const uploadDto = z.object({ signedUrl: z.url(), path: z.string(), token: z.string() }).strict();
@@ -44,7 +44,7 @@ export const generationDto = z.object({ id: uuid, weddingId: uuid, templateVersi
 export const proposalDto = z.object({ weddingId: uuid, status: z.literal('CONFIRMED'), currency, bookingDepositRequired: z.string(), confirmedAt: timestamp, taskGeneration: generationDto.nullable() }).strict();
 export const paymentInput = z.object({ amount: positiveMoney, reference: z.string().trim().min(3).max(150).transform(v => v.toUpperCase()), evidenceDocumentId: uuid.optional() }).strict();
 export const paymentReviewInput = z.object({ verifiedEvidence: z.literal(true), note: z.string().trim().min(10).max(2000) }).strict();
-export const paymentDto = z.object({ id: uuid, weddingId: uuid, amount: z.string(), currency, reference: z.string(), status: z.enum(['CLAIMED', 'VERIFIED', 'REJECTED']), evidenceDocumentId: uuid.nullable(), createdAt: timestamp, reviewedAt: timestamp.nullable() }).strict();
+export const paymentDto = z.object({ id: uuid, weddingId: uuid, amount: z.string(), currency, reference: z.string(), status: z.enum(['INITIATED', 'CLAIMED', 'VERIFIED', 'REJECTED', 'FAILED', 'REVERSED']), evidenceDocumentId: uuid.nullable(), createdAt: timestamp, reviewedAt: timestamp.nullable() }).strict();
 export const paymentDecisionDto = z.object({ payment: paymentDto, taskGeneration: generationDto.nullable() }).strict();
 export const taskStatus = z.enum(['TO_PLAN', 'IN_PROGRESS', 'DONE', 'BLOCKED']);
 export const taskPriority = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);

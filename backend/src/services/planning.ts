@@ -15,7 +15,7 @@ export async function generateTasks(tx: Tx, user: UserProfile, weddingId: string
   const existing = await tx.taskGeneration.findUnique({ where: { weddingId } });
   if (existing) return presentGeneration(existing);
   let reason: string | null = wedding.proposalStatus !== 'CONFIRMED' ? 'PROPOSAL_UNCONFIRMED' : null;
-  const paid = await tx.bookingPayment.aggregate({ where: { weddingId, status: 'VERIFIED', currency: wedding.currency }, _sum: { amount: true } });
+  const paid = await tx.bookingPayment.aggregate({ where: { weddingId, status: 'VERIFIED', direction: 'CLIENT_RECEIPT', milestone: 'BOOKING', currency: wedding.currency }, _sum: { amount: true } });
   if (!reason && (!wedding.bookingDepositRequired || (paid._sum.amount ?? new Prisma.Decimal(0)).lt(wedding.bookingDepositRequired))) reason = 'DEPOSIT_UNVERIFIED';
   if (!reason && !wedding.weddingDate) reason = 'WEDDING_DATE_REQUIRED';
   if (reason) {
@@ -62,14 +62,14 @@ export async function claimPayment(tx: Tx, user: UserProfile, weddingId: string,
 }
 export async function paymentAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.bookingPayment.findUnique({ where: { id } });
-  if (!row) throw missing();
+  if (!row || row.direction !== 'CLIENT_RECEIPT' || row.milestone !== 'BOOKING') throw missing();
   if (write) await mutableWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
   return tx.bookingPayment.findUniqueOrThrow({ where: { id } });
 }
 export async function decidePayment(tx: Tx, user: UserProfile, id: string, note: string, verified: boolean) {
   const before = await paymentAccess(tx, user, id, true);
   if (before.status !== 'CLAIMED') throw new ApiError(409, 'PAYMENT_ALREADY_REVIEWED', 'Only unreviewed claims may be verified or rejected');
-  const row = await tx.bookingPayment.update({ where: { id }, data: { status: verified ? 'VERIFIED' : 'REJECTED', reviewedBy: user.id, reviewedAt: new Date(), reviewNote: note } });
+  const row = await tx.bookingPayment.update({ where: { id }, data: { status: verified ? 'VERIFIED' : 'REJECTED', reviewedBy: user.id, reviewedAt: new Date(), reviewNote: note, verificationMethod: verified ? 'MANUAL_BANK_REVIEW' : null } });
   await audit(tx, user.id, verified ? 'BOOKING_PAYMENT_VERIFIED' : 'BOOKING_PAYMENT_REJECTED', id, row.weddingId, { method: 'MANUAL_BANK_REVIEW', reference: row.reference, note });
   return { payment: presentPayment(row), taskGeneration: verified ? await generateTasks(tx, user, row.weddingId, true) : null };
 }

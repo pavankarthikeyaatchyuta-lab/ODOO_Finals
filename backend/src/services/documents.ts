@@ -14,6 +14,7 @@ export async function documentAccess(tx: Tx, user: UserProfile, id: string, uplo
   const row = await tx.document.findUnique({ where: { id } });
   if (!row) throw missing();
   await weddingAccess(tx, user, row.weddingId);
+  if (['EXPENSE_EVIDENCE', 'VENDOR_BILL'].includes(row.kind) && !['FOUNDER', 'FINANCE'].includes(user.role) && (user.role === 'CLIENT' || row.uploadedBy !== user.id)) throw forbidden();
   if (row.kind === 'PAYMENT_EVIDENCE' && !['FOUNDER', 'FINANCE'].includes(user.role) && row.uploadedBy !== user.id) throw forbidden();
   if (upload) {
     await mutableWedding(tx, user, row.weddingId);
@@ -38,7 +39,7 @@ export async function createDocument(tx: Tx, user: UserProfile, weddingId: strin
   if (user.role === 'CLIENT') {
     if (!['SIGNED_AGREEMENT', 'PAYMENT_EVIDENCE'].includes(body.kind)) throw forbidden();
     if (body.kind === 'SIGNED_AGREEMENT' && (await tx.agreement.findUnique({ where: { weddingId } }))?.status !== 'SENT') throw new ApiError(409, 'AGREEMENT_NOT_SENT', 'A sent agreement is required before uploading a signature document');
-  } else if (!['FOUNDER', 'PLANNER', 'FINANCE'].includes(user.role) || (user.role === 'FINANCE' && body.kind !== 'PAYMENT_EVIDENCE')) throw forbidden();
+  } else if (!['FOUNDER', 'PLANNER', 'FINANCE'].includes(user.role) || (user.role === 'FINANCE' && !['PAYMENT_EVIDENCE', 'EXPENSE_EVIDENCE', 'VENDOR_BILL'].includes(body.kind))) throw forbidden();
   const id = randomUUID();
   const extension = body.contentType === 'application/pdf' ? 'pdf' : body.contentType === 'image/png' ? 'png' : 'jpg';
   const row = await tx.document.create({ data: { ...body, id, weddingId, uploadedBy: user.id, storagePath: `weddings/${weddingId}/${id}.${extension}` } });

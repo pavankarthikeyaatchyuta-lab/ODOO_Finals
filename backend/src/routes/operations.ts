@@ -15,7 +15,7 @@ export function registerOperationsRoutes(route: RouteRegistrar) {
       const vendor = await tx.vendor.findFirst({ where: { id: body.vendorId, archivedAt: null } }); if (!vendor) throw missing();
       const row = await tx.weddingVendor.create({ data: { weddingId: params.id!, vendorId: vendor.id, categoryCode: vendor.categoryCode, source: 'CLIENT_PROVIDED' } });
       await audit(tx, user.id, 'CLIENT_PROVIDED_VENDOR_ASSOCIATED', row.id, row.weddingId, { note: body.note });
-      return row;
+      return { id: row.id, weddingId: row.weddingId, vendorId: row.vendorId, categoryCode: row.categoryCode, quotationId: row.quotationId, source: row.source, createdAt: row.createdAt };
     },
   });
   route('get', '/weddings/:id/timeline', { summary: 'Read current timeline version in the wedding local timezone', roles: staff, query: c.pageQuery, response: o.timelineDto, async handler({ tx, user, params, query }) {

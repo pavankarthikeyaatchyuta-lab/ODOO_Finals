@@ -16,7 +16,7 @@ export function registerPlanningRoutes(route: RouteRegistrar) {
   });
   route('get', '/weddings/:id/booking-payments', { summary: 'List client booking-deposit claims without internal review notes', roles: ['FOUNDER', 'PLANNER', 'FINANCE', 'CLIENT'], query: c.pageQuery, response: c.listOf(w.paymentDto), async handler({ tx, user, params, query }) {
     await weddingAccess(tx, user, params.id!);
-    const where = { weddingId: params.id! };
+    const where = { weddingId: params.id!, direction: 'CLIENT_RECEIPT' as const, milestone: 'BOOKING' as const };
     const rows = await tx.bookingPayment.findMany({ where, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: (query.page - 1) * query.pageSize, take: query.pageSize });
     return { data: rows.map(presentPayment), ...query, total: await tx.bookingPayment.count({ where }) };
   } });
