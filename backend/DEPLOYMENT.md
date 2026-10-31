@@ -28,6 +28,12 @@ Health confirms the process is serving; readiness confirms the migrated UserProf
 
 Hosted verification is pending until server credentials, Vercel access, frontend origins and email delivery are configured. A local test pass is not evidence of a successful hosted deployment.
 
+## Schema audit follow-up
+
+Migration `202610310010_schema_audit` strengthens document links to include the wedding UUID, adds missing foreign-key lookup indexes and tightens payment reversal evidence. It uses an explicit transaction: a conflicting legacy document link rejects the migration and rolls back its DDL, preserving the previous schema. It does not delete or rewrite business rows. Review existing document/wedding links and payment review/reversal metadata before an authorized hosted release; correct inconsistent records through a reviewed workflow rather than resetting the database. The upgrade regression verifies both rollback on an inconsistent legacy link and successful migration of valid existing rows without changing their contents.
+
+`prisma validate` requires both `DATABASE_URL` and `DIRECT_URL` to resolve the schema configuration. Set these through your local/admin environment following `.env.example`; never commit their real values. Runtime requests still use only the restricted `DATABASE_URL`. Tests supply their own generated loopback URLs and never target the local `.env` database.
+
 ## Phase 6 release status
 
 There are nine versioned migrations through `202610310009_financial_integrity`. The isolated test runner applies them to a new local database, reapplies deploy safely, checks schema drift, validates backend/browser privileges and runs the complete fictional wedding scenario. It never uses the database in the local `.env` as its test target.

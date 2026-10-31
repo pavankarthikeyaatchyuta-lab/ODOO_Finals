@@ -142,7 +142,7 @@ describe('Phase 6 database inventory and least privilege', () => {
       assert.ok(inventory.rows.length >= 30);
       for (const row of inventory.rows) assert.deepEqual({ rls: row.rls, browser: row.browser_access, policy: row.backend_policy }, { rls: true, browser: false, policy: true }, row.name);
       assert.equal((await sql.query(`SELECT count(*)::int AS n FROM pg_constraint co JOIN pg_namespace n ON n.oid=co.connamespace WHERE n.nspname='app' AND co.contype='f' AND NOT co.convalidated`)).rows[0].n, 0);
-      assert.equal((await sql.query(`SELECT count(*)::int AS n FROM app._prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL`)).rows[0].n, 9);
+      assert.equal((await sql.query(`SELECT count(*)::int AS n FROM app._prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL`)).rows[0].n, 10);
       for (const table of ['FinanceSettings', 'LabourRate']) assert.equal((await sql.query(`SELECT has_table_privilege('rk_backend',$1,'UPDATE') AS allowed`, [`app."${table}"`])).rows[0].allowed, false);
     } finally { await sql.end(); }
   });
@@ -152,5 +152,59 @@ describe('Phase 6 database inventory and least privilege', () => {
     await assert.rejects(db.$executeRaw`UPDATE app."AdditionalExpense" SET "netAmount"=2,"total"=2 WHERE id=${expense.body.id}::uuid`, /expense_calculation_and_approval/);
     await assert.rejects(db.$executeRaw`UPDATE app."AdditionalExpense" SET status='APPROVED' WHERE id=${expense.body.id}::uuid`, /expense_calculation_and_approval/);
     assert.equal((await owner.additionalExpense.findUniqueOrThrow({ where: { id: expense.body.id } })).status, 'PENDING');
+  });
+  it('indexes every business foreign-key lookup and enforces same-wedding document references', async () => {
+    const missingIndexes = await owner.$queryRaw<{ table_name: string; constraint_name: string }[]>`
+      SELECT co.conrelid::regclass::text AS table_name, co.conname AS constraint_name
+      FROM pg_constraint co JOIN pg_namespace n ON n.oid=co.connamespace
+      WHERE n.nspname='app' AND co.contype='f' AND NOT EXISTS (
+        SELECT 1 FROM pg_index i WHERE i.indrelid=co.conrelid AND i.indisvalid
+        AND i.indpred IS NULL AND i.indkey[0]=co.conkey[1])`;
+    assert.deepEqual(missingIndexes, []);
+    const source = await wedding(), target = await wedding(), association = await vendor(target);
+    const doc = await owner.document.create({ data: { weddingId: source, kind: 'AGREEMENT', fileName: 'fictional.pdf', contentType: 'application/pdf', size: 1, storagePath: `qa/${randomUUID()}.pdf`, uploadedBy: users.planner } });
+    await assert.rejects(owner.agreement.create({ data: { weddingId: target, title: 'Invalid cross-wedding fixture', terms: 'Fictional terms', documentId: doc.id } }), /foreign key constraint/i);
+    await assert.rejects(owner.bookingPayment.create({ data: { weddingId: target, amount: '1.00', currency: 'INR', reference: `QA-${randomUUID().toUpperCase()}`, claimedBy: users.client, evidenceDocumentId: doc.id } }), /foreign key constraint/i);
+    await assert.rejects(owner.additionalExpense.create({ data: { weddingId: target, reference: 'CROSS-WEDDING', kind: 'OTHER', description: 'Invalid fixture', quantity: 1, unitRate: 1, taxRate: 0, netAmount: 1, taxAmount: 0, total: 1, clientCharge: 0, currency: 'INR', requestedBy: users.planner, supportingDocumentId: doc.id } }), /foreign key constraint/i);
+    await assert.rejects(owner.vendorBill.create({ data: { weddingId: target, weddingVendorId: association, reference: `QA-${randomUUID()}`, amount: '1.00', currency: 'INR', dueAt: new Date(), submittedBy: users.finance, documentId: doc.id } }), /foreign key constraint/i);
+    assert.equal(await owner.agreement.count({ where: { weddingId: target } }), 0);
+  });
+  it('does not accept reversed payment records with missing review evidence', async () => {
+    const id = await wedding(), payment = await claim(id, '1.00');
+    await verify(payment).expect(201);
+    await assert.rejects(db.$executeRaw`UPDATE app."BookingPayment" SET status='REVERSED',"reversedBy"=${users.finance}::uuid,"reversedAt"=now(),"reversalNote"=NULL WHERE id=${payment}::uuid`, /payment_review_evidence/);
+    assert.equal((await owner.bookingPayment.findUniqueOrThrow({ where: { id: payment } })).status, 'VERIFIED');
+  });
+});
+
+describe('Schema audit report and workflow regressions', () => {
+  it('returns large aggregate amounts as exact strings without widening stored payment inputs', async () => {
+    const id = await wedding();
+    await api('post', `/weddings/${id}/finance-settings`, 'founder', settings).expect(201);
+    for (let i = 0; i < 2; i++) await verify(await claim(id, '90000000000000.00')).expect(201);
+    const balance = (await api('get', `/weddings/${id}/client-balance`, 'client').expect(200)).body;
+    assert.equal(balance.cashCollected, '180000000000000.00');
+    assert.equal(balance.creditBalance, '179999999999900.00');
+    const dashboard = (await api('get', `/reports/founder-dashboard?weddingId=${id}`, 'founder').expect(200)).body;
+    assert.equal(dashboard.totalsByCurrency[0].cashCollected, balance.cashCollected);
+    await api('post', `/weddings/${id}/payments`, 'finance', { amount: '100000000000000.00', reference: 'TOO-LARGE', direction: 'CLIENT_RECEIPT', milestone: 'FINAL', isDemo: true }).expect(400);
+  });
+  it('caps client milestone dues at the actual balance after receipts against another milestone', async () => {
+    const id = await wedding();
+    await api('post', `/weddings/${id}/finance-settings`, 'founder', settings).expect(201);
+    for (const milestone of ['BOOKING', 'FINAL']) await api('post', `/weddings/${id}/payment-milestones`, 'finance', { milestone, amount: '50.00', dueAt: '2027-01-01T00:00:00Z' }).expect(201);
+    await verify(await claim(id, '75.00', 'CLIENT_RECEIPT', undefined, 'BOOKING')).expect(201);
+    let dashboard = (await api('get', `/reports/founder-dashboard?weddingId=${id}`, 'founder').expect(200)).body;
+    assert.deepEqual(dashboard.upcomingDues.map((row: { amount: string }) => row.amount), ['25.00']);
+    await verify(await claim(id, '25.00', 'CLIENT_RECEIPT', undefined, 'BOOKING')).expect(201);
+    dashboard = (await api('get', `/reports/founder-dashboard?weddingId=${id}`, 'founder').expect(200)).body;
+    assert.deepEqual(dashboard.upcomingDues, []);
+  });
+  it('prevents closed wedding enquiries from being edited or reassigned', async () => {
+    const created = (await api('post', '/enquiries', 'planner', { clientIds: [clientId], wedding: { title: 'FICTIONAL closed enquiry', packageType: 'PARTIAL_DAY_OF' } }).expect(201)).body;
+    await api('patch', `/weddings/${created.wedding.id}`, 'planner', { state: 'CANCELLED' }).expect(200);
+    await api('patch', `/enquiries/${created.enquiry.id}`, 'planner', { stage: 'CONTACTED' }).expect(409);
+    await api('post', `/enquiries/${created.enquiry.id}/assignment`, 'founder', { userId: users.planner }).expect(409);
+    assert.equal((await owner.enquiry.findUniqueOrThrow({ where: { id: created.enquiry.id } })).stage, 'NEW');
   });
 });

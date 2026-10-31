@@ -30,6 +30,8 @@ export function registerConsultationsRoutes(route: RouteRegistrar) {
   route('patch', '/consultations/:id', { summary: 'Planner confirms, reschedules, completes or cancels consultation', roles: staffWrite, body: c.consultationDecision, response: c.consultationDto,
     async guard({ tx, user, params }) { if (!await tx.consultation.findFirst({ where: { id: params.id, wedding: weddingFilter(user) } })) throw missing(); },
     async handler({ tx, user, body, params }) {
+      const reference = await tx.consultation.findUniqueOrThrow({ where: { id: params.id } });
+      await weddingAccess(tx, user, reference.weddingId, true);
       await tx.$queryRaw`SELECT id FROM app."Consultation" WHERE id = ${params.id!}::uuid FOR UPDATE`;
       const before = await tx.consultation.findUniqueOrThrow({ where: { id: params.id } });
       if (['COMPLETED', 'CANCELLED'].includes(before.state) || (body.state === 'COMPLETED' && before.state !== 'CONFIRMED')) throw new ApiError(409, 'INVALID_TRANSITION', 'This consultation decision is not allowed');

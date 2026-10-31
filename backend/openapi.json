@@ -24712,7 +24712,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -25019,7 +25019,7 @@
                           },
                           "amount": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "currency": {
                             "type": "string",
@@ -25298,7 +25298,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -25582,7 +25582,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -25873,7 +25873,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -26159,7 +26159,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -26445,7 +26445,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -26706,7 +26706,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -26715,13 +26715,13 @@
                     },
                     "approvedClientCharges": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "collectible": {
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -26730,13 +26730,13 @@
                     },
                     "cashCollected": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "outstandingReceivable": {
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -26745,7 +26745,7 @@
                     },
                     "creditBalance": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "milestones": {
                       "type": "array",
@@ -26786,11 +26786,11 @@
                           },
                           "verifiedReceived": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "outstanding": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           }
                         },
                         "required": [
@@ -26810,7 +26810,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -27268,7 +27268,7 @@
                     },
                     "clientCharge": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -27322,22 +27322,22 @@
                     },
                     "unitRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxRate": {
                       "type": "string"
                     },
                     "netAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "total": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "supportingDocumentId": {
                       "anyOf": [
@@ -27563,7 +27563,7 @@
                               },
                               "clientCharge": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "currency": {
                                 "type": "string",
@@ -27646,7 +27646,7 @@
                               },
                               "clientCharge": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "currency": {
                                 "type": "string",
@@ -27700,22 +27700,22 @@
                               },
                               "unitRate": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "taxRate": {
                                 "type": "string"
                               },
                               "netAmount": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "taxAmount": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "total": {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               "supportingDocumentId": {
                                 "anyOf": [
@@ -27948,7 +27948,7 @@
                     },
                     "clientCharge": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -28179,7 +28179,7 @@
                     },
                     "clientCharge": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -28233,22 +28233,22 @@
                     },
                     "unitRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxRate": {
                       "type": "string"
                     },
                     "netAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "total": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "supportingDocumentId": {
                       "anyOf": [
@@ -28477,7 +28477,7 @@
                     },
                     "clientCharge": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -28531,22 +28531,22 @@
                     },
                     "unitRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxRate": {
                       "type": "string"
                     },
                     "netAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "taxAmount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "total": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "supportingDocumentId": {
                       "anyOf": [
@@ -28770,7 +28770,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "approvedAt": {
                       "type": "string",
@@ -28979,7 +28979,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -29203,7 +29203,7 @@
                           },
                           "amount": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "currency": {
                             "type": "string",
@@ -29476,7 +29476,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -29713,7 +29713,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -29911,7 +29911,7 @@
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -29920,13 +29920,13 @@
                       },
                       "approvedExtras": {
                         "type": "string",
-                        "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                        "pattern": "^\\d+\\.\\d{2}$"
                       },
                       "committedCost": {
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -29937,7 +29937,7 @@
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -29948,7 +29948,7 @@
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -29957,21 +29957,21 @@
                       },
                       "vendorAdvances": {
                         "type": "string",
-                        "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                        "pattern": "^\\d+\\.\\d{2}$"
                       },
                       "vendorFinalPayments": {
                         "type": "string",
-                        "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                        "pattern": "^\\d+\\.\\d{2}$"
                       },
                       "cashPaid": {
                         "type": "string",
-                        "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                        "pattern": "^\\d+\\.\\d{2}$"
                       },
                       "remainingPayable": {
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -29982,7 +29982,7 @@
                         "anyOf": [
                           {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           {
                             "type": "null"
@@ -30204,7 +30204,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "recognizedAt": {
                       "type": "string",
@@ -30412,7 +30412,7 @@
                           },
                           "amount": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "recognizedAt": {
                             "type": "string",
@@ -30653,7 +30653,7 @@
                     },
                     "amount": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "recognizedAt": {
                       "type": "string",
@@ -31336,11 +31336,11 @@
                     },
                     "hourlyRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "cost": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -31571,11 +31571,11 @@
                           },
                           "hourlyRate": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "cost": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "currency": {
                             "type": "string",
@@ -31839,11 +31839,11 @@
                     },
                     "hourlyRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "cost": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -32082,11 +32082,11 @@
                     },
                     "hourlyRate": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "cost": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "currency": {
                       "type": "string",
@@ -32305,7 +32305,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32316,7 +32316,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32325,17 +32325,17 @@
                     },
                     "recognizedRevenue": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "cashCollected": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "committedVendorCosts": {
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32344,21 +32344,21 @@
                     },
                     "actualVendorCosts": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "approvedLabourCosts": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "approvedOtherDirectCosts": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "outstandingReceivables": {
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32369,7 +32369,7 @@
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32377,16 +32377,21 @@
                       ]
                     },
                     "operationalProfit": {
-                      "type": [
-                        "string",
-                        "null"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?\\d+\\.\\d{2}$"
+                        },
+                        {
+                          "type": "null"
+                        }
                       ]
                     },
                     "estimatedTotalCosts": {
                       "anyOf": [
                         {
                           "type": "string",
-                          "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                          "pattern": "^\\d+\\.\\d{2}$"
                         },
                         {
                           "type": "null"
@@ -32395,12 +32400,17 @@
                     },
                     "actualTotalCosts": {
                       "type": "string",
-                      "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                      "pattern": "^\\d+\\.\\d{2}$"
                     },
                     "costVariance": {
-                      "type": [
-                        "string",
-                        "null"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^-?\\d+\\.\\d{2}$"
+                        },
+                        {
+                          "type": "null"
+                        }
                       ]
                     }
                   },
@@ -32639,7 +32649,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32650,7 +32660,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32659,17 +32669,17 @@
                           },
                           "recognizedRevenue": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "cashCollected": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "committedVendorCosts": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32678,21 +32688,21 @@
                           },
                           "actualVendorCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "approvedLabourCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "approvedOtherDirectCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "outstandingReceivables": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32703,7 +32713,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32711,16 +32721,21 @@
                             ]
                           },
                           "operationalProfit": {
-                            "type": [
-                              "string",
-                              "null"
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^-?\\d+\\.\\d{2}$"
+                              },
+                              {
+                                "type": "null"
+                              }
                             ]
                           },
                           "estimatedTotalCosts": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32729,12 +32744,17 @@
                           },
                           "actualTotalCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "costVariance": {
-                            "type": [
-                              "string",
-                              "null"
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^-?\\d+\\.\\d{2}$"
+                              },
+                              {
+                                "type": "null"
+                              }
                             ]
                           }
                         },
@@ -32797,7 +32817,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32808,7 +32828,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32817,17 +32837,17 @@
                           },
                           "recognizedRevenue": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "cashCollected": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "committedVendorCosts": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32836,21 +32856,21 @@
                           },
                           "actualVendorCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "approvedLabourCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "approvedOtherDirectCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "outstandingReceivables": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32861,7 +32881,7 @@
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32869,16 +32889,21 @@
                             ]
                           },
                           "operationalProfit": {
-                            "type": [
-                              "string",
-                              "null"
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^-?\\d+\\.\\d{2}$"
+                              },
+                              {
+                                "type": "null"
+                              }
                             ]
                           },
                           "estimatedTotalCosts": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                                "pattern": "^\\d+\\.\\d{2}$"
                               },
                               {
                                 "type": "null"
@@ -32887,12 +32912,17 @@
                           },
                           "actualTotalCosts": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "costVariance": {
-                            "type": [
-                              "string",
-                              "null"
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^-?\\d+\\.\\d{2}$"
+                              },
+                              {
+                                "type": "null"
+                              }
                             ]
                           }
                         },
@@ -32945,7 +32975,7 @@
                           },
                           "amount": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "currency": {
                             "type": "string",
@@ -32994,7 +33024,7 @@
                           },
                           "approvedCost": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           }
                         },
                         "required": [
@@ -33036,7 +33066,7 @@
                           },
                           "verifiedBillCost": {
                             "type": "string",
-                            "pattern": "^\\d{1,14}(\\.\\d{1,2})?$"
+                            "pattern": "^\\d+\\.\\d{2}$"
                           },
                           "currency": {
                             "type": "string",

@@ -243,6 +243,7 @@ model Document {
   payments    BookingPayment[]
   expenses AdditionalExpense[]
   bills VendorBill[]
+  @@unique([id, weddingId])
   @@index([weddingId, kind])
 }
 
@@ -255,9 +256,9 @@ model Agreement {
   version     Int @default(1)
   status      AgreementStatus @default(DRAFT)
   documentId  String? @db.Uuid
-  document    Document? @relation("AgreementDocument", fields: [documentId], references: [id], onDelete: Restrict)
+  document    Document? @relation("AgreementDocument", fields: [documentId, weddingId], references: [id, weddingId], onDelete: Restrict)
   signedDocumentId String? @db.Uuid
-  signedDocument Document? @relation("SignatureDocument", fields: [signedDocumentId], references: [id], onDelete: Restrict)
+  signedDocument Document? @relation("SignatureDocument", fields: [signedDocumentId, weddingId], references: [id, weddingId], onDelete: Restrict)
   sentAt      DateTime? @db.Timestamptz(3)
   claimedSignedAt DateTime? @db.Timestamptz(3)
   signedAt    DateTime? @db.Timestamptz(3)
@@ -266,6 +267,8 @@ model Agreement {
   reviewNote  String?
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  @@index([documentId, weddingId])
+  @@index([signedDocumentId, weddingId])
 }
 
 model VendorCategory {
@@ -317,6 +320,7 @@ model QuotationRound {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   requests    QuotationRequest[]
   @@unique([weddingId, categoryCode])
+  @@index([categoryCode])
 }
 
 model QuotationRequest {
@@ -330,6 +334,7 @@ model QuotationRequest {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   quotation   Quotation?
   @@unique([roundId, vendorId])
+  @@index([vendorId])
 }
 
 model Quotation {
@@ -386,6 +391,7 @@ model WeddingVendor {
   @@unique([weddingId, categoryCode])
   @@index([vendorId])
   @@unique([weddingId, vendorId])
+  @@index([categoryCode])
 }
 
 enum TimelineStatus {
@@ -418,6 +424,7 @@ model TimelineEvent {
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
   @@unique([id, weddingId])
   @@index([weddingId, plannedStart])
+  @@index([functionId, weddingId])
   @@index([ownerId])
 }
 
@@ -457,6 +464,7 @@ model VendorArrival {
   coordinator UserProfile? @relation(fields: [coordinatorId], references: [id], onDelete: Restrict)
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   @@unique([weddingId, vendorId, expectedAt])
+  @@index([functionId, weddingId])
   @@index([coordinatorId])
 }
 
@@ -526,6 +534,7 @@ model ScheduleChange {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   @@index([weddingId, createdAt])
   @@unique([id, weddingId])
+  @@index([eventId, weddingId])
 }
 
 enum AcknowledgementStatus {
@@ -557,6 +566,8 @@ model ScheduleNotification {
   @@unique([changeId, userId])
   @@index([weddingId, status])
   @@index([changeId, weddingId])
+  @@index([vendorId])
+  @@index([userId])
 }
 
 enum BookingPaymentStatus {
@@ -597,7 +608,7 @@ model BookingPayment {
   reversedAt DateTime? @db.Timestamptz(3)
   reversalNote String?
   evidenceDocumentId String? @db.Uuid
-  evidenceDocument Document? @relation(fields: [evidenceDocumentId], references: [id], onDelete: Restrict)
+  evidenceDocument Document? @relation(fields: [evidenceDocumentId, weddingId], references: [id, weddingId], onDelete: Restrict)
   claimedBy   String @db.Uuid
   reviewedBy  String? @db.Uuid
   reviewedAt  DateTime? @db.Timestamptz(3)
@@ -605,6 +616,7 @@ model BookingPayment {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   @@index([weddingId, status])
   @@index([weddingVendorId, weddingId])
+  @@index([evidenceDocumentId, weddingId])
 }
 
 model FinanceSettings {
@@ -645,7 +657,7 @@ model AdditionalExpense {
   clientCharge Decimal @db.Decimal(16, 2)
   currency String @db.VarChar(3)
   supportingDocumentId String? @db.Uuid
-  supportingDocument Document? @relation(fields: [supportingDocumentId], references: [id], onDelete: Restrict)
+  supportingDocument Document? @relation(fields: [supportingDocumentId, weddingId], references: [id, weddingId], onDelete: Restrict)
   status ExpenseStatus @default(PENDING)
   requestedBy String @db.Uuid
   clientApprovedBy String? @db.Uuid
@@ -656,6 +668,7 @@ model AdditionalExpense {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   @@unique([weddingId, reference])
   @@index([weddingVendorId, weddingId])
+  @@index([supportingDocumentId, weddingId])
   @@index([weddingId, status])
 }
 
@@ -670,7 +683,7 @@ model VendorBill {
   currency String @db.VarChar(3)
   dueAt DateTime @db.Timestamptz(3)
   documentId String? @db.Uuid
-  document Document? @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  document Document? @relation(fields: [documentId, weddingId], references: [id, weddingId], onDelete: Restrict)
   submittedBy String @db.Uuid
   verifiedBy String? @db.Uuid
   verifiedAt DateTime? @db.Timestamptz(3)
@@ -678,6 +691,7 @@ model VendorBill {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   @@index([weddingId, dueAt])
   @@unique([weddingVendorId, weddingId])
+  @@index([documentId, weddingId])
 }
 
 model RevenueRecognition {

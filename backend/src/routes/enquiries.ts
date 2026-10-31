@@ -5,11 +5,14 @@ import * as c from '../contracts.js';
 import { ApiError, forbidden, missing } from '../errors.js';
 import { audit, presentEnquiry, presentWedding, weddingFilter } from '../access.js';
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
+import { mutableWedding } from '../services/workflow-access.js';
 
 export function registerEnquiriesRoutes(route: RouteRegistrar) {
   route('post', '/enquiries/:id/assignment', { summary: 'Founder assigns the enquiry owner and grants wedding membership', roles: ['FOUNDER'], body: z.object({ userId: c.uuid }).strict(), response: c.enquiryDto,
     async guard({ tx, user, params }) { if (!await tx.enquiry.findFirst({ where: { id: params.id, wedding: weddingFilter(user) } })) throw missing(); },
     async handler({ tx, user, params, body }) {
+      const enquiry = await tx.enquiry.findUniqueOrThrow({ where: { id: params.id } });
+      await mutableWedding(tx, user, enquiry.weddingId);
       const staff = await tx.userProfile.findUnique({ where: { id: body.userId } });
       if (!staff?.active || staff.role !== 'PLANNER') throw new ApiError(400, 'INVALID_PLANNER', 'Enquiry owner must be an active planner');
       const row = await tx.enquiry.update({ where: { id: params.id }, data: { assignedToId: body.userId } });
@@ -39,6 +42,8 @@ export function registerEnquiriesRoutes(route: RouteRegistrar) {
   route('patch', '/enquiries/:id', { summary: 'Update enquiry stage independently from wedding lifecycle', roles: staffWrite, body: c.enquiryPatch, response: c.enquiryDto,
     async guard({ tx, user, params }) { if (!await tx.enquiry.findFirst({ where: { id: params.id, wedding: weddingFilter(user) } })) throw missing(); },
     async handler({ tx, user, body, params }) {
+      const reference = await tx.enquiry.findUniqueOrThrow({ where: { id: params.id } });
+      await mutableWedding(tx, user, reference.weddingId);
       const before = await tx.enquiry.findUniqueOrThrow({ where: { id: params.id } });
       const row = await tx.enquiry.update({ where: { id: params.id }, data: { ...body, ...(body.followUpAt !== undefined ? { followUpAt: body.followUpAt ? new Date(body.followUpAt) : null } : {}) } });
       await audit(tx, user.id, 'ENQUIRY_UPDATED', row.id, row.weddingId, { previousStage: before.stage, stage: row.stage });

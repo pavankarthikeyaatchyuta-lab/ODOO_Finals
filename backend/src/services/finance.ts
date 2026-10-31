@@ -232,7 +232,12 @@ export async function dashboard(tx: Tx, user: UserProfile, query: z.infer<typeof
   for (const wedding of weddings) {
     reports.push(await profitability(tx, user, wedding.id));
     const balance = await clientBalance(tx, user, wedding.id);
-    for (const row of balance.milestones) if (new D(row.outstanding).gt(0)) upcomingDues.push({ weddingId: wedding.id, kind: 'CLIENT_RECEIPT', recordId: row.id, dueAt: row.dueAt, amount: row.outstanding, currency: balance.currency });
+    let clientDue = new D(balance.outstandingReceivable ?? '0');
+    for (const row of balance.milestones) {
+      const due = D.min(row.outstanding, clientDue);
+      if (due.gt(0)) upcomingDues.push({ weddingId: wedding.id, kind: 'CLIENT_RECEIPT', recordId: row.id, dueAt: row.dueAt, amount: due.toFixed(2), currency: balance.currency });
+      clientDue = clientDue.minus(due);
+    }
     const bills = await tx.vendorBill.findMany({ where: { weddingId: wedding.id, verifiedAt: { not: null } } });
     const reconciled = await reconciliation(tx, user, wedding.id);
     for (const row of reconciled) if (row.remainingPayable && new D(row.remainingPayable).gt(0)) upcomingDues.push({ weddingId: wedding.id, kind: 'VENDOR_DISBURSEMENT', recordId: bills.find(b => b.weddingVendorId === row.weddingVendorId)!.id, dueAt: row.dueAt!, amount: row.remainingPayable, currency: balance.currency });

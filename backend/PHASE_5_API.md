@@ -105,6 +105,8 @@ The test runs a 400-guest wedding with 60 extra guests. Expected values are deri
 
 ## Limitations
 
+Aggregate response amounts are canonical decimal strings with exactly two fractional digits and may exceed one `DECIMAL(16,2)` column's range when many records are summed. Stored amount inputs retain their existing 14-integer-digit limit. Preserve response strings for exact values; avoid floating-point calculations in the browser. Founder client dues are capped at the wedding's actual outstanding receivable, even when excess receipts were recorded against a different milestone; underlying payment milestone history is retained.
+
 - No payment gateway or bank feed is connected. Verification is a manual finance attestation, recorded as `MANUAL_BANK_REVIEW` and fully audited.
 - Settings, verified bills and approved contracts are immutable. Corrections after approval require a new phase's change workflow.
 - Tax is a single rate per line. GST split (CGST/SGST/IGST) is not modelled.
