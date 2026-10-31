@@ -82,11 +82,10 @@ body {
 }
 
 /* =============================================================================
- * DARK PALACE THEME SPECIFICATION
+ * DARK PALACE THEME SPECIFICATION - COMPREHENSIVE MULTI-PAGE ENGINE
  * =============================================================================
- * Implements high-contrast luxury dark theme tokens for midnight royal palace
- * aesthetic while preserving gold filigree (#C5A059), readable contrast, and
- * smooth atmospheric transitions across all stakeholder portals.
+ * Ultra-luxury high-contrast dark theme spanning all Agency workspaces,
+ * Client & Vendor portals, forms, data tables, modals, badges, and charts.
  */
 
 html.dark body {
@@ -98,12 +97,51 @@ html.dark {
   color-scheme: dark;
 }
 
+/* --- 1. Surfaces & Backgrounds --- */
+/* Match any white background including opacity variants */
+html.dark [class*="bg-white"] {
+  background-color: #111D2E !important;
+}
 
-/* Dark Mode Navigation & Sticky Headers */
+/* Explicit low-opacity overlays on dark surfaces (<= 15%) */
+html.dark [class*="bg-white/5"] {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+html.dark [class*="bg-white/10"] {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.dark [class*="bg-white/15"],
+html.dark [class*="bg-white/20"] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Primary Page Canvas */
+html.dark .bg-\[\#FDFBF7\],
+html.dark [class*="bg-[#FDFBF7]"],
+html.dark .bg-\[\#FBF9F5\],
+html.dark [class*="bg-[#FBF9F5]"] {
+  background-color: #0A111C !important;
+}
+
+/* Soft Cream & Ivory Panels */
+html.dark .bg-\[\#F5F1E8\],
+html.dark [class*="bg-[#F5F1E8]"] {
+  background-color: #152338 !important;
+}
+
+/* Slate Surfaces (Tables, headers, search bars, modals, tabs) */
+html.dark [class*="bg-slate-50"] {
+  background-color: #132238 !important;
+}
+html.dark [class*="bg-slate-100"] {
+  background-color: #182A43 !important;
+}
+html.dark [class*="bg-slate-200"] {
+  background-color: #223859 !important;
+}
+
+/* Navigation & Sticky Headers */
 html.dark header,
-html.dark .bg-white\/95,
-html.dark .bg-white\/90,
-html.dark .bg-white\/80,
 html.dark [class*="bg-white/95"],
 html.dark [class*="bg-white/90"],
 html.dark [class*="bg-white/80"] {
@@ -111,80 +149,41 @@ html.dark [class*="bg-white/80"] {
   border-color: #1E3350 !important;
 }
 
-/* Ensure all border variants with opacity modifiers take dark border in dark mode */
-html.dark [class*="border-slate-200"],
+/* --- 2. Borders & Dividers --- */
 html.dark [class*="border-slate-100"],
-html.dark [class*="border-slate-300"] {
+html.dark [class*="border-slate-200"],
+html.dark [class*="border-slate-300"],
+html.dark [class*="divide-slate-100"] > *,
+html.dark [class*="divide-slate-200"] > * {
   border-color: #1E3350 !important;
 }
 
-/* Dark Mode Backgrounds */
-html.dark .bg-white {
-  background-color: #111D2E !important;
-}
-
-html.dark .bg-\[\#FDFBF7\] {
-  background-color: #0A111C !important;
-}
-
-html.dark .bg-\[\#F5F1E8\] {
-  background-color: #152338 !important;
-}
-
-html.dark .bg-\[\#F5F1E8\]\/40,
-html.dark .bg-\[\#F5F1E8\]\/50 {
-  background-color: rgba(21, 35, 56, 0.6) !important;
-}
-
-html.dark .bg-slate-50 {
-  background-color: #132238 !important;
-}
-
-html.dark .bg-slate-100 {
-  background-color: #192B45 !important;
-}
-
-html.dark .bg-slate-200 {
-  background-color: #223859 !important;
-}
-
-html.dark .bg-slate-200\/50 {
-  background-color: rgba(34, 56, 89, 0.4) !important;
-}
-
-/* Dark Mode Borders */
-html.dark .border-slate-200,
-html.dark .border-slate-200\/90,
-html.dark .border-slate-100,
-html.dark .border-slate-300 {
-  border-color: #1E3350 !important;
-}
-
-html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #1E3350 !important;
-}
-
-/* Dark Mode Typography */
-html.dark .text-\[\#0D1B2A\] {
+/* --- 3. Typography --- */
+html.dark [class*="text-[#0D1B2A]"] {
   color: #F8FAFC !important;
 }
-
 html.dark .text-slate-900,
 html.dark .text-slate-800,
-html.dark .text-slate-700 {
+html.dark .text-slate-700,
+html.dark [class*="text-slate-900"],
+html.dark [class*="text-slate-800"],
+html.dark [class*="text-slate-700"] {
   color: #E2E8F0 !important;
 }
-
-html.dark .text-slate-600 {
+html.dark .text-slate-600,
+html.dark [class*="text-slate-600"] {
   color: #94A3B8 !important;
 }
-
-html.dark .text-slate-500 {
-  color: #718096 !important;
+html.dark .text-slate-500,
+html.dark [class*="text-slate-500"] {
+  color: #7889A0 !important;
+}
+html.dark .text-slate-400,
+html.dark [class*="text-slate-400"] {
+  color: #64748B !important;
 }
 
-/* Dark Mode Form Inputs */
+/* --- 4. Form Controls & Inputs --- */
 html.dark input:not([type="checkbox"]):not([type="radio"]),
 html.dark select,
 html.dark textarea {
@@ -192,13 +191,81 @@ html.dark textarea {
   color: #F8FAFC !important;
   border-color: #243B5C !important;
 }
-
+html.dark select option {
+  background-color: #111D2E !important;
+  color: #F8FAFC !important;
+}
 html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #64748B !important;
 }
 
-/* Dark Mode Table Styling */
+/* --- 5. Operational Status Badges & Alert Cards --- */
+/* Amber (Warnings, Delays) */
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-amber-100"] {
+  background-color: rgba(120, 53, 15, 0.32) !important;
+  border-color: rgba(217, 119, 6, 0.5) !important;
+}
+html.dark [class*="text-amber-700"],
+html.dark [class*="text-amber-800"],
+html.dark [class*="text-amber-900"],
+html.dark [class*="text-amber-950"] {
+  color: #FCD34D !important;
+}
+
+/* Rose / Crimson (Alerts, Overdue, Blocked) */
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-rose-100"] {
+  background-color: rgba(136, 19, 55, 0.32) !important;
+  border-color: rgba(225, 29, 72, 0.5) !important;
+}
+html.dark [class*="text-rose-600"],
+html.dark [class*="text-rose-700"],
+html.dark [class*="text-rose-800"],
+html.dark [class*="text-rose-900"] {
+  color: #FDA4AF !important;
+}
+
+/* Emerald (Success, Confirmed, Live) */
+html.dark [class*="bg-emerald-50"],
+html.dark [class*="bg-emerald-100"] {
+  background-color: rgba(6, 78, 59, 0.32) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+}
+html.dark [class*="text-emerald-600"],
+html.dark [class*="text-emerald-700"],
+html.dark [class*="text-emerald-800"],
+html.dark [class*="text-emerald-900"] {
+  color: #6EE7B7 !important;
+}
+
+/* Blue & Indigo (Info, Communications) */
+html.dark [class*="bg-blue-50"],
+html.dark [class*="bg-blue-100"],
+html.dark [class*="bg-indigo-50"] {
+  background-color: rgba(30, 58, 138, 0.32) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+}
+html.dark [class*="text-blue-600"],
+html.dark [class*="text-blue-700"],
+html.dark [class*="text-blue-800"],
+html.dark [class*="text-indigo-800"] {
+  color: #93C5FD !important;
+}
+
+/* Orange (Pending, RFQs) */
+html.dark [class*="bg-orange-50"],
+html.dark [class*="bg-orange-100"] {
+  background-color: rgba(124, 45, 18, 0.32) !important;
+  border-color: rgba(234, 88, 12, 0.5) !important;
+}
+html.dark [class*="text-orange-700"],
+html.dark [class*="text-orange-800"] {
+  color: #FDBA74 !important;
+}
+
+/* --- 6. Tables & Data Display --- */
 html.dark table thead,
 html.dark table thead tr,
 html.dark table thead th {
@@ -206,37 +273,62 @@ html.dark table thead th {
   color: #CBD5E1 !important;
   border-color: #1E3350 !important;
 }
-
 html.dark table tbody td {
   border-color: #1E3350 !important;
 }
-
 html.dark table tbody tr:hover {
   background-color: rgba(197, 160, 89, 0.08) !important;
 }
 
-/* Dark Mode Hover State Overrides */
-html.dark .hover\:bg-slate-50:hover {
+/* --- 7. Modals, Popovers & Dialogs --- */
+html.dark [role="dialog"] {
+  background-color: #111D2E !important;
+  border-color: #1E3350 !important;
+}
+
+/* --- 8. Gradients --- */
+html.dark .to-white,
+html.dark [class*="to-white"] {
+  --tw-gradient-to: #111D2E !important;
+}
+html.dark .from-\[\#F5F1E8\],
+html.dark [class*="from-[#F5F1E8]"] {
+  --tw-gradient-from: #152338 !important;
+}
+
+/* --- 9. Hover State Overrides --- */
+html.dark [class*="hover:bg-slate-50"]:hover {
   background-color: #17273E !important;
 }
-
-html.dark .hover\:bg-slate-100:hover {
+html.dark [class*="hover:bg-slate-100"]:hover {
   background-color: #1C304C !important;
 }
-
-html.dark .hover\:bg-slate-200\/50:hover {
-  background-color: rgba(34, 56, 89, 0.6) !important;
+html.dark [class*="hover:bg-white"]:hover {
+  background-color: #16243A !important;
 }
 
-/* Dark Mode Subtle Shadows */
+/* --- 10. Recharts Dark Mode Integration --- */
+html.dark .recharts-cartesian-grid line {
+  stroke: #1E3350 !important;
+}
+html.dark .recharts-text {
+  fill: #94A3B8 !important;
+}
+html.dark .recharts-default-tooltip {
+  background-color: #0D1B2A !important;
+  border-color: rgba(197, 160, 89, 0.5) !important;
+  color: #F8FAFC !important;
+  border-radius: 12px !important;
+}
+
+/* --- 11. Subtle Dark Shadows --- */
 html.dark .shadow-xs,
 html.dark .shadow-2xs,
 html.dark .shadow-sm {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5) !important;
 }
-
 html.dark .shadow-md,
 html.dark .shadow-lg,
 html.dark .shadow-xl {
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7) !important;
 }

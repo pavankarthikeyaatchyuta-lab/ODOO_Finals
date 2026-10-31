@@ -238,7 +238,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 <YAxis tick={{ fontSize: 11 }} unit="L" />
                 <Tooltip
                   formatter={(val: any) => [`₹${val} Lakhs`, '']}
-                  contentStyle={{ borderRadius: '8px', fontSize: '12px', border: '1px solid #e2e8f0' }}
+                  contentStyle={{ backgroundColor: '#0D1B2A', borderRadius: '12px', fontSize: '12px', border: '1px solid rgba(197, 160, 89, 0.4)', color: '#F8FAFC' }}
+                  itemStyle={{ color: '#DFCA9B' }}
                 />
                 <Bar dataKey="Revenue" fill="#1B3B6F" name="Client Revenue" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="Cost" fill="#94a3b8" name="Vendor & Extras Cost" radius={[4, 4, 0, 0]} />
