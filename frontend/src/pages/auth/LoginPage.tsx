@@ -149,7 +149,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              Caterer
+              Vendor
             </button>
             <button
               type="button"

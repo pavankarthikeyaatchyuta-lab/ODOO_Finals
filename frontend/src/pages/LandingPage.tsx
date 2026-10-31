@@ -426,7 +426,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Partner Extranet
                 </span>
                 <h3 className="font-serif font-bold text-lg text-[#0D1B2A] mt-2">
-                  SpiceHeaven Caterers
+                  Vendor Partner (All Categories)
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
                   Dedicated vendor portal: Call-time schedule, 1-click delay acknowledgment, and invoice status.
