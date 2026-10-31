@@ -324,7 +324,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Sort by clicking any column header. Adjust row limits (5, 10, 25, 50, custom) and navigate pages below.
+              Sort by clicking any column header to inspect active estate operations.
             </p>
           </div>
           <button

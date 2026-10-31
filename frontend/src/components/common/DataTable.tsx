@@ -164,6 +164,80 @@ export function DataTable<T>({
 
   return (
     <div className={`bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col ${className}`}>
+      {/* Top Controls Toolbar: Rows Per Page Selector & Showing Count */}
+      <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        {/* Left: Rows Per Page Selector Dropdown & Custom Input */}
+        <div className="flex items-center gap-2">
+          <span className="text-slate-600 font-medium">Rows per page:</span>
+          {isCustomPageSize ? (
+            <div className="inline-flex items-center gap-1 bg-white border border-[#C5A059] rounded-lg px-2 py-0.5 shadow-2xs">
+              <input
+                type="number"
+                min={1}
+                max={1000}
+                value={customInputValue}
+                autoFocus
+                placeholder="Rows"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCustomInputValue(val);
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num) && num > 0) {
+                    setCurrentPageSize(num);
+                    setCurrentPage(1);
+                  }
+                }}
+                className="w-14 text-xs font-semibold text-slate-800 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomPageSize(false);
+                  setCurrentPageSize(pageSizeOptions[0] || 5);
+                  setCurrentPage(1);
+                }}
+                title="Reset to preset options"
+                className="text-slate-400 hover:text-slate-700 text-xs font-bold px-0.5 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <select
+              value={pageSizeOptions.includes(currentPageSize) ? currentPageSize : 'custom'}
+              onChange={(e) => {
+                if (e.target.value === 'custom') {
+                  setIsCustomPageSize(true);
+                  setCustomInputValue(String(currentPageSize));
+                } else {
+                  setCurrentPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }
+              }}
+              className="bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#C5A059] cursor-pointer shadow-2xs"
+            >
+              {pageSizeOptions.map(opt => (
+                <option key={opt} value={opt}>
+                  {opt} rows
+                </option>
+              ))}
+              <option value="custom">Custom...</option>
+            </select>
+          )}
+        </div>
+
+        {/* Right: Showing entry count summary */}
+        <div>
+          <span>
+            Showing <span className="font-semibold text-slate-800">{sortedData.length > 0 ? (currentPage - 1) * currentPageSize + 1 : 0}</span> to{' '}
+            <span className="font-semibold text-slate-800">
+              {Math.min(currentPage * currentPageSize, sortedData.length)}
+            </span>{' '}
+            of <span className="font-semibold text-slate-800">{sortedData.length}</span> entries
+          </span>
+        </div>
+      </div>
+
       {/* Table Container */}
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left text-xs border-collapse">
@@ -241,77 +315,13 @@ export function DataTable<T>({
         </table>
       </div>
 
-      {/* Pagination & Row Limit Footer */}
+      {/* Pagination Navigation Footer */}
       <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/40 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-        {/* Left: Summary text & Rows per page selector */}
-        <div className="flex items-center gap-4 flex-wrap">
+        <div>
           <span>
-            Showing <span className="font-semibold text-slate-800">{sortedData.length > 0 ? (currentPage - 1) * currentPageSize + 1 : 0}</span> to{' '}
-            <span className="font-semibold text-slate-800">
-              {Math.min(currentPage * currentPageSize, sortedData.length)}
-            </span>{' '}
-            of <span className="font-semibold text-slate-800">{sortedData.length}</span> entries
+            Page <span className="font-semibold text-slate-800">{currentPage}</span> of{' '}
+            <span className="font-semibold text-slate-800">{totalPages}</span>
           </span>
-
-          {/* Rows Per Page Selector Dropdown & Custom Input */}
-          <div className="flex items-center gap-1.5 border-l border-slate-200 pl-4">
-            <span className="text-slate-500">Rows per page:</span>
-            {isCustomPageSize ? (
-              <div className="inline-flex items-center gap-1 bg-white border border-[#C5A059] rounded-lg px-2 py-0.5 shadow-2xs">
-                <input
-                  type="number"
-                  min={1}
-                  max={1000}
-                  value={customInputValue}
-                  autoFocus
-                  placeholder="Custom"
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setCustomInputValue(val);
-                    const num = parseInt(val, 10);
-                    if (!isNaN(num) && num > 0) {
-                      setCurrentPageSize(num);
-                      setCurrentPage(1);
-                    }
-                  }}
-                  className="w-14 text-xs font-semibold text-slate-800 focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCustomPageSize(false);
-                    setCurrentPageSize(pageSizeOptions[0] || 5);
-                    setCurrentPage(1);
-                  }}
-                  title="Reset to preset options"
-                  className="text-slate-400 hover:text-slate-700 text-xs font-bold px-0.5 cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <select
-                value={pageSizeOptions.includes(currentPageSize) ? currentPageSize : 'custom'}
-                onChange={(e) => {
-                  if (e.target.value === 'custom') {
-                    setIsCustomPageSize(true);
-                    setCustomInputValue(String(currentPageSize));
-                  } else {
-                    setCurrentPageSize(Number(e.target.value));
-                    setCurrentPage(1);
-                  }
-                }}
-                className="bg-white border border-slate-200/90 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#C5A059] cursor-pointer"
-              >
-                {pageSizeOptions.map(opt => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-                <option value="custom">Custom...</option>
-              </select>
-            )}
-          </div>
         </div>
 
         {/* Right: Page Navigation Controls */}
