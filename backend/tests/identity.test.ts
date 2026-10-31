@@ -5,17 +5,23 @@ import { randomUUID } from 'node:crypto';
 import { supabaseIdentity } from '../src/identity.js';
 
 const userId = randomUUID();
+const otherId = randomUUID();
 let invites = 0;
 let lastToken = '';
 let logoutToken = '';
+let adminToken = '';
 const issuedToken = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: userId, exp: Math.floor(Date.now() / 1000) + 3600, aud: 'authenticated' })).toString('base64url')}.dGVzdA`;
+const otherToken = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: otherId, exp: Math.floor(Date.now() / 1000) + 3600, aud: 'authenticated' })).toString('base64url')}.dGVzdA`;
 const server = createServer(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   if (req.url?.startsWith('/auth/v1/token?')) {
     let raw = '';
     for await (const chunk of req) raw += chunk;
     const body = JSON.parse(raw);
-    if (body.password === 'correct' || body.refresh_token === 'valid-refresh') res.end(JSON.stringify({ access_token: issuedToken, refresh_token: 'rotated-refresh', token_type: 'bearer', expires_in: 3600, user: { id: userId, email: 'known@test.invalid', aud: 'authenticated' } }));
+    if (body.password === 'correct' || body.refresh_token === 'valid-refresh') {
+      const other = body.email === 'other@test.invalid';
+      res.end(JSON.stringify({ access_token: other ? otherToken : issuedToken, refresh_token: other ? 'other-refresh' : 'rotated-refresh', token_type: 'bearer', expires_in: 3600, user: { id: other ? otherId : userId, email: other ? 'other@test.invalid' : 'known@test.invalid', aud: 'authenticated' } }));
+    }
     else { res.statusCode = body.password === 'rate-limited' ? 429 : 400; res.end(JSON.stringify({ message: 'Invalid credentials or session', code: 'invalid_credentials' })); }
   } else if (req.url?.startsWith('/auth/v1/logout?')) {
     logoutToken = req.headers.authorization ?? '';
@@ -23,8 +29,10 @@ const server = createServer(async (req, res) => {
   } else if (req.url === '/auth/v1/user') {
     lastToken = req.headers.authorization ?? '';
     if (lastToken === 'Bearer valid') res.end(JSON.stringify({ id: userId, email: 'known@test.invalid', aud: 'authenticated' }));
+    else if (lastToken === 'Bearer throttled') { res.statusCode = 429; res.end(JSON.stringify({ message: 'Rate limit exceeded', code: 'over_request_rate_limit' })); }
     else { res.statusCode = 401; res.end(JSON.stringify({ message: 'Expired or invalid JWT', code: 'bad_jwt' })); }
   } else if (req.url?.startsWith('/auth/v1/admin/users')) {
+    adminToken = req.headers.authorization ?? '';
     res.end(JSON.stringify({ users: [{ id: userId, email: 'known@test.invalid' }], aud: 'authenticated', total: 1 }));
   } else if (req.url?.startsWith('/auth/v1/invite?') && req.method === 'POST') {
     invites++; res.end(JSON.stringify({ id: randomUUID(), email: 'new@test.invalid', aud: 'authenticated' }));
@@ -43,6 +51,8 @@ it('verifies bearer tokens through Supabase Auth instead of trusting decoded cla
   assert.equal(lastToken, 'Bearer valid');
   assert.equal(await provider.verify('expired'), null);
   assert.equal(await provider.verify('malformed'), null);
+  // A future-expiry JWT with a real-looking subject still fails provider verification.
+  assert.equal(await provider.verify(issuedToken), null);
 });
 it('recovers an existing identity without sending duplicate invitations', async () => {
   assert.equal(await provider.invite('known@test.invalid'), userId);
@@ -71,4 +81,14 @@ it('rejects invalid password/refresh credentials and maps provider rate limits',
 it('revokes the bearer session through the Supabase logout endpoint', async () => {
   await provider.signOut('valid');
   assert.equal(logoutToken, 'Bearer valid');
+});
+it('reports Supabase verification throttling without misclassifying a valid token as invalid', async () => {
+  await assert.rejects(provider.verify('throttled'), { status: 429, code: 'AUTH_RATE_LIMITED' });
+});
+it('isolates two concurrent users in the actual SDK adapter and preserves administrative authorization', async () => {
+  const [first, second] = await Promise.all([provider.signIn('known@test.invalid', 'correct'), provider.signIn('other@test.invalid', 'correct')]);
+  assert.equal(first?.userId, userId); assert.equal(first?.accessToken, issuedToken);
+  assert.equal(second?.userId, otherId); assert.equal(second?.accessToken, otherToken);
+  assert.equal(await provider.invite('known@test.invalid'), userId);
+  assert.equal(adminToken, 'Bearer test-server-key');
 });

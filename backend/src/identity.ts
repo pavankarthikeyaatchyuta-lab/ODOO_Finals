@@ -1,5 +1,6 @@
 import { createClient, type AuthError, type Session } from '@supabase/supabase-js';
 import { ApiError } from './errors.js';
+import { uuid } from './contracts.js';
 
 export interface IdentityProvider {
   verify(token: string): Promise<string | null>;
@@ -10,6 +11,17 @@ export interface IdentityProvider {
 }
 
 export interface IdentitySession { userId: string; accessToken: string; refreshToken: string; expiresAt: number; tokenType: 'bearer' }
+
+export async function identityCall<T>(operation: () => Promise<T>): Promise<T> {
+  try { return await operation(); }
+  catch (error) { if (error instanceof ApiError) throw error; throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable'); }
+}
+
+export async function verifiedIdentity(identity: IdentityProvider, token: string) {
+  const id = await identityCall(() => identity.verify(token));
+  if (id !== null && !uuid.safeParse(id).success) throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable');
+  return id;
+}
 
 function readSession(session: Session | null, error: AuthError | null): IdentitySession | null {
   if (error) {
@@ -43,6 +55,7 @@ export function supabaseIdentity(url: string, serviceKey: string, redirectTo: st
     async verify(token) {
       const { data, error } = await admin.auth.getUser(token);
       if (error) {
+        if (error.status === 429) throw new ApiError(429, 'AUTH_RATE_LIMITED', 'Too many authentication attempts; try again later');
         if (!error.status || error.status >= 500) throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable');
         return null;
       }

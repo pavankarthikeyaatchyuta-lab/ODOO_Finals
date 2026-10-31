@@ -41,7 +41,7 @@ export function createRouteRegistrar(app: Express, db: PrismaClient) {
       summary: options.summary, security, 'x-roles': options.roles ?? everyone, parameters,
       ...(options.body ? { requestBody: { required: true, content: { 'application/json': { schema: z.toJSONSchema(options.body, { io: 'input', unrepresentable: 'any' }) } } } } : {}),
       responses: { [method === 'post' ? '201' : '200']: { description: 'Success', content: { 'application/json': { schema: responseSchema(options.response) } } },
-        ...Object.fromEntries([400, 401, 403, 404, 409, 413, 500, 503].map(status => [status, { description: 'Error', content: { 'application/json': { schema: responseSchema(c.errorDto) } } }])) },
+        ...Object.fromEntries([400, 401, 403, 404, 409, 413, 429, 500, 503].map(status => [status, { description: 'Error', content: { 'application/json': { schema: responseSchema(c.errorDto) } } }])) },
     };
     app[method](`${base}${path}`, async (req, res, next) => {
       try {
@@ -55,6 +55,12 @@ export function createRouteRegistrar(app: Express, db: PrismaClient) {
         const fingerprint = createHash('sha256').update(JSON.stringify([method, req.path, body, query])).digest('hex');
         const response = await db.$transaction(async tx => {
           const ctx = { tx, user, body, query, params };
+          // Hold profile authorization stable until this request's transaction finishes.
+          await tx.$queryRaw`SELECT id FROM app."UserProfile" WHERE id=${user.id}::uuid FOR SHARE`;
+          const current = await tx.userProfile.findUnique({ where: { id: user.id } });
+          if (!current?.active) throw new ApiError(403, 'ACCOUNT_DISABLED', 'An active invited account is required');
+          if (!(options.roles ?? everyone).includes(current.role)) throw forbidden();
+          ctx.user = current;
           await options.guard?.(ctx);
           if (key) {
             await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`${user.id}:${key}`}, 0))`;

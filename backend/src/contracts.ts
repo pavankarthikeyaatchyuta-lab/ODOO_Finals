@@ -56,8 +56,8 @@ export const consultationDto = z.union([staffConsultationDto, clientConsultation
 export const assignmentDto = z.object({ weddingId: uuid, userId: uuid }).strict();
 export const archivedDto = z.object({ id: uuid, archivedAt: timestamp }).strict();
 export const loginInput = z.object({ email, password: z.string().min(1).max(1024) }).strict();
-export const refreshInput = z.object({ refreshToken: z.string().min(1).max(4096) }).strict();
-export const sessionDto = z.object({ accessToken: z.string(), refreshToken: z.string(), expiresAt: z.number().int(), tokenType: z.literal('bearer'), user: profileDto }).strict();
+export const refreshInput = z.object({ refreshToken: z.string().min(1).max(4096).regex(/^\S+$/) }).strict();
+export const sessionDto = z.object({ accessToken: z.string().min(1).regex(/^\S+$/), refreshToken: z.string().min(1).regex(/^\S+$/), expiresAt: z.number().int().positive(), tokenType: z.literal('bearer'), user: profileDto }).strict();
 export const successDto = z.object({ success: z.literal(true) }).strict();
 export const errorDto = z.object({ error: z.object({ code: z.string(), message: z.string(), fields: z.array(z.object({ path: z.string(), message: z.string() })).optional(), requestId: uuid }).strict() }).strict();
 export const listOf = <T extends z.ZodType>(item: T) => z.object({ data: z.array(item), page: z.number().int(), pageSize: z.number().int(), total: z.number().int() }).strict();
