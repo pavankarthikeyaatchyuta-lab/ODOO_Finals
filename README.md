@@ -211,7 +211,8 @@ npm test
 | **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison | ⏳ **In Progress** |
 | **Phase 3A** | Dedicated Wedding Workspace, Sub-Functions & Multi-View Task Management | ✅ **Completed** |
 | **Phase 3B** | Backend Automated 25+ Task Generation & Template Seeding Engine | ⏳ Upcoming |
-| **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | ⏳ Upcoming |
+| **Phase 4A** | Live Command Centre, Vendor Arrival Board, Closed-Loop Delay Engine & Incidents | ✅ **Completed** |
+| **Phase 4B** | Real-time WebSocket Notifications & Dispatch Automation | ⏳ Upcoming |
 | **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | ⏳ Upcoming |
 | **Phase 6** | Founder Season Profitability Analytics & Executive Reporting | ⏳ Upcoming |
 

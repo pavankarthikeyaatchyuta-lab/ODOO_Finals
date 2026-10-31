@@ -414,6 +414,7 @@ export const INITIAL_VENDOR_ARRIVALS: VendorArrival[] = [
     actualArrivalTime: '12:45',
     status: 'CHECKED_IN',
     isLate: false,
+    assignedCoordinator: 'Devendra Kaviraj',
     notes: 'Kitchen brigade checked in early. All 8 live counters operational.'
   },
   {
@@ -427,6 +428,7 @@ export const INITIAL_VENDOR_ARRIVALS: VendorArrival[] = [
     actualArrivalTime: '10:50',
     status: 'CHECKED_IN',
     isLate: false,
+    assignedCoordinator: 'Amit Sharma',
     notes: 'Mandap floral canopy 95% complete. Extra backup generator requested.'
   },
   {
@@ -440,6 +442,8 @@ export const INITIAL_VENDOR_ARRIVALS: VendorArrival[] = [
     actualArrivalTime: '16:45',
     status: 'LATE', // FLAGGED IN RED
     isLate: true,
+    delayMinutes: 45,
+    assignedCoordinator: 'Rohan Verma',
     notes: 'Late arrival: Transport truck held up at Sukhadia Circle traffic. Sound check delayed.'
   },
   {
@@ -453,6 +457,7 @@ export const INITIAL_VENDOR_ARRIVALS: VendorArrival[] = [
     actualArrivalTime: '15:20',
     status: 'CHECKED_IN',
     isLate: false,
+    assignedCoordinator: 'Priya Mehra',
     notes: 'Drone pilots registered with palace security. Ready for baraat arrival.'
   }
 ];
@@ -469,6 +474,13 @@ export const INITIAL_DELAYS: TimelineDelay[] = [
     reason: "Bride procession vehicle held up in traffic + makeup touch-up delay",
     approvedByPlanner: 'Priya Mehra (Lead Director)',
     createdAt: '2026-12-23 18:50',
+    state: 'PUBLISHED',
+    requester: 'Priya Mehra (Lead Luxury Director)',
+    approver: 'Devendra Kaviraj (Senior Planner) & Client Representative',
+    approvedAt: '2026-12-23 18:51:30',
+    publishedAt: '2026-12-23 18:52:00',
+    changeTimestamp: '2026-12-23 18:52:00',
+    impactAssessment: 'Cascades banquet opening by +25 mins. Cocktails extended with 4 additional hot canape passes.',
     affectedVendors: [
       {
         vendorId: 'vendor-photo',
@@ -527,7 +539,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     assignedTo: 'Rohan Verma (AV Lead)',
     category: 'VENDOR_DELAY',
     description: 'Main sound console truck delayed in Udaipur traffic. Backup sound console deployed for baraat.',
-    reportedAt: '16:15'
+    reportedAt: '16:15',
+    deadline: '17:30 (Before Baraat Welcome)'
   },
   {
     id: 'inc-02',
@@ -539,6 +552,7 @@ export const INITIAL_INCIDENTS: Incident[] = [
     category: 'EQUIPMENT',
     description: 'Mandap dynamic chandelier load exceeded generator headroom. Secondary silent generator brought in via boat.',
     reportedAt: '14:30',
+    deadline: '16:00',
     resolvedAt: '15:15',
     resolutionNote: 'Generator operational. Extra rental cost ₹25,000 logged to change orders.'
   },
@@ -552,6 +566,7 @@ export const INITIAL_INCIDENTS: Incident[] = [
     category: 'LOGISTICS',
     description: 'Narrow lane blockade at Hathipole. Police escort coordinated to clear route to jetty.',
     reportedAt: '18:20',
+    deadline: '18:50',
     resolvedAt: '18:45',
     resolutionNote: 'Bride safely reached City Palace jetty. Total schedule slip limited to 25 mins.'
   }

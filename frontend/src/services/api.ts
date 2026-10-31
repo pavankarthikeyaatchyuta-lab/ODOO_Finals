@@ -346,6 +346,13 @@ export const api = {
     return list.filter(r => r.weddingId === weddingId);
   },
 
+  updateRunSheetItem: async (itemId: string, updates: Partial<RunSheetItem>): Promise<RunSheetItem> => {
+    const list = getItem('run_sheet', INITIAL_RUN_SHEET);
+    const updated = list.map(r => (r.id === itemId ? { ...r, ...updates } : r));
+    setItem('run_sheet', updated);
+    return updated.find(r => r.id === itemId)!;
+  },
+
   // Vendor Arrivals
   getVendorArrivals: async (weddingId: string): Promise<VendorArrival[]> => {
     const list = getItem('arrivals', INITIAL_VENDOR_ARRIVALS);
@@ -371,13 +378,101 @@ export const api = {
     return updated.find(a => a.id === arrivalId)!;
   },
 
-  // Closed-Loop Delays
+  // Closed-Loop Delays & Schedule Changes
   getDelays: async (weddingId: string): Promise<TimelineDelay[]> => {
     const list = getItem('delays', INITIAL_DELAYS);
     return list.filter(d => d.weddingId === weddingId);
   },
 
-  acknowledgeDelayInstruction: async (delayId: string, vendorId: string): Promise<TimelineDelay> => {
+  proposeScheduleChange: async (
+    data: Omit<TimelineDelay, 'id' | 'createdAt' | 'changeTimestamp' | 'state'>
+  ): Promise<TimelineDelay> => {
+    const list = getItem('delays', INITIAL_DELAYS);
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newDelay: TimelineDelay = {
+      ...data,
+      id: `delay-${Date.now().toString().slice(-4)}`,
+      createdAt: now.toISOString().replace('T', ' ').slice(0, 16),
+      changeTimestamp: now.toISOString().replace('T', ' ').slice(0, 19),
+      state: 'PROPOSED',
+      affectedVendors: data.affectedVendors.map(v => ({
+        ...v,
+        status: 'SENT' as const,
+        notifiedAt: timeStr
+      }))
+    };
+    const updated = [newDelay, ...list];
+    setItem('delays', updated);
+    return newDelay;
+  },
+
+  approveScheduleChange: async (delayId: string, approverName: string): Promise<TimelineDelay> => {
+    const list = getItem('delays', INITIAL_DELAYS);
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const updated = list.map(d => {
+      if (d.id === delayId) {
+        return {
+          ...d,
+          state: 'APPROVED' as const,
+          approver: approverName,
+          approvedAt: now
+        };
+      }
+      return d;
+    });
+    setItem('delays', updated);
+    return updated.find(d => d.id === delayId)!;
+  },
+
+  publishScheduleChange: async (delayId: string): Promise<TimelineDelay> => {
+    const list = getItem('delays', INITIAL_DELAYS);
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const nowFull = now.toISOString().replace('T', ' ').slice(0, 19);
+    const updated = list.map(d => {
+      if (d.id === delayId) {
+        return {
+          ...d,
+          state: 'PUBLISHED' as const,
+          publishedAt: nowFull,
+          changeTimestamp: nowFull,
+          affectedVendors: d.affectedVendors.map(v => ({
+            ...v,
+            status: 'SENT' as const,
+            notifiedAt: timeStr
+          }))
+        };
+      }
+      return d;
+    });
+    setItem('delays', updated);
+
+    // Also update run sheet item actual time if matching
+    const targetDelay = updated.find(d => d.id === delayId);
+    if (targetDelay) {
+      const runSheetList = getItem('run_sheet', INITIAL_RUN_SHEET);
+      const updatedRunSheet = runSheetList.map(r => {
+        if (r.id === targetDelay.activityId) {
+          return {
+            ...r,
+            actualStartTime: targetDelay.revisedTime,
+            status: 'DELAYED' as const
+          };
+        }
+        return r;
+      });
+      setItem('run_sheet', updatedRunSheet);
+    }
+
+    return updated.find(d => d.id === delayId)!;
+  },
+
+  acknowledgeDelayInstruction: async (
+    delayId: string,
+    vendorId: string,
+    responseNote?: string
+  ): Promise<TimelineDelay> => {
     const list = getItem('delays', INITIAL_DELAYS);
     const now = new Date();
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -391,7 +486,38 @@ export const api = {
                 ...v,
                 status: 'ACKNOWLEDGED' as const,
                 acknowledgedAt: timeStr,
-                responseNote: 'Confirmed & adjusted deployment.'
+                responseNote: responseNote || 'Confirmed & adjusted deployment.'
+              };
+            }
+            return v;
+          })
+        };
+      }
+      return d;
+    });
+    setItem('delays', updated);
+    return updated.find(d => d.id === delayId)!;
+  },
+
+  reportDelayProblem: async (
+    delayId: string,
+    vendorId: string,
+    problemNote: string
+  ): Promise<TimelineDelay> => {
+    const list = getItem('delays', INITIAL_DELAYS);
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const updated = list.map(d => {
+      if (d.id === delayId) {
+        return {
+          ...d,
+          affectedVendors: d.affectedVendors.map(v => {
+            if (v.vendorId === vendorId) {
+              return {
+                ...v,
+                status: 'PROBLEM' as const,
+                acknowledgedAt: timeStr,
+                responseNote: `CONFLICT REPORTED: ${problemNote}`
               };
             }
             return v;
@@ -408,6 +534,20 @@ export const api = {
   getIncidents: async (weddingId: string): Promise<Incident[]> => {
     const list = getItem('incidents', INITIAL_INCIDENTS);
     return list.filter(i => i.weddingId === weddingId);
+  },
+
+  createIncident: async (incident: Omit<Incident, 'id' | 'reportedAt'>): Promise<Incident> => {
+    const list = getItem('incidents', INITIAL_INCIDENTS);
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newIncident: Incident = {
+      ...incident,
+      id: `inc-${Date.now().toString().slice(-4)}`,
+      reportedAt: timeStr
+    };
+    const updated = [newIncident, ...list];
+    setItem('incidents', updated);
+    return newIncident;
   },
 
   resolveIncident: async (incidentId: string, note: string): Promise<Incident> => {

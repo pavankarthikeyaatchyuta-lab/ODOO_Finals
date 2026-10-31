@@ -132,9 +132,48 @@ export function App() {
   };
 
   // Key Differentiator: Closed-Loop Vendor Acknowledgement
-  const handleAcknowledgeDelay = async (delayId: string, vendorId: string) => {
-    const updated = await api.acknowledgeDelayInstruction(delayId, vendorId);
+  const handleAcknowledgeDelay = async (delayId: string, vendorId: string, note?: string) => {
+    const updated = await api.acknowledgeDelayInstruction(delayId, vendorId, note);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
+  };
+
+  const handleReportDelayProblem = async (delayId: string, vendorId: string, note: string) => {
+    const updated = await api.reportDelayProblem(delayId, vendorId, note);
+    setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
+  };
+
+  const handleProposeScheduleChange = async (data: any) => {
+    const created = await api.proposeScheduleChange(data);
+    setDelays(prev => [created, ...prev]);
+    return created;
+  };
+
+  const handleApproveScheduleChange = async (delayId: string, approver: string) => {
+    const updated = await api.approveScheduleChange(delayId, approver);
+    setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
+    return updated;
+  };
+
+  const handlePublishScheduleChange = async (delayId: string) => {
+    const updated = await api.publishScheduleChange(delayId);
+    setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
+    if (currentWedding) {
+      const refreshedRunSheet = await api.getRunSheet(currentWedding.id);
+      setRunSheet(refreshedRunSheet);
+    }
+    return updated;
+  };
+
+  const handleCreateIncident = async (incidentData: any) => {
+    const created = await api.createIncident(incidentData);
+    setIncidents(prev => [created, ...prev]);
+    return created;
+  };
+
+  const handleUpdateRunSheetItem = async (itemId: string, updates: Partial<RunSheetItem>) => {
+    const updated = await api.updateRunSheetItem(itemId, updates);
+    setRunSheet(prev => prev.map(r => r.id === itemId ? updated : r));
+    return updated;
   };
 
   // Scenario 4: Incident Resolution
@@ -252,7 +291,13 @@ export function App() {
           incidents={incidents}
           onCheckinVendor={handleCheckinVendor}
           onAcknowledgeInstruction={handleAcknowledgeDelay}
+          onReportDelayProblem={handleReportDelayProblem}
           onResolveIncident={handleResolveIncident}
+          onProposeScheduleChange={handleProposeScheduleChange}
+          onApproveScheduleChange={handleApproveScheduleChange}
+          onPublishScheduleChange={handlePublishScheduleChange}
+          onCreateIncident={handleCreateIncident}
+          onUpdateRunSheetItem={handleUpdateRunSheetItem}
         />
       )}
 

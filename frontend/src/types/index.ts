@@ -32,6 +32,8 @@ export type SettlementStatus = 'PENDING' | 'RECONCILED' | 'PAID';
 
 export type ConsultationState = 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
 
+export type ScheduleChangeState = 'PROPOSED' | 'APPROVED' | 'PUBLISHED';
+
 // --- Wedding Master Record ---
 export interface Wedding {
   id: string;
@@ -225,6 +227,8 @@ export interface VendorArrival {
   actualArrivalTime?: string; // "16:45"
   status: ArrivalStatus;
   isLate: boolean;
+  delayMinutes?: number;
+  assignedCoordinator: string;
   notes?: string;
 }
 
@@ -252,6 +256,13 @@ export interface TimelineDelay {
   reason: string; // "Bride procession delayed in transit"
   approvedByPlanner: string;
   createdAt: string;
+  state: ScheduleChangeState;
+  requester: string;
+  approver?: string;
+  approvedAt?: string;
+  publishedAt?: string;
+  changeTimestamp: string;
+  impactAssessment?: string;
   affectedVendors: AffectedVendorInstruction[];
 }
 
@@ -266,6 +277,7 @@ export interface Incident {
   category: 'EQUIPMENT' | 'VENDOR_DELAY' | 'LOGISTICS' | 'GUEST_EMERGENCY';
   description: string;
   reportedAt: string;
+  deadline?: string;
   resolvedAt?: string;
   resolutionNote?: string;
 }
