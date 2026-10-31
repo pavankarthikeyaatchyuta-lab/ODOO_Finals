@@ -1,59 +1,224 @@
-# The Royal Knot
+# 👑 The Royal Knot — Wedding Operations & Intelligence Platform
+### *Standalone Enterprise Operations & Financial Management System for Luxury Wedding Agencies*
 
-Standalone wedding planning management for one agency. The agreed stack is React, Vite, TypeScript, Tailwind CSS and Recharts for the frontend; Node.js 22, Express, TypeScript, Prisma and Supabase PostgreSQL for the backend; Supabase Auth and private Storage; Vercel hosting.
+[![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%208%20%7C%20TypeScript-61DAFB?logo=react&logoColor=black)](frontend/)
+[![Styling](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38B2AC?logo=tailwind-css&logoColor=white)](frontend/src/index.css)
+[![Charts](https://img.shields.io/badge/Visualizations-Recharts-22b5bf)](https://recharts.org/)
+[![Backend](https://img.shields.io/badge/Backend-Node.js%2022%20%7C%20Express%20%7C%20TypeScript-339933?logo=node.js&logoColor=white)](backend/)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20Prisma%20ORM-2D3748?logo=prisma&logoColor=white)](backend/prisma/)
+[![Auth](https://img.shields.io/badge/Auth-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-This project does not use Odoo. The earlier frontend architecture document is historical; its Odoo model names and workflows are superseded by [the Phase 1 integration contract](backend/INTEGRATION.md).
+> *"One connected platform. Every wedding. Every vendor. Every payment. Every decision."*
 
-## Phase 1 backend
+---
 
-- Invited staff and client identities, active-account checks, founder-controlled staff roles and wedding assignments.
-- Client contacts, enquiries and a separate central Wedding UUID. Enquiry creation transactionally creates a provisional wedding, never a confirmed booking.
-- Client-safe wedding/enquiry/consultation responses, assignment-scoped staff access, and explicit client account links.
-- Consultation requests, planner confirmation/rescheduling, completion/cancellation, database-enforced overlap prevention and audit history.
-- Retry-safe mutations, validation, structured errors, pagination, health/readiness, generated OpenAPI and shared TypeScript contracts.
-- Restricted database role, private business schema with backend-only RLS policies, private document-bucket provisioning and Vercel configuration.
+## 1. System Overview
 
-Codex owns `backend/`. Antigravity owns frontend screens. The frontend has not been implemented by this phase.
+**The Royal Knot** is an independent, standalone enterprise operations and financial management platform designed for premier luxury destination wedding planning agencies in **Jaipur and Udaipur**.
 
-## Local setup
+Planning ~25 luxury three-day destination weddings annually—each hosting **400+ guests**, managing **~18 vendor categories**, and handling multi-crore budgets—demands unified operational tracking and strict financial controls.
 
-Use **Node.js 22.x** and npm. From `backend/`:
+The platform eliminates fragmented communication across WhatsApp chats, unstandardized PDFs, and paper notebooks by managing the complete wedding lifecycle within **One Central Wedding Record**:
 
-```sh
+$$\text{Client Enquiry} \longrightarrow \text{Digital Agreement} \longrightarrow \text{Vendor Procurement} \longrightarrow \text{Instant 25+ Plan} \longrightarrow \text{Command Centre} \longrightarrow \text{Closed-Loop Delay Ack} \longrightarrow \text{Reconciliation} \longrightarrow \text{Season Profit}$$
+
+> [!NOTE]
+> **Strict Standalone Architecture**: This project is built 100% from scratch using standard web technologies. It does not use Odoo, its framework, ORM, modules, or proprietary code.
+
+---
+
+## 2. Technology Stack
+
+| Layer | Technology | Key Libraries & Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | **React 19 + Vite 8** | TypeScript, Tailwind CSS v4, Lucide React (Icons), Recharts (Financial analytics) |
+| **Backend** | **Node.js 22 + Express** | TypeScript, Express.js REST API, Zod validations, Idempotency engine |
+| **Database & ORM** | **PostgreSQL + Prisma** | Relational schema, transactional integrity, automated migrations |
+| **Authentication** | **Supabase Auth** | Invited user identity, JWT bearer token verification, role scoping |
+| **Storage** | **Supabase Private Storage** | Signed service agreements, venue floorplans, vendor invoices |
+| **Deployment** | **Vercel** | Serverless backend deployment, static frontend edge hosting |
+
+---
+
+## 3. Monorepo Structure
+
+```text
+ODOO_Finals/
+├── frontend/                         <-- Owned by Antigravity (Frontend Lead)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── common/               # Reusable UI system (Button, Input, Select, Modal, DataTable, etc.)
+│   │   │   ├── domain/               # Core business components (QuoteMatrix, RunSheet, DelayAckBoard, etc.)
+│   │   │   └── layout/               # Responsive shell (AppLayout, Sidebar, TopHeader)
+│   │   ├── pages/                    # 11 Dedicated application views
+│   │   ├── services/                 # Typed API client & state persistence
+│   │   ├── types/                    # Shared TypeScript domain models
+│   │   ├── App.tsx & main.tsx        # Application root and state router
+│   │   └── index.css                 # Tailwind v4 theme & luxury tokens
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+│
+├── backend/                          <-- Owned by Codex (Backend Lead)
+│   ├── prisma/
+│   │   ├── migrations/               # Transactional SQL schema migrations
+│   │   └── schema.prisma             # PostgreSQL data model
+│   ├── src/
+│   │   ├── access.ts                 # Scoped authorization & role checks
+│   │   ├── application.ts            # Core Express routes & business logic
+│   │   ├── contracts.ts              # Shared request/response TypeScript interfaces
+│   │   ├── identity.ts               # Supabase token validation & user resolution
+│   │   └── server.ts                 # HTTP server entrypoint
+│   ├── tests/                        # Isolated integration test suites
+│   ├── openapi.json                  # Generated OpenAPI 3.1 specification
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── README.md
+├── FRONTEND_ARCHITECTURE_PLAN.md
+└── LICENSE
+```
+
+---
+
+## 4. Key Differentiator: Closed-Loop Wedding-Day Coordination
+
+The platform's standout differentiator is its **Closed-Loop Schedule Change Engine**:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Planner as Lead Luxury Planner
+    participant Command as Live Command Centre (DelayAckBoard)
+    participant API as Backend Notification Engine
+    actor Vendors as Impacted Vendors (Photographer, DJ, Caterer, Family)
+
+    Planner->>Command: Record event delay (e.g. Varmala delayed by 25 mins)
+    Command->>API: POST /api/v1/weddings/:id/delays (identify impacted activities)
+    API-->>Command: Return affected vendors list with targeted directives
+    Planner->>Command: Click "Publish & Broadcast Instructions"
+    API->>Vendors: Dispatch targeted instructions
+    Note over Command: Status set to SENT (Amber Badge) — NOT acknowledged!
+    Vendors-->>API: Vendor responds via acknowledgement link
+    API-->>Command: Status updates to ACKNOWLEDGED (Emerald Badge)
+    Note over Command: If vendor reports conflict, status updates to PROBLEM (Crimson Alert)
+```
+
+**Strict Rule Enforced**: A sent notification **never automatically counts as acknowledged**. The planner maintains real-time visibility into who has confirmed and who is still pending.
+
+---
+
+## 5. Frontend Architecture & UI System (Antigravity)
+
+### 5.1 Luxury Heritage Aesthetic
+Styled specifically for destination weddings at Udaipur's Lake Palaces and Jaipur's Royal Forts:
+* **Palace Navy (`#0D1B2A` / `#1B3B6F`)**: Primary structural surfaces, headers, and action anchors.
+* **Jaipur Heritage Gold (`#C5A059` / `#DFCA9B`)**: VIP tags, winner highlights, and gold foil accents.
+* **Palace Ivory (`#FDFBF7`)**: Warm off-white canvas preventing clinical admin fatigue.
+* **Status Alerts**: High-contrast semantic signals (Emerald Green, Crimson Alert, Amber Waiting).
+
+### 5.2 Reusable Component Library (`frontend/src/components/common/`)
+* **`Button.tsx`**: Multi-variant button system (`primary`, `gold`, `secondary`, `danger`, `ghost`) with integrated `Loader2` spinner states and icon slots.
+* **`FormField.tsx`**, **`Input.tsx`**, **`Select.tsx`**: Luxury inputs featuring Jaipur Gold focus rings (`ring-[#C5A059]`) and validation helper text.
+* **`DataTable.tsx`**: Generic typed `<T>` table supporting client-side column sorting, pagination (10/25/50), custom cell renderers, and empty state handling.
+* **`SearchFilterBar.tsx`**: Real-time multi-facet search bar with instant clear button and category filter pills.
+* **`Modal.tsx` & `ConfirmDialog.tsx`**: Accessible dialogs with backdrop blur and keyboard `ESC` dismissal.
+* **`StatCard.tsx` & `StatusBadge.tsx`**: High-density KPI cards with trend indicators and semantic status pills.
+
+### 5.3 The 11 Core Navigation Pages
+1. **Overview (`/`)**: Executive Founder Dashboard with 25-wedding season metrics, Recharts financial margin bar charts, and day-of operational radar.
+2. **Enquiries (`/enquiries`)**: 400+ guest enquiry capture with **Digital Agreement Gating** (locks vendor databases until agreement is signed) and "New Enquiry" modal.
+3. **Clients (`/clients`)**: Client directory with sortable `DataTable<Wedding>`, verified POCs, and signed contracts.
+4. **Weddings (`/weddings`)**: Central Wedding Workspace with Full-Service vs. Partial/Day-Of package switcher and sub-events (Mehendi, Sangeet, Varmala, Reception).
+5. **Vendors (`/vendors`)**: Sortable vendor directory across 18 categories with verified punctuality metrics and star reliability ratings.
+6. **Quotations (`/quotations`)**: **3-Caterer Side-by-Side Comparison Matrix** evaluating price/plate, extra-hour rates, and menu inclusions with 1-click winner selection that auto-rejects losing bids.
+7. **Planning Tasks (`/tasks`)**: **25+ Pre-seeded tasks** across a 4-stage Kanban (*To Plan*, *In Progress*, *Review*, *Done*) with owner assignments and function tags.
+8. **Command Centre (`/command-centre`)**: Minute-by-minute run sheet, vendor arrival check-in with **Red Late Alerts**, **Closed-Loop Delay Coordination Board**, and live incident tickets.
+9. **Finance (`/finance`)**: Change order manager (+60 unexpected guests, +1 DJ hr), 3-stage client milestones, and **Vendor Settlement with Anti-Duplicate Payment Shield**.
+10. **Reports (`/reports`)**: Official season P&L statement and wedding-by-wedding margin breakdown.
+11. **Settings (`/settings`)**: Agency profile (Jaipur & Udaipur) and role-based permissions (Planner, Coordinator, Finance, Founder).
+
+---
+
+## 6. Backend Architecture & Integration (Codex)
+
+### 6.1 Core API Capabilities
+* **Identity & Access**: Verified Supabase JWT identities, active account checks, and role enforcement (Founder, Planner, Coordinator, Finance, Client).
+* **Separate Central Wedding UUID**: Atomically generated on enquiry creation (`Wedding.id` $\ne$ `Enquiry.id`). All future records reference this stable UUID.
+* **Idempotency Engine**: Mandatory `Idempotency-Key` header on all mutating requests (`POST`, `PATCH`, `DELETE`) preventing accidental duplicate submissions.
+* **Consultation Overlap Shield**: Database-enforced scheduling validation preventing overlapping planner appointments with 409 `SCHEDULING_CONFLICT`.
+* **Prisma Schema & Migrations**: Private business schema with transactional integrity and backend-only RLS policies.
+
+### 6.2 Key Backend Contracts & Guides
+* **[Phase 1 Integration Guide](backend/INTEGRATION.md)**: Frontend handoff documentation, role matrix, and endpoint specification.
+* **[OpenAPI Specification](backend/openapi.json)**: Complete OpenAPI 3.1 schema (served at `/api/v1/openapi.json`).
+* **[Shared TypeScript Contracts](backend/src/contracts.ts)**: Authoritative request and response models.
+* **[Deployment Guide](backend/DEPLOYMENT.md)**: Supabase and Vercel configuration instructions.
+* **[Phase 1 Verification Report](backend/PHASE_1_REPORT.md)**: Backend test suite and integration audit.
+
+---
+
+## 7. Local Setup & Quickstart
+
+### Prerequisites
+* **Node.js**: `v22.x` or `v24.x`
+* **npm**: `v10.x` or `v11.x`
+
+### 7.1 Running the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+To verify the production build:
+```bash
+cd frontend
+npm run build
+```
+
+### 7.2 Running the Backend
+```bash
+cd backend
 npm ci
 cp .env.example .env
-# Populate server credentials in .env, never in frontend environment variables.
+# Populate server credentials in .env (on Windows PowerShell: Copy-Item .env.example .env)
+
 npm run db:migrate
 npm run db:provision
-# Set FOUNDER_EMAIL and FOUNDER_NAME in your local environment.
 npm run bootstrap:founder
 npm run dev
 ```
 
-On PowerShell use `Copy-Item .env.example .env`. Migration commands require the owner connection in `DIRECT_URL`; requests use the restricted pooled `DATABASE_URL`. Provisioning requires a generated runtime-role password and the Supabase server-only administrative key. Do not commit `.env` or `.env.local` files.
-
-```sh
-npm run typecheck
-npm run build
+To run the backend test suite:
+```bash
+cd backend
 npm test
-npm run contracts
 ```
+*Note: `npm test` runs against an isolated local PostgreSQL test instance and verifies migrations, OpenAPI drift, and API authorization.*
 
-`npm test` starts a disposable local PostgreSQL server, applies migrations twice, checks generated contracts and runs API integration tests using `rk_backend`. It does not use your Supabase data or credentials. The fixture runner refuses to run outside its isolated test environment. Embedded PostgreSQL is a development-only dependency.
+---
 
-## Contracts and deployment
+## 8. Development Phases & Roadmap
 
-- [Frontend handoff and endpoint guide](backend/INTEGRATION.md)
-- [OpenAPI specification](backend/openapi.json), also served at `/api/v1/openapi.json`
-- [Shared request/response types](backend/src/contracts.ts)
-- [Vite-compatible Supabase Auth helper](backend/src/frontend/auth.ts)
-- [Deployment and Supabase configuration](backend/DEPLOYMENT.md)
-- [Phase 1 verification report](backend/PHASE_1_REPORT.md)
+| Phase | Description | Owner | Status |
+| :---: | :--- | :---: | :---: |
+| **Phase 0A** | Standalone Frontend Architecture, Design System Tokens, Mock Service | Antigravity | ✅ **Completed** |
+| **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | Codex | ✅ **Completed** |
+| **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | Antigravity | ✅ **Completed** |
+| **Phase 2** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison API | Joint | ⏳ Next |
+| **Phase 3** | Automated 25+ Task Generation & Package Differentiation Engine | Joint | ⏳ Upcoming |
+| **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | Joint | ⏳ Upcoming |
+| **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | Joint | ⏳ Upcoming |
+| **Phase 6** | Founder Season Profitability Analytics & Executive Reporting | Joint | ⏳ Upcoming |
 
-## Later phases
+---
 
-Digital agreements, three-caterer quotation comparison and vendor selection, 25+ generated tasks, Full-Service and Partial/Day-of packages, Mehendi/Sangeet/Reception planning, live schedules, vendor arrivals, incidents, additional-expense approval, client/vendor payments, reconciliation and founder profitability reports remain later reviewed phases.
+## 9. Team & Collaboration Rules
 
-Closed-loop wedding-day coordination must preserve schedule history, planner approval and affected vendor/activity identification. Published instructions track Sent, Acknowledged and Problem separately. Sending never acknowledges a change. All future records reference the existing Wedding UUID.
-
-Work only on `main`, stage only owned files, pull before pushing, never force-push, and stop on conflicts. Complete and review each phase before starting the next.
+* **Branch Discipline**: Work exclusively on branch `main`. No feature branches, no pull requests, no force-pushes.
+* **Pull Before Starting**: Always run `git pull --rebase origin main` before starting a task.
+* **Clean Ownership**: Antigravity owns `frontend/`; Codex owns `backend/`.
+* **Zero Fake UI**: All frontend elements have real state handlers; no nonfunctional buttons.
+* **Financial Authority**: Financial values and reconciliation calculations are authoritative on the backend.
