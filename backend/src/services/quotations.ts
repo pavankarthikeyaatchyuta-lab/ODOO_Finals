@@ -81,5 +81,5 @@ export async function selectQuote(tx: Tx, user: UserProfile, quoteId: string) {
   await tx.quotationRound.update({ where: { id: round.id }, data: { status: 'SELECTED' } });
   const selection = await tx.weddingVendor.create({ data: { weddingId: round.weddingId, vendorId: winner.vendorId, categoryCode: round.categoryCode, quotationId: quote.id } });
   await audit(tx, user.id, 'VENDOR_SELECTED', selection.id, round.weddingId, { quotationId: quote.id, closedRequestIds: round.requests.filter(r => r.id !== winner.id).map(r => r.id) });
-  return { ...selection, createdAt: selection.createdAt.toISOString() };
+  return { id: selection.id, weddingId: selection.weddingId, vendorId: selection.vendorId, categoryCode: selection.categoryCode, quotationId: selection.quotationId!, createdAt: selection.createdAt.toISOString() };
 }

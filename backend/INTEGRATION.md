@@ -4,6 +4,8 @@
 
 **Phase 3 update:** [PHASE_3_API.md](PHASE_3_API.md) defines confirmed proposals, explicitly verified booking deposits, 35/30-task package templates, assignment/status/deadline workflows, function planning and concurrency controls. Current shared response fields include the client-visible proposal status; deposit/reviewer details remain in their dedicated authorized endpoints.
 
+**Phase 4 update:** [PHASE_4_API.md](PHASE_4_API.md) defines timeline versions/dependencies, vendor arrivals, private incidents, independently approved schedule changes, publication and individual in-app acknowledgements. Notification delivery and acknowledgement are separate; no WhatsApp delivery is fabricated.
+
 This replaces all Odoo models, ORM methods and XML/OWL integration described in the historical frontend plan. Use React + Vite + TypeScript. API and financial authority belong to Express. Phase 1 has no agreements, vendor screens, financial workflows or command-centre endpoints.
 
 ## Existing frontend scaffold handoff

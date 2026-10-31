@@ -60,6 +60,10 @@ model UserProfile {
   bookings    Consultation[] @relation("Planner")
   ownedTasks  WeddingTask[]
   enquiries   Enquiry[]
+  timelineEvents TimelineEvent[]
+  arrivals    VendorArrival[]
+  incidents   Incident[]
+  notifications ScheduleNotification[]
 }
 
 model Client {
@@ -92,6 +96,9 @@ model Wedding {
   proposalConfirmedAt DateTime? @db.Timestamptz(3)
   proposalConfirmedBy String? @db.Uuid
   bookingDepositRequired Decimal? @db.Decimal(16, 2)
+  timezone      String @default("Asia/Kolkata")
+  scheduleVersion Int @default(1)
+  independentScheduleApproval Boolean @default(true)
   budgetMax     Decimal?     @db.Decimal(16, 2)
   internalNotes String?
   archivedAt    DateTime? @db.Timestamptz(3)
@@ -109,6 +116,11 @@ model Wedding {
   bookingPayments BookingPayment[]
   taskGeneration TaskGeneration?
   tasks         WeddingTask[]
+  timelineEvents TimelineEvent[]
+  arrivals      VendorArrival[]
+  incidents     Incident[]
+  scheduleChanges ScheduleChange[]
+  notifications ScheduleNotification[]
   @@index([state, createdAt])
 }
 
@@ -130,6 +142,8 @@ model WeddingFunction {
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
   tasks       WeddingTask[]
+  timelineEvents TimelineEvent[]
+  arrivals      VendorArrival[]
   @@unique([weddingId, name])
   @@unique([id, weddingId])
 }
@@ -264,6 +278,7 @@ model Vendor {
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
   requests    QuotationRequest[]
   weddings    WeddingVendor[]
+  notifications ScheduleNotification[]
   @@index([categoryCode, name])
 }
 
@@ -342,11 +357,186 @@ model WeddingVendor {
   vendor      Vendor @relation(fields: [vendorId], references: [id], onDelete: Restrict)
   categoryCode String
   category    VendorCategory @relation(fields: [categoryCode], references: [code], onDelete: Restrict)
-  quotationId String @unique @db.Uuid
-  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Restrict)
+  quotationId String? @unique @db.Uuid
+  quotation   Quotation? @relation(fields: [quotationId], references: [id], onDelete: Restrict)
+  source      String @default("QUOTATION")
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  eventLinks  EventVendor[]
+  arrivals    VendorArrival[]
   @@unique([weddingId, categoryCode])
   @@index([vendorId])
+  @@unique([weddingId, vendorId])
+}
+
+enum TimelineStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+model TimelineEvent {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  functionId  String? @db.Uuid
+  function    WeddingFunction? @relation(fields: [functionId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  title       String
+  plannedStart DateTime @db.Timestamptz(3)
+  plannedEnd  DateTime @db.Timestamptz(3)
+  actualStart DateTime? @db.Timestamptz(3)
+  actualEnd   DateTime? @db.Timestamptz(3)
+  ownerId     String? @db.Uuid
+  owner       UserProfile? @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  status      TimelineStatus @default(PLANNED)
+  version     Int @default(1)
+  vendors     EventVendor[]
+  dependencies EventDependency[] @relation("EventDependencies")
+  dependents  EventDependency[] @relation("DependentEvents")
+  changes     ScheduleChange[]
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([id, weddingId])
+  @@index([weddingId, plannedStart])
+  @@index([ownerId])
+}
+
+model EventVendor {
+  eventId     String @db.Uuid
+  weddingId   String @db.Uuid
+  vendorId    String @db.Uuid
+  event       TimelineEvent @relation(fields: [eventId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  association WeddingVendor @relation(fields: [weddingId, vendorId], references: [weddingId, vendorId], onDelete: Restrict)
+  @@id([eventId, vendorId])
+  @@index([weddingId, vendorId])
+}
+
+model EventDependency {
+  eventId     String @db.Uuid
+  dependsOnId String @db.Uuid
+  weddingId   String @db.Uuid
+  event       TimelineEvent @relation("EventDependencies", fields: [eventId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  predecessor TimelineEvent @relation("DependentEvents", fields: [dependsOnId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  @@id([eventId, dependsOnId])
+  @@index([dependsOnId, weddingId])
+}
+
+model VendorArrival {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  vendorId    String @db.Uuid
+  association WeddingVendor @relation(fields: [weddingId, vendorId], references: [weddingId, vendorId], onDelete: Restrict)
+  functionId  String? @db.Uuid
+  function    WeddingFunction? @relation(fields: [functionId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  expectedAt  DateTime @db.Timestamptz(3)
+  actualAt    DateTime? @db.Timestamptz(3)
+  confirmedBy String? @db.Uuid
+  confirmedAt DateTime? @db.Timestamptz(3)
+  coordinatorId String? @db.Uuid
+  coordinator UserProfile? @relation(fields: [coordinatorId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([weddingId, vendorId, expectedAt])
+  @@index([coordinatorId])
+}
+
+enum IncidentStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Incident {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  category    String
+  severity    IncidentSeverity
+  description String
+  ownerId     String? @db.Uuid
+  owner       UserProfile? @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  deadline    DateTime? @db.Timestamptz(3)
+  status      IncidentStatus @default(OPEN)
+  resolution  String?
+  resolvedAt  DateTime? @db.Timestamptz(3)
+  version     Int @default(1)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  @@index([weddingId, status])
+  @@index([ownerId])
+}
+
+enum ScheduleChangeStatus {
+  PROPOSED
+  APPROVED
+  REJECTED
+  PUBLISHED
+}
+
+model ScheduleChange {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  eventId     String @db.Uuid
+  event       TimelineEvent @relation(fields: [eventId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  baseScheduleVersion Int
+  previousStart DateTime @db.Timestamptz(3)
+  previousEnd DateTime @db.Timestamptz(3)
+  proposedStart DateTime @db.Timestamptz(3)
+  proposedEnd DateTime @db.Timestamptz(3)
+  reason      String
+  impacts     Json
+  requestedBy String @db.Uuid
+  status      ScheduleChangeStatus @default(PROPOSED)
+  approvedBy  String? @db.Uuid
+  approvedAt  DateTime? @db.Timestamptz(3)
+  decidedBy   String? @db.Uuid
+  decidedAt   DateTime? @db.Timestamptz(3)
+  decisionNote String?
+  publishedAt DateTime? @db.Timestamptz(3)
+  publishedVersion Int?
+  notifications ScheduleNotification[]
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  @@index([weddingId, createdAt])
+  @@unique([id, weddingId])
+}
+
+enum AcknowledgementStatus {
+  SENT
+  ACKNOWLEDGED
+  PROBLEM
+}
+
+model ScheduleNotification {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  changeId    String @db.Uuid
+  change      ScheduleChange @relation(fields: [changeId, weddingId], references: [id, weddingId], onDelete: Restrict)
+  vendorId    String? @db.Uuid
+  vendor      Vendor? @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  userId      String? @db.Uuid
+  user        UserProfile? @relation(fields: [userId], references: [id], onDelete: Restrict)
+  instructionVersion Int
+  instructions Json
+  deliveryStatus String @default("AVAILABLE_IN_APP")
+  status      AcknowledgementStatus @default(SENT)
+  sentAt      DateTime @default(now()) @db.Timestamptz(3)
+  acknowledgedAt DateTime? @db.Timestamptz(3)
+  problemDescription String?
+  tokenHash   String? @unique
+  tokenExpiresAt DateTime? @db.Timestamptz(3)
+  @@unique([changeId, vendorId])
+  @@unique([changeId, userId])
+  @@index([weddingId, status])
+  @@index([changeId, weddingId])
 }
 
 enum BookingPaymentStatus {
