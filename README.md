@@ -207,7 +207,8 @@ npm test
 | **Phase 0A** | Standalone Frontend Architecture, Design System Tokens, Mock Service | Antigravity | ✅ **Completed** |
 | **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | Codex | ✅ **Completed** |
 | **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | Antigravity | ✅ **Completed** |
-| **Phase 2** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison API | Joint | ⏳ Next |
+| **Phase 2A** | Client Dossiers, Enquiry Intake, Consultations, Agreement Gating & Vendor Directory | Antigravity | ✅ **Completed** |
+| **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Backend Endpoints | Codex | ⏳ In Progress |
 | **Phase 3** | Automated 25+ Task Generation & Package Differentiation Engine | Joint | ⏳ Upcoming |
 | **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | Joint | ⏳ Upcoming |
 | **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | Joint | ⏳ Upcoming |
