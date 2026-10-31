@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ChangeOrderManager.tsx
+ * Module: Domain-Specific Workflow Component
+ * =============================================================================
+ * Specialized operational module (ChangeOrderManager) supporting interactive wedding workflows like RFQ comparison, change orders, run-sheet, or settlements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { ChangeOrder, ExpenseCategory } from '../../types';
 import { CurrencyDisplay } from '../common/CurrencyDisplay';

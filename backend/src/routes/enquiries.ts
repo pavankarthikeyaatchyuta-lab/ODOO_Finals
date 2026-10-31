@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: enquiries.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for enquiries.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { assertClients, createWedding } from '../services/foundation.js';
 import type { Prisma } from '@prisma/client';
 import { z } from 'zod';

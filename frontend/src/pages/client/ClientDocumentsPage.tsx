@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ClientDocumentsPage.tsx
+ * Module: Client / Couple Portal View
+ * =============================================================================
+ * Delivers bespoke luxury couple interface for ClientDocumentsPage, displaying itineraries, digital signatures, invoices, and event updates.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { Button } from '../../components/common/Button';
 import { StatusBadge } from '../../components/common/StatusBadge';

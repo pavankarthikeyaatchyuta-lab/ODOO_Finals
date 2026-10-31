@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: auth.ts
+ * Module: Backend Request Controller
+ * =============================================================================
+ * Handles incoming HTTP requests, validates input payloads, coordinates domain services, and structures HTTP responses for auth.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { PrismaClient } from '@prisma/client';
 import type { IdentityProvider } from '../identity.js';
 import { identityCall, verifiedIdentity } from '../identity.js';

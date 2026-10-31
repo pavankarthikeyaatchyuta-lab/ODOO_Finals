@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: clients.ts
+ * Module: Backend Request Controller
+ * =============================================================================
+ * Handles incoming HTTP requests, validates input payloads, coordinates domain services, and structures HTTP responses for clients.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { z } from 'zod';
 import * as c from '../contracts.js';
 import { audit } from '../access.js';

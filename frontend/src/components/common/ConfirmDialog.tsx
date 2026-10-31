@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ConfirmDialog.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (ConfirmDialog) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';

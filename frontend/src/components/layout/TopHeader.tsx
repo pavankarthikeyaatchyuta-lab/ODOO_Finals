@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: TopHeader.tsx
+ * Module: Layout Architecture Component
+ * =============================================================================
+ * Structural frame component (TopHeader) managing navigation sidebars, top headers, user avatars, and responsive layout wrapping.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   RotateCcw,

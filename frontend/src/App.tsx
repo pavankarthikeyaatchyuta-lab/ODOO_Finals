@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: App.tsx
+ * Module: Top-Level Application Router & Shell
+ * =============================================================================
+ * Main application root component orchestrating multi-portal view routing, authentication sub-views, and global context providers.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WeddingProvider, useWedding } from './context/WeddingContext';

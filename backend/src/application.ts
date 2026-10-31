@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: application.ts
+ * Module: Express Application Factory
+ * =============================================================================
+ * Constructs and configures the Express application server, setting up security headers, CORS, body parsers, health probes, and route registrars.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

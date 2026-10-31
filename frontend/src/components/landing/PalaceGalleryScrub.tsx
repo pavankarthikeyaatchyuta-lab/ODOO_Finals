@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: PalaceGalleryScrub.tsx
+ * Module: Public Showcase & 3D Interactive Component
+ * =============================================================================
+ * High-impact landing page visual component (PalaceGalleryScrub) delivering royal aesthetic storytelling, palace galleries, or 3D graphics.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { MapPin, Users, Building, ShieldCheck } from 'lucide-react';
 

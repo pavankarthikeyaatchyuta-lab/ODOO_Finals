@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: task-templates.ts
+ * Module: Wedding Milestone & Task Templates Catalog
+ * =============================================================================
+ * Standard operating procedure (SOP) milestone templates and task schedules automatically provisioned for new royal weddings.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { PackageType, WeddingFunctionType } from '@prisma/client';
 
 export interface TaskTemplate { key: string; title: string; description: string; category: string; days: number; functionType?: WeddingFunctionType }

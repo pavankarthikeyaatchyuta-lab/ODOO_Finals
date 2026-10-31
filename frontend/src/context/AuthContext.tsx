@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: AuthContext.tsx
+ * Module: Global React Context State Provider
+ * =============================================================================
+ * Centralized React context provider (AuthContext) managing application-wide state, caching, synchronization, and event propagation.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
 

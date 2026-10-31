@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: VendorPortalLayout.tsx
+ * Module: Vendor Portal Layout Component
+ * =============================================================================
+ * Structural shell for the vendor extranet, providing call-time alerts, operational schedules, and invoice tabs.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';

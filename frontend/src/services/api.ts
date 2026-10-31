@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: api.ts
+ * Module: Service & Data Architecture Layer
+ * =============================================================================
+ * Data fetching, caching, API communication, and offline-first state persistence layer for api.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import {
   Wedding,
   Enquiry,

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ClientSchedulePage.tsx
+ * Module: Client / Couple Portal View
+ * =============================================================================
+ * Delivers bespoke luxury couple interface for ClientSchedulePage, displaying itineraries, digital signatures, invoices, and event updates.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { StatusBadge } from '../../components/common/StatusBadge';

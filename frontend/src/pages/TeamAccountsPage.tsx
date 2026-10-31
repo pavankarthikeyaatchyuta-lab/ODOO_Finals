@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: TeamAccountsPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for TeamAccountsPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   UserPlus,

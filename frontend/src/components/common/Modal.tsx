@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: Modal.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (Modal) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useEffect, useId, useRef } from 'react';
 import { X } from 'lucide-react';
 

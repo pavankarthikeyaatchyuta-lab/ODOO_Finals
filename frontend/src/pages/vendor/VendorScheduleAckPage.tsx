@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: VendorScheduleAckPage.tsx
+ * Module: Vendor Partner Extranet View
+ * =============================================================================
+ * Provides authenticated vendor extranet capabilities for VendorScheduleAckPage, including arrival schedules, 1-click delay acknowledgments, and invoicing.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';

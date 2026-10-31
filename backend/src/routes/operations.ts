@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: operations.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for operations.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import * as c from '../contracts.js';
 import * as o from '../operations-contracts.js';
 import { everyone, staffWrite, type RouteRegistrar } from '../http/routes.js';

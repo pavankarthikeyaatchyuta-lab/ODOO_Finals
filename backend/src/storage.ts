@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: storage.ts
+ * Module: Document Storage & Cloud Asset Adapter
+ * =============================================================================
+ * Provides storage adapters for wedding agreements, floor plans, quotation PDFs, and vendor invoice receipts.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { createClient } from '@supabase/supabase-js';
 import { ApiError } from './errors.js';
 

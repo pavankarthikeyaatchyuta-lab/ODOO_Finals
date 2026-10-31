@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: Button.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (Button) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 

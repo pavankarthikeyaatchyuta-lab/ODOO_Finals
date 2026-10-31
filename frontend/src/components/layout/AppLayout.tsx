@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: AppLayout.tsx
+ * Module: Layout Architecture Component
+ * =============================================================================
+ * Structural frame component (AppLayout) managing navigation sidebars, top headers, user avatars, and responsive layout wrapping.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { Sidebar, NavItemKey } from './Sidebar';

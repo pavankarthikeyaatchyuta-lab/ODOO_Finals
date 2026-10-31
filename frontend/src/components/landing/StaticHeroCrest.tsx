@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: StaticHeroCrest.tsx
+ * Module: Public Showcase & 3D Interactive Component
+ * =============================================================================
+ * High-impact landing page visual component (StaticHeroCrest) delivering royal aesthetic storytelling, palace galleries, or 3D graphics.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Sparkles } from 'lucide-react';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: errors.ts
+ * Module: Centralized Error Handling Architecture
+ * =============================================================================
+ * Defines custom API error classes, standard error codes, and Express global error handler middleware.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { ErrorRequestHandler } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';

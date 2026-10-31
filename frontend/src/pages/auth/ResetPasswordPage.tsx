@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ResetPasswordPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the ResetPasswordPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { Crown, Lock, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 

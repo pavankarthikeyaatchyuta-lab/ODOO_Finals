@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: FinancePage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for FinancePage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import {
   ChangeOrder,

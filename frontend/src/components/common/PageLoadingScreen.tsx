@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: PageLoadingScreen.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (PageLoadingScreen) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { RoyalLogo } from './RoyalLogo';
 

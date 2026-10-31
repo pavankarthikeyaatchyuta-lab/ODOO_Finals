@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: VendorInvoicesPage.tsx
+ * Module: Vendor Partner Extranet View
+ * =============================================================================
+ * Provides authenticated vendor extranet capabilities for VendorInvoicesPage, including arrival schedules, 1-click delay acknowledgments, and invoicing.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { CurrencyDisplay } from '../../components/common/CurrencyDisplay';
 import { StatusBadge } from '../../components/common/StatusBadge';

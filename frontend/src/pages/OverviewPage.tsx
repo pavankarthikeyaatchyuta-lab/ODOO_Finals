@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: OverviewPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for OverviewPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { SeasonMetrics, Wedding } from '../types';
 import { StatCard } from '../components/common/StatCard';

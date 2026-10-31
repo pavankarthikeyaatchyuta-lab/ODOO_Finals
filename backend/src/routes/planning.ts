@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: planning.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for planning.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import * as c from '../contracts.js';
 import * as w from '../workflow-contracts.js';
 import { everyone, staffWrite, type RouteRegistrar } from '../http/routes.js';

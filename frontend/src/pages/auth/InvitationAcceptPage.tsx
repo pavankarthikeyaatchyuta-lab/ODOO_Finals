@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: InvitationAcceptPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the InvitationAcceptPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Crown, CheckCircle2, Lock, Mail, User, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';

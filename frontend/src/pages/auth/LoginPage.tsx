@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: LoginPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the LoginPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole } from '../../context/AuthContext';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, ArrowLeft } from 'lucide-react';

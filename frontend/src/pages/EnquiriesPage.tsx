@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: EnquiriesPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for EnquiriesPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Enquiry, Consultation, AgreementDetails } from '../types';
 import { useWedding } from '../context/WeddingContext';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: WeddingContext.tsx
+ * Module: Global React Context State Provider
+ * =============================================================================
+ * Centralized React context provider (WeddingContext) managing application-wide state, caching, synchronization, and event propagation.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Wedding, Enquiry } from '../types';
 import { api } from '../services/api';

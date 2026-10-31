@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: identity.ts
+ * Module: Identity Provider & Authentication Provider
+ * =============================================================================
+ * Interfaces with Supabase Auth or mock JWT engines to authenticate credentials, generate sessions, and verify auth tokens.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { createClient, type AuthError, type Session } from '@supabase/supabase-js';
 import { ApiError } from './errors.js';
 import { uuid } from './contracts.js';

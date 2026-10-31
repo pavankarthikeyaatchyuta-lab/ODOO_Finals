@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: workflow-access.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for workflow-access.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { UserProfile } from '@prisma/client';
 import { weddingAccess, type Tx } from '../access.js';
 import { ApiError, forbidden } from '../errors.js';

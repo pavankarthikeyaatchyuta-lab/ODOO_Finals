@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: UnauthorizedPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the UnauthorizedPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { ShieldAlert, ArrowLeft, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';

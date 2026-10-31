@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: finance.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for finance.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { Prisma, type UserProfile, type BookingPayment, type AdditionalExpense, type VendorBill, type RevenueRecognition, type LabourEntry, type WeddingVendor } from '@prisma/client';
 import type { z } from 'zod';
 import * as f from '../finance-contracts.js';

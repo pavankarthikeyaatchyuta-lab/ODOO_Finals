@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: VendorsPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for VendorsPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Store, Star, Phone, Mail, MapPin, Award, AlertTriangle, Plus, Eye, CheckCircle2, History } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';

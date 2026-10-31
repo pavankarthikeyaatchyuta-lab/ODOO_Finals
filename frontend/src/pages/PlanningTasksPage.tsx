@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: PlanningTasksPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for PlanningTasksPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useMemo } from 'react';
 import { WeddingTask, Wedding } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';

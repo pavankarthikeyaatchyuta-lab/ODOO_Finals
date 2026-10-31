@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: SettingsPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for SettingsPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Sliders, Shield, Building, Database, Activity, Server, CheckCircle2, Lock, Key, UserPlus } from 'lucide-react';
 import { api } from '../services/api';

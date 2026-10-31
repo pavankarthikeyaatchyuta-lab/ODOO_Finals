@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: CommandCentrePage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for CommandCentrePage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   RunSheetItem,

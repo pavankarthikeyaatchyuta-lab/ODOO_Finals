@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: finance.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for finance.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { z } from 'zod';
 import * as c from '../contracts.js';
 import * as f from '../finance-contracts.js';

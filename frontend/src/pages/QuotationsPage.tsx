@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: QuotationsPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for QuotationsPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { CatererQuote, Wedding } from '../types';
 import { QuoteComparisonMatrix } from '../components/domain/QuoteComparisonMatrix';

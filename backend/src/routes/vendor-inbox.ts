@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: vendor-inbox.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for vendor-inbox.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { Express } from 'express';
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';

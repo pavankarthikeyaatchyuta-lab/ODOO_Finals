@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: agreements.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for agreements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import * as w from '../workflow-contracts.js';
 import { staffWrite, type RouteRegistrar } from '../http/routes.js';
 import { audit, weddingAccess } from '../access.js';

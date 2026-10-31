@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: authentication.ts
+ * Module: HTTP Middleware Layer
+ * =============================================================================
+ * Intercepts and evaluates HTTP requests for authentication, role verification, request ID tracing, or rate-limiting in authentication.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { RequestHandler } from 'express';
 import type { PrismaClient } from '@prisma/client';
 import type { IdentityProvider } from '../identity.js';

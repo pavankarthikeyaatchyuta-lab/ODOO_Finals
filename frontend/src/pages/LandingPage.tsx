@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: LandingPage.tsx
+ * Module: Agency Operations Page
+ * =============================================================================
+ * Delivers full-scale wedding planning and coordination workspace for LandingPage, supporting real-time data inspection, filtering, and reporting.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole, PortalType } from '../context/AuthContext';
 import { api } from '../services/api';

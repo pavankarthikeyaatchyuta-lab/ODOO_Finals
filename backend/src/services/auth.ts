@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: auth.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for auth.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { PrismaClient } from '@prisma/client';
 import type { IdentityProvider, IdentitySession } from '../identity.js';
 import { ApiError } from '../errors.js';

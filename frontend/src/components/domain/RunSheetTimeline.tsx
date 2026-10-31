@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: RunSheetTimeline.tsx
+ * Module: Domain-Specific Workflow Component
+ * =============================================================================
+ * Specialized operational module (RunSheetTimeline) supporting interactive wedding workflows like RFQ comparison, change orders, run-sheet, or settlements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { RunSheetItem, VendorArrival } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';

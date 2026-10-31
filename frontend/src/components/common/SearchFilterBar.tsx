@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: SearchFilterBar.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (SearchFilterBar) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { Search, X, Filter } from 'lucide-react';
 import { Input } from './Input';

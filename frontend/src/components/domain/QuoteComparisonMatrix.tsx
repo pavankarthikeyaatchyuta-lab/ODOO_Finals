@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: QuoteComparisonMatrix.tsx
+ * Module: Domain-Specific Workflow Component
+ * =============================================================================
+ * Specialized operational module (QuoteComparisonMatrix) supporting interactive wedding workflows like RFQ comparison, change orders, run-sheet, or settlements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { CatererQuote } from '../../types';
 import { CurrencyDisplay } from '../common/CurrencyDisplay';

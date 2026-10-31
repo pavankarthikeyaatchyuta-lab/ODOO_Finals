@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: operations.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for operations.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { Prisma, type ScheduleChange, type ScheduleNotification, type UserProfile, type VendorArrival } from '@prisma/client';
 import type { z } from 'zod';

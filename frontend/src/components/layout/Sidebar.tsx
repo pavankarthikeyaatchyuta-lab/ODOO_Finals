@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: Sidebar.tsx
+ * Module: Layout Architecture Component
+ * =============================================================================
+ * Structural frame component (Sidebar) managing navigation sidebars, top headers, user avatars, and responsive layout wrapping.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import {
   LayoutDashboard,

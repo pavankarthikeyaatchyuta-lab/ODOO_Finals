@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: DelayAckBoard.tsx
+ * Module: Domain-Specific Workflow Component
+ * =============================================================================
+ * Specialized operational module (DelayAckBoard) supporting interactive wedding workflows like RFQ comparison, change orders, run-sheet, or settlements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { TimelineDelay } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';

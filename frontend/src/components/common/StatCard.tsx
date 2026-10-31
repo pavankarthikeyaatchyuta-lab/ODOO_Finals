@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: StatCard.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (StatCard) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 

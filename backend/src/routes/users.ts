@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: users.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for users.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import * as c from '../contracts.js';
 import { ApiError, forbidden, missing } from '../errors.js';
 import { audit, weddingAccess } from '../access.js';

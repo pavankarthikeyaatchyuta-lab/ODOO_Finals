@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: server.ts
+ * Module: Server Lifecycle & Entry Point
+ * =============================================================================
+ * Initializes database connections, configures environmental variables, binds HTTP listeners, and manages graceful shutdowns.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import 'dotenv/config';
 import express from 'express';
 import { db } from './database.js';

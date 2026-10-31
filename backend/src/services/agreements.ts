@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: agreements.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for agreements.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { Agreement, UserProfile } from '@prisma/client';
 import type { z } from 'zod';
 import * as w from '../workflow-contracts.js';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: AccountDeactivatedPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the AccountDeactivatedPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { UserX, Mail, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';

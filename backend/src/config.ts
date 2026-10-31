@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: config.ts
+ * Module: Server Configuration & Environment Schema
+ * =============================================================================
+ * Parses, validates, and exports runtime configuration, environment variables, database URLs, and API keys.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { z } from 'zod';
 
 const loopback = (url: URL) => ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);

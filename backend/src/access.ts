@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: access.ts
+ * Module: Access Control & RBAC Policy Engine
+ * =============================================================================
+ * Defines role-based permissions, resource ownership boundaries, and fine-grained authorization checks across agency, client, and vendor roles.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { Prisma, type UserProfile } from '@prisma/client';
 import { forbidden, missing } from './errors.js';
 

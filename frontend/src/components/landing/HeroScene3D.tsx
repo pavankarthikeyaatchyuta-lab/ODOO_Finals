@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: HeroScene3D.tsx
+ * Module: Public Showcase & 3D Interactive Component
+ * =============================================================================
+ * High-impact landing page visual component (HeroScene3D) delivering royal aesthetic storytelling, palace galleries, or 3D graphics.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { StaticHeroCrest } from './StaticHeroCrest';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: DashboardUiContext.tsx
+ * Module: Global React Context State Provider
+ * =============================================================================
+ * Centralized React context provider (DashboardUiContext) managing application-wide state, caching, synchronization, and event propagation.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useWedding } from './WeddingContext';

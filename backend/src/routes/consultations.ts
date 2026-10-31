@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: consultations.ts
+ * Module: API Route Definition Router
+ * =============================================================================
+ * Registers RESTful API endpoints and maps HTTP route paths to service handlers and security policies for consultations.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { Prisma } from '@prisma/client';
 import * as c from '../contracts.js';
 import { ApiError, missing } from '../errors.js';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ClientPaymentsPage.tsx
+ * Module: Client / Couple Portal View
+ * =============================================================================
+ * Delivers bespoke luxury couple interface for ClientPaymentsPage, displaying itineraries, digital signatures, invoices, and event updates.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 import { CurrencyDisplay } from '../../components/common/CurrencyDisplay';
 import { StatusBadge } from '../../components/common/StatusBadge';

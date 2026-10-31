@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: routes.ts
+ * Module: Application Module
+ * =============================================================================
+ * Core logic and functionality for routes.ts within The Royal Knot luxury wedding platform.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import type { Express } from 'express';
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient, type UserProfile, type Role } from '@prisma/client';

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: StatusBadge.tsx
+ * Module: Shared Luxury UI Component
+ * =============================================================================
+ * Reusable, accessible presentation component (StatusBadge) adhering to The Royal Knot design tokens and palette standards.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React from 'react';
 
 export type BadgeVariant = 

@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: documents.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for documents.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { createHash, randomUUID } from 'node:crypto';
 import type { Document, UserProfile } from '@prisma/client';
 import type { z } from 'zod';

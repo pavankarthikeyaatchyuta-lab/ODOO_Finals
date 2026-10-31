@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: ForgotPasswordPage.tsx
+ * Module: Authentication & Identity Page
+ * =============================================================================
+ * Provides user interface, credential validation, and role-based redirect flows for the ForgotPasswordPage screen.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import React, { useState } from 'react';
 import { Crown, Mail, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 

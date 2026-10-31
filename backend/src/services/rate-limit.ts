@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: rate-limit.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for rate-limit.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { createHash } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import { ApiError } from '../errors.js';

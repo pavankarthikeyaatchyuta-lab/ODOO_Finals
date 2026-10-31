@@ -1,3 +1,14 @@
+/**
+ * =============================================================================
+ * File: foundation.ts
+ * Module: Domain Business Logic Service
+ * =============================================================================
+ * Executes core wedding management business rules, transactional database operations, calculations, and validations for foundation.
+ *
+ * The Royal Knot - Ultra-Luxury Wedding Operations & Stakeholder Management
+ * =============================================================================
+ */
+
 import { Prisma, type UserProfile } from '@prisma/client';
 import type { z } from 'zod';
 import * as c from '../contracts.js';
