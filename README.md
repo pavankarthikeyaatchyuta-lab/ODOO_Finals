@@ -1,4 +1,4 @@
-# 👑 The Royal Knot — Wedding Operations & Intelligence Platform
+#  The Royal Knot — Wedding Operations & Intelligence Platform
 ### *Standalone Enterprise Operations & Financial Management System for Luxury Wedding Agencies*
 
 [![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%208%20%7C%20TypeScript-61DAFB?logo=react&logoColor=black)](frontend/)
