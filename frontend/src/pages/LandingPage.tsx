@@ -164,13 +164,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </div>
 
       {/* 2. Primary Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#0D1B2A]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo & Brand Identity */}
           <div className="flex items-center gap-3">
             <RoyalLogo size="sm" />
             <div>
-              <span className="font-serif font-bold text-lg tracking-wider text-[#0D1B2A] block leading-none">
+              <span className="font-serif font-bold text-lg tracking-wider text-[#0D1B2A] dark:text-[#FDFBF7] block leading-none">
                 THE ROYAL KNOT
               </span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-[#C5A059] block mt-1">
@@ -180,7 +180,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           {/* Desktop Center Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold text-slate-700">
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold text-slate-700 dark:text-slate-300">
             <a href="#ecosystem" className="hover:text-[#C5A059] transition-colors">
               Platform Architecture
             </a>

@@ -8,6 +8,8 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Royal Theme Design Tokens */
 @theme {
   /* Midnight Navy & Slate Dominants */
@@ -94,6 +96,26 @@ html.dark body {
 
 html.dark {
   color-scheme: dark;
+}
+
+
+/* Dark Mode Navigation & Sticky Headers */
+html.dark header,
+html.dark .bg-white\/95,
+html.dark .bg-white\/90,
+html.dark .bg-white\/80,
+html.dark [class*="bg-white/95"],
+html.dark [class*="bg-white/90"],
+html.dark [class*="bg-white/80"] {
+  background-color: rgba(13, 27, 42, 0.95) !important;
+  border-color: #1E3350 !important;
+}
+
+/* Ensure all border variants with opacity modifiers take dark border in dark mode */
+html.dark [class*="border-slate-200"],
+html.dark [class*="border-slate-100"],
+html.dark [class*="border-slate-300"] {
+  border-color: #1E3350 !important;
 }
 
 /* Dark Mode Backgrounds */
