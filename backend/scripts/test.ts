@@ -7,6 +7,8 @@ import { join, dirname, delimiter } from 'node:path';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
 
+// Supabase auth clients need the native WebSocket that ships with Node 22 (see package.json engines).
+if (Number(process.versions.node.split('.')[0]) < 22) throw new Error(`Node 22+ required for the test suite (running ${process.version}); try: npx -y node@22 --import tsx scripts/test.ts`);
 const socket = createServer();
 await new Promise<void>(resolve => socket.listen(0, '127.0.0.1', resolve));
 const address = socket.address();

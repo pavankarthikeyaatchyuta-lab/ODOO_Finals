@@ -6,6 +6,8 @@
 
 **Phase 4 update:** [PHASE_4_API.md](PHASE_4_API.md) defines timeline versions/dependencies, vendor arrivals, private incidents, independently approved schedule changes, publication and individual in-app acknowledgements. Notification delivery and acknowledgement are separate; no WhatsApp delivery is fabricated.
 
+**Phase 5 update:** [PHASE_5_API.md](PHASE_5_API.md) defines client receipts and vendor disbursements (initiated/claimed/verified/failed/reversed), approved additional expenses, verified final vendor bills, reconciliation, revenue recognition, labour, profitability and the founder dashboard. Money is a 2-decimal string computed server-side; the frontend must display, not recalculate, financial results.
+
 This replaces all Odoo models, ORM methods and XML/OWL integration described in the historical frontend plan. Use React + Vite + TypeScript. API and financial authority belong to Express. Phase 1 has no agreements, vendor screens, financial workflows or command-centre endpoints.
 
 ## Existing frontend scaffold handoff

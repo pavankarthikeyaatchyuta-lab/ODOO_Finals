@@ -155,6 +155,7 @@ Styled specifically for destination weddings at Udaipur's Lake Palaces and Jaipu
 * **[Shared TypeScript Contracts](backend/src/contracts.ts)**: Authoritative request and response models.
 * **[Deployment Guide](backend/DEPLOYMENT.md)**: Supabase and Vercel configuration instructions.
 * **[Phase 1 Verification Report](backend/PHASE_1_REPORT.md)**: Backend test suite and integration audit.
+* **Phases 2–5 API contracts**: [Phase 2](backend/PHASE_2_API.md), [Phase 3](backend/PHASE_3_API.md), [Phase 4](backend/PHASE_4_API.md), [Phase 5](backend/PHASE_5_API.md).
 
 ---
 
@@ -208,13 +209,13 @@ npm test
 | **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | ✅ **Completed** |
 | **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | ✅ **Completed** |
 | **Phase 2A** | Client Dossiers, Enquiry Intake, Consultations, Agreement Gating & Vendor Directory | ✅ **Completed** |
-| **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison | ⏳ **In Progress** |
+| **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison (backend) | ✅ **Completed** |
 | **Phase 3A** | Dedicated Wedding Workspace, Sub-Functions & Multi-View Task Management | ✅ **Completed** |
-| **Phase 3B** | Backend Automated 25+ Task Generation & Template Seeding Engine | ⏳ Upcoming |
+| **Phase 3B** | Backend Verified Deposits & Automated 25+ Task Generation | ✅ **Completed** |
 | **Phase 4A** | Live Command Centre, Vendor Arrival Board, Closed-Loop Delay Engine & Incidents | ✅ **Completed** |
-| **Phase 4B** | Real-time WebSocket Notifications & Dispatch Automation | ⏳ Upcoming |
+| **Phase 4B** | Backend Command Centre: Versioned Schedule Changes, Approval & In-App Acknowledgements (no WebSocket/WhatsApp provider) | ✅ **Completed** |
 | **Phase 5A** | Client & Vendor Payments, Change Orders (+60 Guests), 5-Way Reconciliation & Founder Dashboard | ✅ **Completed** |
-| **Phase 5B** | Backend Automated Payment Webhooks & Ledger Synchronization | ⏳ Upcoming |
+| **Phase 5B** | Backend Financial Management, Reconciliation & Founder Reporting (manual payment verification; no gateway webhooks) | ✅ **Completed** |
 | **Phase 6A** | Complete Frontend Integration, 11-Screen Interaction QA & Demo Readiness | ✅ **Completed** |
 | **Phase 6B** | Advanced Multi-Season Forecasting & Cross-Year Benchmarking | ⏳ Upcoming |
 
