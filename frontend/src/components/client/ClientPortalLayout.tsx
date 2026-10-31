@@ -14,7 +14,6 @@ import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
 import { RoyalLogo } from '../common/RoyalLogo';
 import {
-  Heart,
   Clock,
   FileCheck2,
   CreditCard,
@@ -27,7 +26,6 @@ import {
   Menu,
   X,
   Shield,
-  Building
 } from 'lucide-react';
 
 export type ClientTabKey = 'overview' | 'schedule' | 'documents' | 'payments';
@@ -48,7 +46,7 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
   onSelectTab,
   children
 }) => {
-  const { user, logout, switchPortal } = useAuth();
+  const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -232,33 +230,7 @@ export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
                     </div>
                   </div>
 
-                  <div className="px-2 space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                      Switch Role Portal:
-                    </span>
-                    <div className="grid grid-cols-2 gap-1 text-[10px] font-semibold">
-                      <button
-                        onClick={() => {
-                          switchPortal('AGENCY');
-                          setIsProfileOpen(false);
-                        }}
-                        className="py-1.5 px-2 rounded-lg text-center bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
-                      >
-                        <Building className="w-3 h-3 mx-auto mb-0.5" />
-                        <span>Agency</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          switchPortal('VENDOR');
-                          setIsProfileOpen(false);
-                        }}
-                        className="py-1.5 px-2 rounded-lg text-center bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
-                      >
-                        <Heart className="w-3 h-3 mx-auto mb-0.5" />
-                        <span>Vendor</span>
-                      </button>
-                    </div>
-                  </div>
+
 
                   <div className="pt-2 border-t border-slate-100">
                     <button

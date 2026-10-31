@@ -504,8 +504,8 @@ function MainApplicationRouter() {
     );
   }
 
-  // 2. Vendor Partner Portal View
-  if (activePortal === 'VENDOR' || user?.role === 'VENDOR') {
+  // 2. Vendor Partner Portal View (Strictly gated for Vendor roles)
+  if (user?.role === 'VENDOR' || (activePortal === 'VENDOR' && user?.role !== 'CLIENT' && user?.role !== 'FAMILY')) {
     return (
       <VendorPortalLayout
         currentTab={currentVendorTab}
@@ -552,8 +552,8 @@ function MainApplicationRouter() {
     );
   }
 
-  // 3. Client / Couple & Family Portal View
-  if (activePortal === 'CLIENT' || user?.role === 'CLIENT' || user?.role === 'FAMILY') {
+  // 3. Client / Couple & Family Portal View (Strictly gated for Client & Family roles)
+  if (user?.role === 'CLIENT' || user?.role === 'FAMILY' || activePortal === 'CLIENT') {
     return (
       <ClientPortalLayout
         currentTab={currentClientTab}

@@ -346,6 +346,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchPortal = (newPortal: PortalType) => {
+    // Strict RBAC: External clients and vendors can NEVER enter the internal agency workspace
+    if (user?.role === 'CLIENT' || user?.role === 'FAMILY' || user?.role === 'VENDOR') {
+      console.warn('[Security Violation] Unauthorized portal switch attempt blocked for external role:', user.role);
+      return;
+    }
     setPortal(newPortal);
     if (newPortal === 'VENDOR') {
       setUser(DEMO_PROFILES.VENDOR);
@@ -357,6 +362,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchRole = (newRole: AppRole) => {
+    // Strict RBAC: External clients and vendors cannot elevate privileges or switch roles
+    if (user?.role === 'CLIENT' || user?.role === 'FAMILY' || user?.role === 'VENDOR') {
+      console.warn('[Security Violation] Unauthorized role switch attempt blocked for external role:', user.role);
+      return;
+    }
     const profile = DEMO_PROFILES[newRole];
     if (profile) {
       setUser(profile);
