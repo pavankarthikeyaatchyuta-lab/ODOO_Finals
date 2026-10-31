@@ -29,5 +29,6 @@ export const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _ne
       if (error.type === 'entity.too.large') { status = 413; code = 'BODY_TOO_LARGE'; message = 'Request body exceeds 64kb'; }
     }
     if (status === 500) console.error(JSON.stringify({ requestId: res.locals.requestId, code, errorType: error instanceof Error ? error.name : 'Unknown', ...(error instanceof Prisma.PrismaClientKnownRequestError ? { databaseCode: error.code } : {}) }));
+    if (status === 429) res.set('Retry-After', '60');
     res.status(status).json({ error: { code, message, ...(fields ? { fields } : {}), requestId: res.locals.requestId } });
   };

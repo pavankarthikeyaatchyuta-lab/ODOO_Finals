@@ -4,6 +4,7 @@ import { z } from 'zod';
 import type { IdentityProvider } from '../identity.js';
 import * as c from '../contracts.js';
 import { authController } from '../controllers/auth.js';
+import { consumeAuthLimit } from '../services/rate-limit.js';
 
 export function registerAuthRoutes(app: Express, db: PrismaClient, identity: IdentityProvider) {
   const controller = authController(db, identity);
@@ -19,7 +20,12 @@ export function registerAuthRoutes(app: Express, db: PrismaClient, identity: Ide
     app.post(`/api/v1/auth/${path}`, async (req, res, next) => {
       try {
         z.object({}).strict().parse(req.query);
-        const output = await handler(body.parse(req.body ?? {}), req.headers.authorization);
+        const input = body.parse(req.body ?? {});
+        if (path !== 'logout') {
+          await consumeAuthLimit(db, `auth-ip-${path}`, req.ip ?? req.socket.remoteAddress ?? 'unknown', 60);
+          if (path === 'login') await consumeAuthLimit(db, 'auth-email', c.loginInput.parse(input).email, 10);
+        }
+        const output = await handler(input, req.headers.authorization);
         if (!response.safeParse(output).success) throw new Error('Authentication response contract violation');
         res.json(output);
       } catch (error) { next(error); }
