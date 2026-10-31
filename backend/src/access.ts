@@ -2,14 +2,15 @@ import { Prisma, type UserProfile } from '@prisma/client';
 import { forbidden, missing } from './errors.js';
 
 export type Tx = Prisma.TransactionClient;
-export function weddingFilter(user: UserProfile): Prisma.WeddingWhereInput {
-  if (user.role === 'FOUNDER') return {};
-  if (user.role === 'CLIENT') return { clients: { some: { client: { userId: user.id } } } };
-  return { assignments: { some: { userId: user.id } } };
+export function weddingFilter(user: UserProfile, includeArchived = false): Prisma.WeddingWhereInput {
+  const visible = includeArchived ? {} : { archivedAt: null };
+  if (user.role === 'FOUNDER') return visible;
+  if (user.role === 'CLIENT') return { ...visible, clients: { some: { client: { userId: user.id, archivedAt: null } } } };
+  return { ...visible, assignments: { some: { userId: user.id } } };
 }
-export async function weddingAccess(tx: Tx, user: UserProfile, id: string, write = false) {
+export async function weddingAccess(tx: Tx, user: UserProfile, id: string, write = false, includeArchived = false) {
   if (write) await tx.$queryRaw`SELECT id FROM app."Wedding" WHERE id = ${id}::uuid FOR UPDATE`;
-  const wedding = await tx.wedding.findFirst({ where: { id, ...weddingFilter(user) } });
+  const wedding = await tx.wedding.findFirst({ where: { id, ...weddingFilter(user, includeArchived) } });
   if (!wedding) throw missing();
   if (write && !['FOUNDER', 'PLANNER'].includes(user.role)) throw forbidden();
   return wedding;

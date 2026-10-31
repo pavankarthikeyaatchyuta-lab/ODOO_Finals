@@ -7,9 +7,20 @@ import { supabaseIdentity } from '../src/identity.js';
 const userId = randomUUID();
 let invites = 0;
 let lastToken = '';
+let logoutToken = '';
+const issuedToken = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: userId, exp: Math.floor(Date.now() / 1000) + 3600, aud: 'authenticated' })).toString('base64url')}.dGVzdA`;
 const server = createServer(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  if (req.url === '/auth/v1/user') {
+  if (req.url?.startsWith('/auth/v1/token?')) {
+    let raw = '';
+    for await (const chunk of req) raw += chunk;
+    const body = JSON.parse(raw);
+    if (body.password === 'correct' || body.refresh_token === 'valid-refresh') res.end(JSON.stringify({ access_token: issuedToken, refresh_token: 'rotated-refresh', token_type: 'bearer', expires_in: 3600, user: { id: userId, email: 'known@test.invalid', aud: 'authenticated' } }));
+    else { res.statusCode = body.password === 'rate-limited' ? 429 : 400; res.end(JSON.stringify({ message: 'Invalid credentials or session', code: 'invalid_credentials' })); }
+  } else if (req.url?.startsWith('/auth/v1/logout?')) {
+    logoutToken = req.headers.authorization ?? '';
+    res.statusCode = 204; res.end();
+  } else if (req.url === '/auth/v1/user') {
     lastToken = req.headers.authorization ?? '';
     if (lastToken === 'Bearer valid') res.end(JSON.stringify({ id: userId, email: 'known@test.invalid', aud: 'authenticated' }));
     else { res.statusCode = 401; res.end(JSON.stringify({ message: 'Expired or invalid JWT', code: 'bad_jwt' })); }
@@ -40,4 +51,24 @@ it('recovers an existing identity without sending duplicate invitations', async 
 it('sends a new identity invitation through Supabase Auth', async () => {
   assert.match(await provider.invite('new@test.invalid'), /^[0-9a-f-]{36}$/);
   assert.equal(invites, 1);
+});
+it('uses isolated Supabase clients for password login and refresh, and preserves the identity mapping', async () => {
+  const [loggedIn, refreshed] = await Promise.all([provider.signIn('known@test.invalid', 'correct'), provider.refresh('valid-refresh')]);
+  for (const session of [loggedIn, refreshed]) {
+    assert.equal(session?.userId, userId);
+    assert.equal(session?.accessToken, issuedToken);
+    assert.equal(session?.refreshToken, 'rotated-refresh');
+    assert.equal(session?.tokenType, 'bearer');
+    assert.ok(session!.expiresAt > Date.now() / 1000);
+  }
+  assert.equal(await provider.invite('known@test.invalid'), userId);
+});
+it('rejects invalid password/refresh credentials and maps provider rate limits', async () => {
+  assert.equal(await provider.signIn('known@test.invalid', 'wrong'), null);
+  assert.equal(await provider.refresh('expired'), null);
+  await assert.rejects(provider.signIn('known@test.invalid', 'rate-limited'), { status: 429, code: 'AUTH_RATE_LIMITED' });
+});
+it('revokes the bearer session through the Supabase logout endpoint', async () => {
+  await provider.signOut('valid');
+  assert.equal(logoutToken, 'Bearer valid');
 });

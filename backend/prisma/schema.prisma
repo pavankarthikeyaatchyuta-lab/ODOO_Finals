@@ -66,6 +66,7 @@ model Client {
   email       String   @unique
   phone       String?
   userId      String?  @unique @db.Uuid
+  archivedAt  DateTime? @db.Timestamptz(3)
   user        UserProfile? @relation(fields: [userId], references: [id], onDelete: Restrict)
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
@@ -82,13 +83,35 @@ model Wedding {
   preferredTheme String?
   budgetMax     Decimal?     @db.Decimal(16, 2)
   internalNotes String?
+  archivedAt    DateTime? @db.Timestamptz(3)
   createdAt     DateTime @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @db.Timestamptz(3)
   clients       WeddingClient[]
   assignments   WeddingAssignment[]
   enquiry       Enquiry?
   consultations Consultation[]
+  functions     WeddingFunction[]
   @@index([state, createdAt])
+}
+
+enum WeddingFunctionType {
+  MEHENDI
+  SANGEET
+  RECEPTION
+}
+
+model WeddingFunction {
+  id          String @id @default(uuid()) @db.Uuid
+  weddingId   String @db.Uuid
+  wedding     Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  type        WeddingFunctionType
+  name        String
+  startAt     DateTime? @db.Timestamptz(3)
+  endAt       DateTime? @db.Timestamptz(3)
+  venue       String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([weddingId, name])
 }
 
 model WeddingClient {

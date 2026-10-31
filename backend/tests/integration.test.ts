@@ -15,6 +15,9 @@ let invitations = 0;
 const app = createApp(db, {
   async verify(token) { if (token === 'auth-down') throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable'); return ids[token] ?? null; },
   async invite() { invitations++; return randomUUID(); },
+  async signIn() { return null; },
+  async refresh() { return null; },
+  async signOut() {},
 }, { allowedOrigins: ['https://frontend.test'] });
 const key = () => randomUUID();
 function api(method: 'get' | 'post' | 'patch' | 'delete', path: string, actor = 'founder', body?: object, idempotency = key()) {

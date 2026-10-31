@@ -1,17 +1,45 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type AuthError, type Session } from '@supabase/supabase-js';
 import { ApiError } from './errors.js';
 
 export interface IdentityProvider {
   verify(token: string): Promise<string | null>;
   invite(email: string): Promise<string>;
+  signIn(email: string, password: string): Promise<IdentitySession | null>;
+  refresh(refreshToken: string): Promise<IdentitySession | null>;
+  signOut(accessToken: string): Promise<void>;
+}
+
+export interface IdentitySession { userId: string; accessToken: string; refreshToken: string; expiresAt: number; tokenType: 'bearer' }
+
+function readSession(session: Session | null, error: AuthError | null): IdentitySession | null {
+  if (error) {
+    if (error.status === 429) throw new ApiError(429, 'AUTH_RATE_LIMITED', 'Too many authentication attempts; try again later');
+    if (!error.status || error.status >= 500) throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable');
+    return null;
+  }
+  return session ? { userId: session.user.id, accessToken: session.access_token, refreshToken: session.refresh_token, expiresAt: session.expires_at ?? Math.floor(Date.now() / 1000) + session.expires_in, tokenType: 'bearer' } : null;
 }
 
 export function supabaseIdentity(url: string, serviceKey: string, redirectTo: string): IdentityProvider {
-  const admin = createClient(url, serviceKey, {
+  const options = {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-    global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(8000) }) },
-  });
+    global: { fetch: (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => fetch(input, { ...init, signal: AbortSignal.timeout(8000) }) },
+  };
+  const admin = createClient(url, serviceKey, options);
   return {
+    async signIn(email, password) {
+      // A per-call client prevents concurrent user sessions from replacing the admin identity.
+      const { data, error } = await createClient(url, serviceKey, options).auth.signInWithPassword({ email, password });
+      return readSession(data.session, error);
+    },
+    async refresh(refreshToken) {
+      const { data, error } = await createClient(url, serviceKey, options).auth.refreshSession({ refresh_token: refreshToken });
+      return readSession(data.session, error);
+    },
+    async signOut(accessToken) {
+      const { error } = await admin.auth.admin.signOut(accessToken, 'local');
+      if (error && ![401, 403, 404].includes(error.status ?? 0)) throw new ApiError(503, 'AUTH_UNAVAILABLE', 'Unable to end the authentication session');
+    },
     async verify(token) {
       const { data, error } = await admin.auth.getUser(token);
       if (error) {

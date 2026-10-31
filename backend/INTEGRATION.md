@@ -10,7 +10,7 @@ Replace Phase 1 mock reads/writes with authenticated API requests and paginated 
 
 ## Transport
 
-Base URL: `<backend origin>/api/v1`. Send `Authorization: Bearer <Supabase access token>`. Every POST, PATCH and DELETE requires an `Idempotency-Key` containing 8–128 ASCII letters, digits, `.`, `_`, `:`, or `-`. Generate one UUID per intended action; retain it while retrying that action. Reusing it with a different payload/path returns 409. Retry responses have the original status/body; wedding access is checked again before replay.
+Base URL: `<backend origin>/api/v1`. Send `Authorization: Bearer <Supabase access token>` on protected endpoints. Every business POST, PATCH and DELETE requires an `Idempotency-Key` containing 8–128 ASCII letters, digits, `.`, `_`, `:`, or `-`. Auth endpoints do not use idempotency keys or persist token responses. Generate one UUID per intended business action; retain it while retrying that action. Reusing it with a different payload/path returns 409. Retry responses have the original status/body; wedding access is checked again before replay.
 
 Lists return `{ data, page, pageSize, total }`; defaults are page 1 and pageSize 25, maximum 100. IDs are UUIDs; timestamps are ISO strings, stored in UTC. Wedding dates are `YYYY-MM-DD` or null. Display timezone defaults to `Asia/Kolkata`. Money is a decimal string, never a JavaScript floating-point calculation.
 
@@ -23,18 +23,25 @@ Import request/response types from `src/contracts.ts` (or generated declarations
 | Endpoint | Access / purpose |
 | --- | --- |
 | `GET /health`, `GET /ready`, `GET /openapi.json` | Public health, DB readiness and contracts |
+| `POST /auth/login` | Public; existing invited account email/password; returns active application profile and Supabase session |
+| `POST /auth/refresh` | Public; valid refresh token and active profile required |
+| `POST /auth/logout` | Verified bearer token; revokes current session; also available to disabled profiles |
 | `GET /me` | Active invited account, role and timezone |
 | `GET /users` | Founder; paginated staff directory |
+| `GET /users/:id` | Founder; individual profile |
 | `PATCH /users/:id` | Founder; staff role or account activity; cannot replace/deactivate founder or convert client accounts into staff |
 | `POST /invitations` | Founder invites staff; founder/assigned planner invites explicitly linked clients |
 | `POST /clients` | Founder/planner; create contact |
 | `GET /clients`, `GET /clients/:id` | Staff; founder sees all, others see contacts of assigned weddings |
 | `PATCH /clients/:id` | Founder/assigned planner; update contact, never user linkage |
+| `DELETE /clients/:id` | Founder; archive contact only after all linked weddings are archived |
 | `POST /enquiries` | Founder/planner; atomically create enquiry, provisional wedding and contact links; creator planner is assigned |
 | `GET /enquiries`, `GET /enquiries/:id` | Scoped staff/client access; list optionally filters `stage` |
 | `PATCH /enquiries/:id` | Founder/assigned planner; stage/source/internal notes |
 | `GET /weddings`, `GET /weddings/:id` | Scoped staff/client access; list optionally filters `state` |
+| `POST /weddings` | Founder/planner; directly create provisional wedding with existing client IDs; no enquiry is created |
 | `PATCH /weddings/:id` | Founder/assigned planner; details and limited Phase 1 lifecycle transitions; budget changes founder-only |
+| `DELETE /weddings/:id` | Founder/assigned planner; archive provisional/cancelled wedding with no pending/confirmed consultations |
 | `POST /weddings/:id/clients` | Founder; explicitly link existing `clientId` |
 | `POST /weddings/:id/assignments` | Founder; assign active staff `userId` |
 | `DELETE /weddings/:id/assignments/:userId` | Founder; blocked while that planner has confirmed consultations for the wedding |
@@ -44,11 +51,17 @@ Import request/response types from `src/contracts.ts` (or generated declarations
 
 All list endpoints accept `page` and `pageSize`. See OpenAPI for exact body and response schemas.
 
+See [PHASE_1B_API.md](PHASE_1B_API.md) for request/response examples, validation rules, model decisions and the authentication/archival contract.
+
 ## Entities and lifecycle
 
 `UserProfile.id` is the verified Supabase identity UUID. `Client.userId` explicitly links one invited account to its contact. `WeddingClient` allows several contacts per wedding and several weddings per contact. `WeddingAssignment` grants staff scope. A matching email never grants wedding access by itself.
 
 `Enquiry.id` and `Wedding.id` are different identifiers. The enquiry has a unique `weddingId`; every future vendor, quotation, task, schedule, incident, payment and report must reference this same wedding ID. No conversion creates a replacement wedding.
+
+Direct wedding creation uses `{ clientIds, wedding }`, the same structure as enquiry creation without enquiry metadata. Use either direct wedding intake or the enquiry creation flow for an intended wedding; do not POST a second wedding after receiving one from enquiry creation. DELETE archives rather than physically deleting records. Archived weddings and their enquiries/consultations are excluded from normal APIs, including client access. Their UUIDs, links and audit history remain stored. Client responses for staff include nullable `archivedAt`.
+
+Reuse `UserProfile` for application users, `Role` for fixed roles and `PackageType` for the two supported packages. There is no duplicate User/Role/WeddingPackage table. `WeddingFunction` now provides a schema-only child relation (`id`, `weddingId`, `type`, `name`, optional paired `startAt`/`endAt`, optional `venue`, timestamps) for Mehendi/Sangeet/Reception. Function planning APIs and automation remain later-phase work.
 
 Enquiry stages: `NEW`, `CONTACTED`, `CONSULTATION_SCHEDULED`, `PROPOSAL_SENT`, `LOST`. Stage changes do not confirm a booking or automatically change wedding lifecycle.
 
