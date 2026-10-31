@@ -17,7 +17,7 @@ export type WeddingStatus =
 
 export type QuoteStatus = 'DRAFT' | 'SUBMITTED' | 'SELECTED' | 'REJECTED';
 
-export type TaskStage = 'TO_PLAN' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';
+export type TaskStage = 'TO_PLAN' | 'IN_PROGRESS' | 'DONE' | 'BLOCKED';
 
 export type ArrivalStatus = 'EXPECTED' | 'CHECKED_IN' | 'LATE';
 
@@ -163,17 +163,37 @@ export interface VendorProfile {
   priceRange: string;
 }
 
+// --- Wedding Functions (Mehendi, Sangeet, Pheras, Reception) ---
+export interface WeddingFunction {
+  id: string;
+  weddingId: string;
+  name: 'MEHENDI' | 'SANGEET' | 'PHERAS' | 'RECEPTION';
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  venueArea: string;
+  guestCapacity: number;
+  theme: string;
+  assignedLead: string;
+  status: 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED';
+}
+
 // --- Automated Planning Tasks ---
 export interface WeddingTask {
   id: string;
   weddingId: string;
   title: string;
+  description?: string;
+  functionName?: 'MEHENDI' | 'SANGEET' | 'PHERAS' | 'RECEPTION' | 'OVERALL';
   category: 'VENUE' | 'DESIGN' | 'VENDORS' | 'MEHENDI' | 'SANGEET' | 'PHERAS' | 'RECEPTION' | 'CLEANUP';
   owner: string;
   dueDate: string;
   stage: TaskStage;
   isKeyMilestone: boolean;
   packageScope: 'ALL' | 'FULL_SERVICE_ONLY';
+  blockedReason?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'NORMAL';
 }
 
 // --- Live Command Centre: Run Sheet Timeline ---

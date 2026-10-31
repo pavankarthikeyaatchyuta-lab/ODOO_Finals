@@ -4,6 +4,7 @@ import {
   Consultation,
   AgreementDetails,
   VendorProfile,
+  WeddingFunction,
   CatererQuote,
   WeddingTask,
   RunSheetItem,
@@ -21,6 +22,7 @@ import {
   INITIAL_CONSULTATIONS,
   INITIAL_AGREEMENTS,
   INITIAL_VENDOR_PROFILES,
+  INITIAL_FUNCTIONS,
   INITIAL_CATERER_QUOTES,
   INITIAL_TASKS,
   INITIAL_RUN_SHEET,
@@ -288,15 +290,52 @@ export const api = {
     return updated;
   },
 
-  // Tasks
+  // Wedding Sub-Functions
+  getWeddingFunctions: async (weddingId: string): Promise<WeddingFunction[]> => {
+    const list = getItem('functions', INITIAL_FUNCTIONS);
+    return list.filter(f => f.weddingId === weddingId);
+  },
+
+  // Automated Planning Tasks
   getTasks: async (weddingId: string): Promise<WeddingTask[]> => {
     const list = getItem('tasks', INITIAL_TASKS);
     return list.filter(t => t.weddingId === weddingId);
   },
 
-  updateTaskStage: async (taskId: string, stage: WeddingTask['stage']): Promise<WeddingTask> => {
+  createTask: async (task: Omit<WeddingTask, 'id'>): Promise<WeddingTask> => {
     const list = getItem('tasks', INITIAL_TASKS);
-    const updated = list.map(t => (t.id === taskId ? { ...t, stage } : t));
+    const newTask: WeddingTask = {
+      ...task,
+      id: `task-${Date.now().toString().slice(-4)}`
+    };
+    const updated = [newTask, ...list];
+    setItem('tasks', updated);
+    return newTask;
+  },
+
+  updateTask: async (taskId: string, updates: Partial<WeddingTask>): Promise<WeddingTask> => {
+    const list = getItem('tasks', INITIAL_TASKS);
+    const updated = list.map(t => (t.id === taskId ? { ...t, ...updates } : t));
+    setItem('tasks', updated);
+    return updated.find(t => t.id === taskId)!;
+  },
+
+  updateTaskStage: async (
+    taskId: string,
+    stage: WeddingTask['stage'],
+    blockedReason?: string
+  ): Promise<WeddingTask> => {
+    const list = getItem('tasks', INITIAL_TASKS);
+    const updated = list.map(t => {
+      if (t.id === taskId) {
+        return {
+          ...t,
+          stage,
+          blockedReason: stage === 'BLOCKED' ? (blockedReason || t.blockedReason || 'Blocked by operational dependency') : undefined
+        };
+      }
+      return t;
+    });
     setItem('tasks', updated);
     return updated.find(t => t.id === taskId)!;
   },

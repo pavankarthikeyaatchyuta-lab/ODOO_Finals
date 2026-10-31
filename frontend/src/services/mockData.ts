@@ -4,6 +4,7 @@ import {
   Consultation,
   AgreementDetails,
   VendorProfile,
+  WeddingFunction,
   CatererQuote,
   WeddingTask,
   RunSheetItem,
@@ -232,41 +233,100 @@ export const INITIAL_CATERER_QUOTES: CatererQuote[] = [
   }
 ];
 
+export const INITIAL_FUNCTIONS: WeddingFunction[] = [
+  {
+    id: 'func-01',
+    weddingId: 'wed-001',
+    name: 'MEHENDI',
+    title: 'Royal Mehendi & Afternoon High Tea',
+    date: '2026-12-22',
+    startTime: '14:00',
+    endTime: '18:00',
+    venueArea: 'Lakeside Lawns & Zenana Courtyard, Jagmandir',
+    guestCapacity: 400,
+    theme: 'Rajasthani Marigold Canopies & Royal Henna',
+    assignedLead: 'Anita Roy (Hospitality & Guest Experience)',
+    status: 'COMPLETED'
+  },
+  {
+    id: 'func-02',
+    weddingId: 'wed-001',
+    name: 'SANGEET',
+    title: 'Sangeet & Sufi Night Under the Stars',
+    date: '2026-12-22',
+    startTime: '19:30',
+    endTime: '01:00',
+    venueArea: 'Zenana Mahal Grand Durbar, City Palace Complex',
+    guestCapacity: 450,
+    theme: 'Palace Candlelight & Acoustic Sufi Elegance',
+    assignedLead: 'Rohan Verma (Production & Sound Lead)',
+    status: 'COMPLETED'
+  },
+  {
+    id: 'func-03',
+    weddingId: 'wed-001',
+    name: 'PHERAS',
+    title: 'Varmala & Vedic Pheras Ceremony',
+    date: '2026-12-23',
+    startTime: '16:30',
+    endTime: '21:30',
+    venueArea: 'Floating Lotus Island Mandap, Lake Pichola',
+    guestCapacity: 400,
+    theme: 'Royal Rajputana Heritage & Boat Armada Baraat',
+    assignedLead: 'Priya Mehra (Lead Luxury Director)',
+    status: 'IN_PROGRESS'
+  },
+  {
+    id: 'func-04',
+    weddingId: 'wed-001',
+    name: 'RECEPTION',
+    title: 'Royal Banquet & Gala Reception',
+    date: '2026-12-24',
+    startTime: '19:00',
+    endTime: '00:30',
+    venueArea: 'Manek Chowk Courtyard & Banquet Pavilion',
+    guestCapacity: 500,
+    theme: 'Midnight Royal Durbar & Champagne Toast',
+    assignedLead: 'Devendra Kaviraj (Senior Planner)',
+    status: 'UPCOMING'
+  }
+];
+
 export const INITIAL_TASKS: WeddingTask[] = [
   // Venue & Legal
-  { id: 'task-01', weddingId: 'wed-001', title: 'Confirm Jagmandir Palace heritage venue contract & deposit', category: 'VENUE', owner: 'Priya Mehra', dueDate: '2026-09-01', stage: 'DONE', isKeyMilestone: true, packageScope: 'ALL' },
-  { id: 'task-02', weddingId: 'wed-001', title: 'Obtain Udaipur local administration permissions & boat transit clearances', category: 'VENUE', owner: 'Siddharth Jain', dueDate: '2026-09-15', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-03', weddingId: 'wed-001', title: 'Review structural load & electrical generator access for Zenana Mahal', category: 'VENUE', owner: 'Amit Sharma', dueDate: '2026-10-01', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
+  { id: 'task-01', weddingId: 'wed-001', title: 'Confirm Jagmandir Palace heritage venue contract & deposit', description: 'Coordinate with palace administration, verify booking deed and security deposit for 3-day full island buyout.', category: 'VENUE', functionName: 'OVERALL', owner: 'Priya Mehra', dueDate: '2026-09-01', stage: 'DONE', isKeyMilestone: true, packageScope: 'ALL', priority: 'HIGH' },
+  { id: 'task-02', weddingId: 'wed-001', title: 'Obtain Udaipur administration permissions & boat transit clearances', description: 'Submit municipal clearances for guest boat flotilla transit across Lake Pichola past 10 PM.', category: 'VENUE', functionName: 'OVERALL', owner: 'Siddharth Jain', dueDate: '2026-09-15', stage: 'BLOCKED', blockedReason: 'Awaiting lake patrol night navigation clearance letter from district collector.', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'HIGH' },
+  { id: 'task-03', weddingId: 'wed-001', title: 'Review structural load & electrical generator access for Zenana Mahal', description: 'Load testing for stage structures and twin 250 kVA silent diesel generator deployment on island.', category: 'VENUE', functionName: 'OVERALL', owner: 'Amit Sharma', dueDate: '2026-10-01', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'MEDIUM' },
   // Design & Decor
-  { id: 'task-04', weddingId: 'wed-001', title: 'Finalize Royal Rajputana 3D moodboard & floral color palette', category: 'DESIGN', owner: 'Priya Mehra', dueDate: '2026-09-20', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-05', weddingId: 'wed-001', title: 'Architectural lighting design for floating island mandap', category: 'DESIGN', owner: 'Rohan Verma', dueDate: '2026-10-10', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-06', weddingId: 'wed-001', title: 'Print custom gold-embossed royal stationery, itineraries & luggage tags', category: 'DESIGN', owner: 'Anita Roy', dueDate: '2026-11-01', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
+  { id: 'task-04', weddingId: 'wed-001', title: 'Finalize Royal Rajputana 3D moodboard & floral color palette', description: 'Client review session for marigold canopies, imported white orchids, and antique brass candle pillars.', category: 'DESIGN', functionName: 'OVERALL', owner: 'Priya Mehra', dueDate: '2026-09-20', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY', priority: 'HIGH' },
+  { id: 'task-05', weddingId: 'wed-001', title: 'Architectural lighting design for floating island mandap', description: 'Waterproof underwater illumination, facade wash lighting on heritage stone pavilions.', category: 'DESIGN', functionName: 'PHERAS', owner: 'Rohan Verma', dueDate: '2026-10-10', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'MEDIUM' },
+  { id: 'task-06', weddingId: 'wed-001', title: 'Print custom gold-embossed royal stationery, itineraries & luggage tags', description: 'Handcrafted parchment invitations, wax seals, welcome hamper booklets and guest key cards.', category: 'DESIGN', functionName: 'OVERALL', owner: 'Anita Roy', dueDate: '2026-11-01', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'NORMAL' },
   // Vendors Procurement
-  { id: 'task-07', weddingId: 'wed-001', title: 'Execute 3-caterer quotation comparison for 400 guests', category: 'VENDORS', owner: 'Priya Mehra', dueDate: '2026-09-15', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-08', weddingId: 'wed-001', title: 'Contract SpiceHeaven Royal Caterers & record ₹3L advance', category: 'VENDORS', owner: 'Devendra Kaviraj', dueDate: '2026-09-18', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-09', weddingId: 'wed-001', title: 'Contract celebrity DJ & stage sound engineers', category: 'VENDORS', owner: 'Rohan Verma', dueDate: '2026-09-25', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-10', weddingId: 'wed-001', title: 'Contract royal brass band, nagada drummers & folk dancers', category: 'VENDORS', owner: 'Amit Sharma', dueDate: '2026-10-05', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-11', weddingId: 'wed-001', title: 'Contract cinematic drone photography & 8-camera documentary crew', category: 'VENDORS', owner: 'Priya Mehra', dueDate: '2026-10-12', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
+  { id: 'task-07', weddingId: 'wed-001', title: 'Execute 3-caterer quotation comparison for 400 guests', description: 'Benchmark SpiceHeaven, Mewar Gourmet, and Palace Feasts across per-plate rates, live stalls, and extra hours.', category: 'VENDORS', functionName: 'OVERALL', owner: 'Priya Mehra', dueDate: '2026-09-15', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY', priority: 'HIGH' },
+  { id: 'task-08', weddingId: 'wed-001', title: 'Contract SpiceHeaven Royal Caterers & record advance', description: 'Sign catering SLA, lock agreed per-plate rate of ₹1,800, and disburse initial catering advance.', category: 'VENDORS', functionName: 'OVERALL', owner: 'Devendra Kaviraj', dueDate: '2026-09-18', stage: 'DONE', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY', priority: 'HIGH' },
+  { id: 'task-09', weddingId: 'wed-001', title: 'Contract celebrity DJ & stage sound engineers', description: 'Acoustic sound rider agreement with DJ Shadow rig for Sangeet night and after-party.', category: 'VENDORS', functionName: 'SANGEET', owner: 'Rohan Verma', dueDate: '2026-09-25', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL', priority: 'MEDIUM' },
+  { id: 'task-10', weddingId: 'wed-001', title: 'Contract royal brass band, nagada drummers & folk dancers', description: 'Secure Ustad Banne Khan 12-member nagada ensemble and Chari folk dancers for baraat procession.', category: 'VENDORS', functionName: 'PHERAS', owner: 'Amit Sharma', dueDate: '2026-10-05', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL', priority: 'MEDIUM' },
+  { id: 'task-11', weddingId: 'wed-001', title: 'Contract cinematic drone photography & 8-camera documentary crew', description: 'Full coverage agreement with Stories by Joseph Radhik for all 3 days including same-day edit trailer.', category: 'VENDORS', functionName: 'OVERALL', owner: 'Priya Mehra', dueDate: '2026-10-12', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'MEDIUM' },
   // Mehendi Preparations
-  { id: 'task-12', weddingId: 'wed-001', title: 'Curate organic Rajasthani henna paste & hire 15 bridal mehndi artists', category: 'MEHENDI', owner: 'Anita Roy', dueDate: '2026-11-15', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
-  { id: 'task-13', weddingId: 'wed-001', title: 'Set up lakeside Cabana lounge seating & Marigold canopies', category: 'MEHENDI', owner: 'Amit Sharma', dueDate: '2026-12-21', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-14', weddingId: 'wed-001', title: 'Organize bangle-making live artisan station & welcome turbans', category: 'MEHENDI', owner: 'Anita Roy', dueDate: '2026-12-21', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY' },
+  { id: 'task-12', weddingId: 'wed-001', title: 'Curate organic Rajasthani henna paste & hire 15 bridal mehndi artists', description: 'Sojat organic henna batches and luxury bridal mehndi specialist booking with armrest setups.', category: 'MEHENDI', functionName: 'MEHENDI', owner: 'Anita Roy', dueDate: '2026-11-15', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'NORMAL' },
+  { id: 'task-13', weddingId: 'wed-001', title: 'Set up lakeside Cabana lounge seating & Marigold canopies', description: 'Daytime sunshade canopies, silk cushions, and vintage swing setup overlooking the lake.', category: 'MEHENDI', functionName: 'MEHENDI', owner: 'Amit Sharma', dueDate: '2026-12-21', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL', priority: 'MEDIUM' },
+  { id: 'task-14', weddingId: 'wed-001', title: 'Organize bangle-making live artisan station & welcome turbans', description: 'Live lac bangle craftsman from Jaipur old bazaar and safa tying team at arrival jetty.', category: 'MEHENDI', functionName: 'MEHENDI', owner: 'Anita Roy', dueDate: '2026-12-21', stage: 'DONE', isKeyMilestone: false, packageScope: 'FULL_SERVICE_ONLY', priority: 'NORMAL' },
   // Sangeet & Sound
-  { id: 'task-15', weddingId: 'wed-001', title: 'Stage construction, LED wall rigging & acoustic sound checks', category: 'SANGEET', owner: 'Rohan Verma', dueDate: '2026-12-22', stage: 'DONE', isKeyMilestone: true, packageScope: 'ALL' },
-  { id: 'task-16', weddingId: 'wed-001', title: 'Coordinate family dance rehearsals & song track sequencing', category: 'SANGEET', owner: 'Anita Roy', dueDate: '2026-12-22', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-17', weddingId: 'wed-001', title: 'Cold-pyro and atmospheric haze safety compliance inspection', category: 'SANGEET', owner: 'Amit Sharma', dueDate: '2026-12-22', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL' },
+  { id: 'task-15', weddingId: 'wed-001', title: 'Stage construction, LED wall rigging & acoustic sound checks', description: 'Main performance stage with high-density LED backdrop, wireless mics, and sub-woofer calibration.', category: 'SANGEET', functionName: 'SANGEET', owner: 'Rohan Verma', dueDate: '2026-12-22', stage: 'DONE', isKeyMilestone: true, packageScope: 'ALL', priority: 'HIGH' },
+  { id: 'task-16', weddingId: 'wed-001', title: 'Coordinate family dance rehearsals & song track sequencing', description: 'Green room cue manager and rehearsal sequence check with couple and cousins.', category: 'SANGEET', functionName: 'SANGEET', owner: 'Anita Roy', dueDate: '2026-12-22', stage: 'DONE', isKeyMilestone: false, packageScope: 'ALL', priority: 'NORMAL' },
+  { id: 'task-17', weddingId: 'wed-001', title: 'Cold-pyro and atmospheric haze safety compliance inspection', description: 'Fire marshal walk-through and verification of non-hazardous sparkular machines.', category: 'SANGEET', functionName: 'SANGEET', owner: 'Amit Sharma', dueDate: '2026-12-22', stage: 'BLOCKED', blockedReason: 'Awaiting local fire department inspector on-site safety certification signature.', isKeyMilestone: false, packageScope: 'ALL', priority: 'HIGH' },
   // Wedding Ceremony (Varmala & Pheras)
-  { id: 'task-18', weddingId: 'wed-001', title: 'Royal vintage car & vintage boat armada coordination for Baraat', category: 'PHERAS', owner: 'Siddharth Jain', dueDate: '2026-12-23', stage: 'IN_PROGRESS', isKeyMilestone: true, packageScope: 'ALL' },
-  { id: 'task-19', weddingId: 'wed-001', title: 'Varmala stage rose-petal drop mechanism calibration', category: 'PHERAS', owner: 'Amit Sharma', dueDate: '2026-12-23', stage: 'IN_PROGRESS', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-20', weddingId: 'wed-001', title: 'Coordinate Vedic priests, havan samagri & royal silver chowkis', category: 'PHERAS', owner: 'Priya Mehra', dueDate: '2026-12-23', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-21', weddingId: 'wed-001', title: 'Conduct dry run & rehearsal with couple and bridal party', category: 'PHERAS', owner: 'Priya Mehra', dueDate: '2026-12-23', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY' },
+  { id: 'task-18', weddingId: 'wed-001', title: 'Royal vintage car & vintage boat armada coordination for Baraat', description: 'Coordinate 4 royal royal motorboats for groom side arrival from City Palace jetty to Jagmandir.', category: 'PHERAS', functionName: 'PHERAS', owner: 'Siddharth Jain', dueDate: '2026-12-23', stage: 'IN_PROGRESS', isKeyMilestone: true, packageScope: 'ALL', priority: 'HIGH' },
+  { id: 'task-19', weddingId: 'wed-001', title: 'Varmala stage rose-petal drop mechanism calibration', description: 'Overhead floral drop rig check with remote trigger mechanism on the floating lotus platform.', category: 'PHERAS', functionName: 'PHERAS', owner: 'Amit Sharma', dueDate: '2026-12-23', stage: 'IN_PROGRESS', isKeyMilestone: false, packageScope: 'ALL', priority: 'HIGH' },
+  { id: 'task-20', weddingId: 'wed-001', title: 'Coordinate Vedic priests, havan samagri & royal silver chowkis', description: 'Head priest from Nathdwara, pure sandalwood, holy water from 7 rivers and ceremonial seating.', category: 'PHERAS', functionName: 'PHERAS', owner: 'Priya Mehra', dueDate: '2026-12-23', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL', priority: 'HIGH' },
+  { id: 'task-21', weddingId: 'wed-001', title: 'Conduct dry run & rehearsal with couple and bridal party', description: 'Complete step-by-step cueing rehearsal from Toran strike to varmala and phera rounds.', category: 'PHERAS', functionName: 'PHERAS', owner: 'Priya Mehra', dueDate: '2026-12-23', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'FULL_SERVICE_ONLY', priority: 'HIGH' },
   // Reception & Banquet
-  { id: 'task-22', weddingId: 'wed-001', title: 'Seating allocations & VIP family head table setup', category: 'RECEPTION', owner: 'Anita Roy', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-23', weddingId: 'wed-001', title: 'Coordinate cake cutting champagne toast & live jazz ensemble', category: 'RECEPTION', owner: 'Rohan Verma', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL' },
-  { id: 'task-24', weddingId: 'wed-001', title: 'Oversee 8 royal buffet lines & live dessert flambe counters', category: 'RECEPTION', owner: 'Priya Mehra', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL' },
+  { id: 'task-22', weddingId: 'wed-001', title: 'Seating allocations & VIP family head table setup', description: 'Custom printed gold namecards, royal velvet chairs, and personal butler assignments for immediate family.', category: 'RECEPTION', functionName: 'RECEPTION', owner: 'Anita Roy', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL', priority: 'MEDIUM' },
+  { id: 'task-23', weddingId: 'wed-001', title: 'Coordinate cake cutting champagne toast & live jazz ensemble', description: '5-tier architectural palace cake delivery, crystal coupe glasses, and acoustic jazz accompaniment.', category: 'RECEPTION', functionName: 'RECEPTION', owner: 'Rohan Verma', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: false, packageScope: 'ALL', priority: 'NORMAL' },
+  { id: 'task-24', weddingId: 'wed-001', title: 'Oversee 8 royal buffet lines & live dessert flambe counters', description: 'Chef Raghvendra Singh briefing, chafing dish temperature monitoring, and butler refilling lines.', category: 'RECEPTION', functionName: 'RECEPTION', owner: 'Priya Mehra', dueDate: '2026-12-24', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL', priority: 'HIGH' },
   // Cleanup & Handover
-  { id: 'task-25', weddingId: 'wed-001', title: 'Heritage palace site clearance, floral composting & inventory count', category: 'CLEANUP', owner: 'Amit Sharma', dueDate: '2026-12-25', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL' },
-  { id: 'task-26', weddingId: 'wed-001', title: 'Reconcile vendor damages, security deposits & final sign-off with palace curator', category: 'CLEANUP', owner: 'Devendra Kaviraj', dueDate: '2026-12-26', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL' }
+  { id: 'task-25', weddingId: 'wed-001', title: 'Heritage palace site clearance, floral composting & inventory count', description: 'Palace heritage grounds inspection, disassembly of trussing, and eco-friendly floral collection.', category: 'CLEANUP', functionName: 'OVERALL', owner: 'Amit Sharma', dueDate: '2026-12-25', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL', priority: 'MEDIUM' },
+  { id: 'task-26', weddingId: 'wed-001', title: 'Reconcile vendor damages, security deposits & palace curator sign-off', description: 'Final walk-through with palace estate manager, damage inspection and deposit release sign-off.', category: 'CLEANUP', functionName: 'OVERALL', owner: 'Devendra Kaviraj', dueDate: '2026-12-26', stage: 'TO_PLAN', isKeyMilestone: true, packageScope: 'ALL', priority: 'HIGH' }
 ];
 
 export const INITIAL_RUN_SHEET: RunSheetItem[] = [

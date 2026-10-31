@@ -207,8 +207,10 @@ npm test
 | **Phase 0A** | Standalone Frontend Architecture, Design System Tokens, Mock Service | ✅ **Completed** |
 | **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | ✅ **Completed** |
 | **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | ✅ **Completed** |
-| **Phase 2** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison | ⏳ **In Progress** |
-| **Phase 3** | Automated 25+ Task Generation & Package Differentiation Engine | ⏳ Upcoming |
+| **Phase 2A** | Client Dossiers, Enquiry Intake, Consultations, Agreement Gating & Vendor Directory | ✅ **Completed** |
+| **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison | ⏳ **In Progress** |
+| **Phase 3A** | Dedicated Wedding Workspace, Sub-Functions & Multi-View Task Management | ✅ **Completed** |
+| **Phase 3B** | Backend Automated 25+ Task Generation & Template Seeding Engine | ⏳ Upcoming |
 | **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | ⏳ Upcoming |
 | **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | ⏳ Upcoming |
 | **Phase 6** | Founder Season Profitability Analytics & Executive Reporting | ⏳ Upcoming |

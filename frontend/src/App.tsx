@@ -115,9 +115,14 @@ export function App() {
   };
 
   // Scenario 3: Task Stage Update
-  const handleUpdateTaskStage = async (taskId: string, stage: WeddingTask['stage']) => {
-    const updated = await api.updateTaskStage(taskId, stage);
+  const handleUpdateTaskStage = async (taskId: string, stage: WeddingTask['stage'], blockedReason?: string) => {
+    const updated = await api.updateTaskStage(taskId, stage, blockedReason);
     setTasks(prev => prev.map(t => t.id === taskId ? updated : t));
+  };
+
+  const handleCreateTask = async (taskData: Omit<WeddingTask, 'id'>) => {
+    const created = await api.createTask(taskData);
+    setTasks(prev => [created, ...prev]);
   };
 
   // Scenario 4: Vendor Arrival Check-In
@@ -235,6 +240,7 @@ export function App() {
           tasks={tasks}
           currentWedding={currentWedding}
           onUpdateStage={handleUpdateTaskStage}
+          onCreateTask={handleCreateTask}
         />
       )}
 
