@@ -37,6 +37,7 @@ import { api } from '../services/api';
 import { Wedding } from '../types';
 import { Modal } from '../components/common/Modal';
 import { Button } from '../components/common/Button';
+import { DataTable, ColumnDef } from '../components/common/DataTable';
 
 export interface TeamAccountsPageProps {
   weddings: Wedding[];
@@ -197,6 +198,135 @@ export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
     }
   };
 
+  const accountColumns: ColumnDef<AuthUser>[] = [
+    {
+      id: 'displayName',
+      header: 'Stakeholder Identity',
+      accessorKey: 'displayName',
+      sortable: true,
+      cell: (account) => {
+        const isCurrent = currentUser?.id === account.id;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#1B3B6F] to-[#0D1B2A] text-white flex items-center justify-center font-bold text-xs shadow-xs border border-[#C5A059]/40 shrink-0">
+              {account.displayName.split(' ').map(n => n[0]).slice(0, 2).join('')}
+            </div>
+            <div>
+              <span className="font-bold text-[#0D1B2A] block leading-tight">
+                {account.displayName}
+                {isCurrent && (
+                  <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
+                    You
+                  </span>
+                )}
+              </span>
+              <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                <Mail className="w-3 h-3" />
+                {account.email}
+              </span>
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      id: 'role',
+      header: 'Authorized Role',
+      accessorKey: 'role',
+      sortable: true,
+      cell: (account) => (
+        <div>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${roleBadgeStyle(account.role)}`}>
+            {account.role === 'FOUNDER' && <Crown className="w-3 h-3" />}
+            {account.role === 'PLANNER' && <Shield className="w-3 h-3" />}
+            {account.role === 'COORDINATOR' && <Users className="w-3 h-3" />}
+            {account.role === 'FINANCE' && <Key className="w-3 h-3" />}
+            {account.role === 'VENDOR' && <Store className="w-3 h-3" />}
+            {(account.role === 'CLIENT' || account.role === 'FAMILY') && <Heart className="w-3 h-3" />}
+            {account.role}
+          </span>
+          {account.vendorCategory && (
+            <span className="block text-[10px] text-slate-400 mt-0.5 font-medium">
+              {account.vendorCategory}
+            </span>
+          )}
+        </div>
+      )
+    },
+    {
+      id: 'scope',
+      header: 'Operating Scope',
+      cell: (account) => (
+        <div className="space-y-0.5">
+          <span className="text-slate-700 font-medium block text-xs">
+            {account.role === 'FOUNDER'
+              ? 'All 25 Royal Estates (Enterprise)'
+              : account.assignedWeddingIds && account.assignedWeddingIds.length > 0
+              ? `Assigned: ${account.assignedWeddingIds.join(', ')}`
+              : 'General Operations'}
+          </span>
+          <span className="text-[10px] text-slate-400 block">
+            {account.role === 'VENDOR'
+              ? 'Extranet Access'
+              : account.role === 'CLIENT'
+              ? 'Couple Suite Access'
+              : 'Agency Workspace'}
+          </span>
+        </div>
+      )
+    },
+    {
+      id: 'active',
+      header: 'Security Status',
+      accessorKey: 'active',
+      sortable: true,
+      align: 'center',
+      cell: (account) => (
+        <button
+          type="button"
+          onClick={() => handleToggleStatus(account)}
+          disabled={account.role === 'FOUNDER'}
+          title={account.role === 'FOUNDER' ? 'Founder cannot be deactivated' : 'Click to toggle status'}
+          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+            account.active
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+              : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+          } ${account.role === 'FOUNDER' ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${account.active ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+          <span>{account.active ? 'ACTIVE' : 'DEACTIVATED'}</span>
+        </button>
+      )
+    },
+    {
+      id: 'actions',
+      header: 'Credentials & Actions',
+      align: 'right',
+      cell: (account) => {
+        const isCopied = copiedToken === account.id;
+        return (
+          <div className="inline-flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCopyInviteLink(account)}
+              className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition-all cursor-pointer ${
+                isCopied
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600'
+              }`}
+              title="Copy Invitation Link"
+            >
+              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              <span className="text-[10px] font-medium hidden sm:inline">
+                {isCopied ? 'Copied' : 'Invite Link'}
+              </span>
+            </button>
+          </div>
+        );
+      }
+    }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -305,144 +435,23 @@ export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
         </div>
       </div>
 
-      {/* Accounts Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50/75 border-b border-slate-200/80 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-              <tr>
-                <th className="py-3.5 px-4 sm:px-6">Stakeholder Identity</th>
-                <th className="py-3.5 px-4">Authorized Role</th>
-                <th className="py-3.5 px-4">Operating Scope</th>
-                <th className="py-3.5 px-4 text-center">Security Status</th>
-                <th className="py-3.5 px-4 text-right sm:pr-6">Credentials & Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
-                    <div className="w-6 h-6 border-2 border-[#C5A059] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    <span>Synchronizing stakeholder identities...</span>
-                  </td>
-                </tr>
-              ) : filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
-                    No matching accounts found for query "{searchQuery}".
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map(account => {
-                  const isCurrent = currentUser?.id === account.id;
-                  const isCopied = copiedToken === account.id;
-
-                  return (
-                    <tr key={account.id} className="hover:bg-slate-50/60 transition-colors">
-                      {/* Name & Email */}
-                      <td className="py-3.5 px-4 sm:px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#1B3B6F] to-[#0D1B2A] text-white flex items-center justify-center font-bold text-xs shadow-xs border border-[#C5A059]/40 shrink-0">
-                            {account.displayName.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                          </div>
-                          <div>
-                            <span className="font-bold text-[#0D1B2A] block leading-tight">
-                              {account.displayName}
-                              {isCurrent && (
-                                <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
-                                  You
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                              <Mail className="w-3 h-3" />
-                              {account.email}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Role Badge */}
-                      <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${roleBadgeStyle(account.role)}`}>
-                          {account.role === 'FOUNDER' && <Crown className="w-3 h-3" />}
-                          {account.role === 'PLANNER' && <Shield className="w-3 h-3" />}
-                          {account.role === 'VENDOR' && <Store className="w-3 h-3" />}
-                          {(account.role === 'CLIENT' || account.role === 'FAMILY') && <Heart className="w-3 h-3" />}
-                          {account.role}
-                        </span>
-                        {account.vendorCategory && (
-                          <span className="block text-[10px] text-slate-400 mt-0.5">
-                            {account.vendorCategory}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Assigned Scope */}
-                      <td className="py-3.5 px-4">
-                        <div className="space-y-0.5">
-                          <span className="text-slate-700 font-medium block">
-                            {account.role === 'FOUNDER'
-                              ? 'All 25 Royal Estates (Enterprise)'
-                              : account.assignedWeddingIds && account.assignedWeddingIds.length > 0
-                              ? `Assigned: ${account.assignedWeddingIds.join(', ')}`
-                              : 'General Operations'}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block">
-                            {account.role === 'VENDOR'
-                              ? 'Extranet Access'
-                              : account.role === 'CLIENT'
-                              ? 'Couple Suite Access'
-                              : 'Agency Workspace'}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Active Status */}
-                      <td className="py-3.5 px-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(account)}
-                          disabled={account.role === 'FOUNDER'}
-                          title={account.role === 'FOUNDER' ? 'Founder cannot be deactivated' : 'Click to toggle status'}
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
-                            account.active
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
-                          } ${account.role === 'FOUNDER' ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${account.active ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                          <span>{account.active ? 'ACTIVE' : 'DEACTIVATED'}</span>
-                        </button>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right sm:pr-6">
-                        <div className="inline-flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleCopyInviteLink(account)}
-                            className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition-all ${
-                              isCopied
-                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600'
-                            }`}
-                            title="Copy Invitation Link"
-                          >
-                            {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                            <span className="text-[10px] font-medium hidden sm:inline">
-                              {isCopied ? 'Copied' : 'Invite Link'}
-                            </span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Accounts Table with Interactive Pagination, Sorting & Custom Row Limits */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden p-4">
+        {isLoading ? (
+          <div className="py-12 text-center text-slate-400">
+            <div className="w-6 h-6 border-2 border-[#C5A059] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <span>Synchronizing stakeholder identities...</span>
+          </div>
+        ) : (
+          <DataTable
+            data={filteredUsers}
+            columns={accountColumns}
+            keyExtractor={(account) => account.id}
+            pageSize={5}
+            pageSizeOptions={[5, 10, 25, 50, 100]}
+            emptyMessage={`No matching accounts found for query "${searchQuery}".`}
+          />
+        )}
       </div>
 
       {/* Invite & Create Account Modal */}

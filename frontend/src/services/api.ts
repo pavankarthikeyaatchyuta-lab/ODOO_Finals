@@ -225,6 +225,159 @@ export const api = {
         isFamilyMember: true,
         clientId: 'cli-001',
         assignedWeddingIds: ['wed-001']
+      },
+      {
+        id: 'usr-planner-008',
+        email: 'anita.roy@theroyalknot.com',
+        displayName: 'Anita Roy',
+        role: 'PLANNER',
+        active: true,
+        assignedWeddingIds: ['wed-003', 'wed-004']
+      },
+      {
+        id: 'usr-coord-009',
+        email: 'amit.sharma@theroyalknot.com',
+        displayName: 'Amit Sharma',
+        role: 'COORDINATOR',
+        active: true,
+        assignedWeddingIds: ['wed-002']
+      },
+      {
+        id: 'usr-planner-010',
+        email: 'kavita.rathore@theroyalknot.com',
+        displayName: 'Kavita Rathore',
+        role: 'PLANNER',
+        active: true,
+        assignedWeddingIds: ['wed-005', 'wed-006']
+      },
+      {
+        id: 'usr-fin-011',
+        email: 'suresh.agarwal@theroyalknot.com',
+        displayName: 'Suresh Agarwal',
+        role: 'FINANCE',
+        active: true,
+        assignedWeddingIds: ['wed-003', 'wed-004']
+      },
+      {
+        id: 'usr-vendor-012',
+        email: 'umaid.mandap@artistry.in',
+        displayName: 'Umaid Mandap Artisans (Gaurav Dave)',
+        vendorCategory: 'Floral & Mandap Styling',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-002']
+      },
+      {
+        id: 'usr-vendor-013',
+        email: 'jaipur.sound@acoustics.com',
+        displayName: 'Rajesh Sharma (Jaipur Sound)',
+        vendorCategory: 'DJ & Sound Acoustics',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-001']
+      },
+      {
+        id: 'usr-vendor-014',
+        email: 'maharani.baraat@heritage.in',
+        displayName: 'Maharani Royal Baraat Procession',
+        vendorCategory: 'Traditional Folk & Baraat',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-002', 'wed-003']
+      },
+      {
+        id: 'usr-client-015',
+        email: 'kabir.singhania@royalwedding.com',
+        displayName: 'Kabir Singhania & Rhea Kapoor',
+        role: 'CLIENT',
+        active: true,
+        clientId: 'cli-002',
+        assignedWeddingIds: ['wed-002']
+      },
+      {
+        id: 'usr-coord-016',
+        email: 'sunil.bhati@theroyalknot.com',
+        displayName: 'Sunil Bhati',
+        role: 'COORDINATOR',
+        active: true,
+        assignedWeddingIds: ['wed-004', 'wed-005']
+      },
+      {
+        id: 'usr-planner-017',
+        email: 'manish.shekhawat@theroyalknot.com',
+        displayName: 'Manish Shekhawat',
+        role: 'PLANNER',
+        active: true,
+        assignedWeddingIds: ['wed-007', 'wed-008']
+      },
+      {
+        id: 'usr-fin-018',
+        email: 'pooja.khandelwal@theroyalknot.com',
+        displayName: 'Pooja Khandelwal',
+        role: 'FINANCE',
+        active: true,
+        assignedWeddingIds: ['wed-005', 'wed-006']
+      },
+      {
+        id: 'usr-vendor-019',
+        email: 'shutter.glamour@cinematics.in',
+        displayName: 'Arjun Mathur (ShutterGlamour)',
+        vendorCategory: 'Photography & Cinematography',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-004']
+      },
+      {
+        id: 'usr-client-020',
+        email: 'aditya.birla@royalwedding.com',
+        displayName: 'Aditya Birla & Tara Shroff',
+        role: 'CLIENT',
+        active: true,
+        clientId: 'cli-003',
+        assignedWeddingIds: ['wed-003']
+      },
+      {
+        id: 'usr-coord-021',
+        email: 'neha.sisodia@theroyalknot.com',
+        displayName: 'Neha Sisodia',
+        role: 'COORDINATOR',
+        active: true,
+        assignedWeddingIds: ['wed-006', 'wed-007']
+      },
+      {
+        id: 'usr-planner-022',
+        email: 'meera.deshmukh@theroyalknot.com',
+        displayName: 'Meera Deshmukh',
+        role: 'PLANNER',
+        active: true,
+        assignedWeddingIds: ['wed-009', 'wed-010']
+      },
+      {
+        id: 'usr-vendor-023',
+        email: 'vintage.fleets@rajputana.in',
+        displayName: 'Royal Rajputana Vintage Fleets',
+        vendorCategory: 'Royal Transport & Vintage Cars',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-001', 'wed-002']
+      },
+      {
+        id: 'usr-vendor-024',
+        email: 'pyro.splendor@fx.in',
+        displayName: 'Jaigarh Fireworks & Sparklers',
+        vendorCategory: 'Pyrotechnics & Special Effects',
+        role: 'VENDOR',
+        active: true,
+        assignedWeddingIds: ['wed-003']
+      },
+      {
+        id: 'usr-client-025',
+        email: 'devendra.chordia@royalwedding.com',
+        displayName: 'Devendra Chordia & Sonam Darda',
+        role: 'CLIENT',
+        active: true,
+        clientId: 'cli-004',
+        assignedWeddingIds: ['wed-004']
       }
     ]);
   },

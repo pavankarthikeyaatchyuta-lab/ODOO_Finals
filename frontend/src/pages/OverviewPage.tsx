@@ -14,6 +14,7 @@ import { SeasonMetrics, Wedding } from '../types';
 import { StatCard } from '../components/common/StatCard';
 import { CurrencyDisplay } from '../components/common/CurrencyDisplay';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { DataTable, ColumnDef } from '../components/common/DataTable';
 import {
   Crown,
   Coins,
@@ -63,6 +64,87 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     Profit: w.profit / 100000,
     Margin: w.margin
   }));
+
+  const weddingColumns: ColumnDef<Wedding>[] = [
+    {
+      id: 'coupleNames',
+      header: 'Code / Couple',
+      accessorKey: 'coupleNames',
+      sortable: true,
+      cell: (w) => (
+        <div>
+          <span className="font-mono text-slate-400 text-[11px] block">{w.code}</span>
+          <span className="font-bold text-[#0D1B2A] text-xs sm:text-sm">{w.coupleNames}</span>
+        </div>
+      )
+    },
+    {
+      id: 'location',
+      header: 'Location & Date',
+      accessorKey: 'location',
+      sortable: true,
+      cell: (w) => (
+        <div>
+          <span className="font-medium text-slate-700 block text-xs">{w.location.split(',')[0]}</span>
+          <span className="text-slate-400 text-[11px]">{w.weddingDate}</span>
+        </div>
+      )
+    },
+    {
+      id: 'guestCount',
+      header: 'Guests',
+      accessorKey: 'guestCount',
+      sortable: true,
+      cell: (w) => (
+        <span className="font-medium text-slate-700 text-xs">{w.guestCount} Guests</span>
+      )
+    },
+    {
+      id: 'budgetMax',
+      header: 'Budget',
+      accessorKey: 'budgetMax',
+      sortable: true,
+      cell: (w) => (
+        <CurrencyDisplay amount={w.budgetMax} format="compact" className="text-[#1B3B6F] font-semibold text-xs" />
+      )
+    },
+    {
+      id: 'packageType',
+      header: 'Package',
+      accessorKey: 'packageType',
+      sortable: true,
+      cell: (w) => (
+        <span className="capitalize font-medium text-slate-600 text-xs">
+          {w.packageType.replace('_', ' ')}
+        </span>
+      )
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      accessorKey: 'status',
+      sortable: true,
+      cell: (w) => (
+        <StatusBadge label={w.status} variant={w.status === 'EXECUTION' ? 'warning' : 'info'} size="sm" />
+      )
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      align: 'right',
+      cell: (w) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelectWedding(w);
+          }}
+          className="bg-[#1B3B6F]/10 hover:bg-[#1B3B6F] text-[#1B3B6F] hover:text-white font-semibold px-2.5 py-1 rounded-lg transition-colors cursor-pointer text-xs"
+        >
+          Select Event
+        </button>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -229,69 +311,38 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
       </div>
 
-      {/* Active Weddings Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-serif font-bold text-base text-[#0D1B2A]">
-            Current Season Destination Weddings
-          </h3>
+      {/* Active Weddings Table with Interactive Pagination, Sorting & Custom Row Limits */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-serif font-bold text-base text-[#0D1B2A]">
+                Current Season Destination Weddings
+              </h3>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#F5F1E8] text-[#C5A059] border border-[#C5A059]/30">
+                {weddings.length} Active Events
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Sort by clicking any column header. Adjust row limits (5, 10, 25, 50, custom) and navigate pages below.
+            </p>
+          </div>
           <button
             onClick={() => onNavigateToTab('weddings')}
-            className="text-xs font-semibold text-[#1B3B6F] hover:underline"
+            className="text-xs font-semibold text-[#1B3B6F] hover:underline shrink-0"
           >
-            View All 25 Weddings →
+            View All Weddings Directory →
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
-                <th className="py-2.5 px-3">Code / Couple</th>
-                <th className="py-2.5 px-3">Location & Date</th>
-                <th className="py-2.5 px-3">Guests</th>
-                <th className="py-2.5 px-3">Budget</th>
-                <th className="py-2.5 px-3">Package</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {weddings.map(w => (
-                <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-3">
-                    <span className="font-mono text-slate-400 text-[11px] block">{w.code}</span>
-                    <span className="font-bold text-[#0D1B2A] text-sm">{w.coupleNames}</span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="font-medium text-slate-700 block">{w.location.split(',')[0]}</span>
-                    <span className="text-slate-400 text-[11px]">{w.weddingDate}</span>
-                  </td>
-                  <td className="py-3 px-3 font-medium text-slate-700">{w.guestCount} Guests</td>
-                  <td className="py-3 px-3">
-                    <CurrencyDisplay amount={w.budgetMax} format="compact" className="text-[#1B3B6F]" />
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="capitalize font-medium text-slate-600">
-                      {w.packageType.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusBadge label={w.status} variant={w.status === 'EXECUTION' ? 'warning' : 'info'} size="sm" />
-                  </td>
-                  <td className="py-3 px-3">
-                    <button
-                      onClick={() => onSelectWedding(w)}
-                      className="bg-[#1B3B6F]/10 hover:bg-[#1B3B6F] text-[#1B3B6F] hover:text-white font-semibold px-2.5 py-1 rounded-md transition-colors"
-                    >
-                      Select Event
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={weddings}
+          columns={weddingColumns}
+          keyExtractor={(w) => w.id}
+          pageSize={5}
+          pageSizeOptions={[5, 10, 25, 50, 100, 200]}
+          onRowClick={(w) => onSelectWedding(w)}
+        />
       </div>
     </div>
   );

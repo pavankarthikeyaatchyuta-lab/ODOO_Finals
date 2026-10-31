@@ -61,7 +61,7 @@ export function DataTable<T>({
   keyExtractor,
   emptyMessage = 'No records found matching criteria.',
   pageSize = 10,
-  pageSizeOptions = [10, 25, 50, 100, 200],
+  pageSizeOptions = [5, 10, 25, 50, 100, 200],
   onRowClick,
   className = ''
 }: DataTableProps<T>) {
@@ -69,6 +69,8 @@ export function DataTable<T>({
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(pageSize);
+  const [isCustomPageSize, setIsCustomPageSize] = useState(false);
+  const [customInputValue, setCustomInputValue] = useState('');
 
   // Synchronize internal page size if prop changes
   useEffect(() => {
@@ -251,23 +253,64 @@ export function DataTable<T>({
             of <span className="font-semibold text-slate-800">{sortedData.length}</span> entries
           </span>
 
-          {/* Rows Per Page Selector Dropdown */}
+          {/* Rows Per Page Selector Dropdown & Custom Input */}
           <div className="flex items-center gap-1.5 border-l border-slate-200 pl-4">
             <span className="text-slate-500">Rows per page:</span>
-            <select
-              value={currentPageSize}
-              onChange={(e) => {
-                setCurrentPageSize(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="bg-white border border-slate-200/90 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#C5A059]"
-            >
-              {pageSizeOptions.map(opt => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+            {isCustomPageSize ? (
+              <div className="inline-flex items-center gap-1 bg-white border border-[#C5A059] rounded-lg px-2 py-0.5 shadow-2xs">
+                <input
+                  type="number"
+                  min={1}
+                  max={1000}
+                  value={customInputValue}
+                  autoFocus
+                  placeholder="Custom"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomInputValue(val);
+                    const num = parseInt(val, 10);
+                    if (!isNaN(num) && num > 0) {
+                      setCurrentPageSize(num);
+                      setCurrentPage(1);
+                    }
+                  }}
+                  className="w-14 text-xs font-semibold text-slate-800 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomPageSize(false);
+                    setCurrentPageSize(pageSizeOptions[0] || 5);
+                    setCurrentPage(1);
+                  }}
+                  title="Reset to preset options"
+                  className="text-slate-400 hover:text-slate-700 text-xs font-bold px-0.5 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <select
+                value={pageSizeOptions.includes(currentPageSize) ? currentPageSize : 'custom'}
+                onChange={(e) => {
+                  if (e.target.value === 'custom') {
+                    setIsCustomPageSize(true);
+                    setCustomInputValue(String(currentPageSize));
+                  } else {
+                    setCurrentPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }
+                }}
+                className="bg-white border border-slate-200/90 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#C5A059] cursor-pointer"
+              >
+                {pageSizeOptions.map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+                <option value="custom">Custom...</option>
+              </select>
+            )}
           </div>
         </div>
 
