@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  FOUNDER
+  PLANNER
+  COORDINATOR
+  FINANCE
+  CLIENT
+}
+
+enum PackageType {
+  FULL_SERVICE
+  PARTIAL_DAY_OF
+}
+
+enum EnquiryStage {
+  NEW
+  CONTACTED
+  CONSULTATION_SCHEDULED
+  PROPOSAL_SENT
+  LOST
+}
+
+enum WeddingState {
+  ENQUIRY
+  PROPOSAL
+  AGREEMENT
+  BOOKING_CONFIRMED
+  PLANNING
+  EXECUTION
+  COMPLETED
+  CANCELLED
+}
+
+enum ConsultationState {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model UserProfile {
+  id          String   @id @db.Uuid
+  email       String   @unique
+  displayName String
+  role        Role
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  client      Client?
+  assignments WeddingAssignment[]
+  bookings    Consultation[] @relation("Planner")
+}
+
+model Client {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  email       String   @unique
+  phone       String?
+  userId      String?  @unique @db.Uuid
+  user        UserProfile? @relation(fields: [userId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  weddings    WeddingClient[]
+}
+
+model Wedding {
+  id            String       @id @default(uuid()) @db.Uuid
+  title         String
+  weddingDate   DateTime?     @db.Date
+  packageType   PackageType
+  state         WeddingState @default(ENQUIRY)
+  guestCount    Int?
+  preferredTheme String?
+  budgetMax     Decimal?     @db.Decimal(16, 2)
+  internalNotes String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  clients       WeddingClient[]
+  assignments   WeddingAssignment[]
+  enquiry       Enquiry?
+  consultations Consultation[]
+  @@index([state, createdAt])
+}
+
+model WeddingClient {
+  weddingId String @db.Uuid
+  clientId  String @db.Uuid
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  client    Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  @@id([weddingId, clientId])
+  @@index([clientId])
+}
+
+model WeddingAssignment {
+  weddingId String @db.Uuid
+  userId    String @db.Uuid
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@id([weddingId, userId])
+  @@index([userId])
+}
+
+model Enquiry {
+  id            String @id @default(uuid()) @db.Uuid
+  weddingId     String @unique @db.Uuid
+  wedding       Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  stage         EnquiryStage @default(NEW)
+  source        String?
+  internalNotes String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  @@index([stage, createdAt])
+}
+
+model Consultation {
+  id           String @id @default(uuid()) @db.Uuid
+  weddingId    String @db.Uuid
+  wedding      Wedding @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  state        ConsultationState @default(REQUESTED)
+  preferredAt  DateTime @db.Timestamptz(3)
+  message      String?
+  startAt      DateTime? @db.Timestamptz(3)
+  endAt        DateTime? @db.Timestamptz(3)
+  plannerId    String? @db.Uuid
+  planner      UserProfile? @relation("Planner", fields: [plannerId], references: [id], onDelete: Restrict)
+  internalNotes String?
+  requestedBy  String @db.Uuid
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  @@index([weddingId, createdAt])
+  @@index([plannerId, startAt])
+}
+
+model AuditLog {
+  id         String @id @default(uuid()) @db.Uuid
+  actorId    String @db.Uuid
+  action     String
+  entityId   String @db.Uuid
+  weddingId  String? @db.Uuid
+  details    Json
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  @@index([weddingId, createdAt])
+}
+
+model IdempotencyRecord {
+  actorId     String @db.Uuid
+  key         String
+  fingerprint String
+  response    Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  @@id([actorId, key])
+}

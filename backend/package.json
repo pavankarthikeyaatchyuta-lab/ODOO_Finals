@@ -1,0 +1,43 @@
+{
+  "name": "@royal-knot/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "22.x" },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "prisma generate && tsc",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:provision": "tsx scripts/provision.ts",
+    "bootstrap:founder": "tsx scripts/bootstrap-founder.ts",
+    "test": "tsx scripts/test.ts",
+    "contracts": "tsx scripts/openapi.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "@supabase/supabase-js": "2.118.0",
+    "@supabase/ssr": "^0.12.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.3.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.19.0",
+    "@types/pg": "^8.15.6",
+    "@types/supertest": "^6.0.3",
+    "embedded-postgres": "18.6.0-beta.19",
+    "prisma": "6.19.3",
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "overrides": { "deepmerge-ts": "^8.0.0" }
+}

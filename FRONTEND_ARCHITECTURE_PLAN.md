@@ -1,3 +1,5 @@
+> **Superseded platform specification:** This document predates the agreed standalone React/Vite + Express/Prisma/Supabase stack. Its Odoo technical contracts and implementation roadmap are historical and must not be implemented. Use [backend/INTEGRATION.md](backend/INTEGRATION.md), [backend/openapi.json](backend/openapi.json), and [backend/src/contracts.ts](backend/src/contracts.ts) for Phase 1. Existing visual design references below remain available to Antigravity.
+
 # 🎨 The Royal Knot — Frontend Architecture & UI/UX Plan
 ### *Phase 0: Frontend Repository Audit & System UI Specification*
 
