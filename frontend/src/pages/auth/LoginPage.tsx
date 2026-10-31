@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole } from '../../context/AuthContext';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { RoyalLogo } from '../../components/common/RoyalLogo';
+import { ThemeToggle } from '../../components/common/ThemeToggle';
 
 interface LoginPageProps {
   onNavigateToRegister?: () => void;
@@ -72,7 +73,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FDFBF7] flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen w-full bg-[#FDFBF7] flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 relative">
+      {/* Theme Toggle Pill (Top Right) */}
+      <div className="absolute top-5 right-5 z-30">
+        <ThemeToggle variant="pill" />
+      </div>
       {/* Background Decorative Accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#C5A059]/10 blur-3xl" />

@@ -45,6 +45,7 @@ import {
 import { motion, useReducedMotion } from 'motion/react';
 import { StaticHeroCrest } from '../components/landing/StaticHeroCrest';
 import { RoyalLogo } from '../components/common/RoyalLogo';
+import { ThemeToggle } from '../components/common/ThemeToggle';
 const HeroScene3D = React.lazy(() => import('../components/landing/HeroScene3D'));
 
 import { PalaceGalleryScrub } from '../components/landing/PalaceGalleryScrub';
@@ -199,6 +200,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           {/* Action CTAs */}
           <div className="flex items-center gap-3">
+            <ThemeToggle variant="button" />
             <Button
               variant="outline"
               size="sm"

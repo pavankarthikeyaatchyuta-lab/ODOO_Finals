@@ -29,6 +29,7 @@ import {
 import { Wedding } from '../../types';
 import { CurrencyDisplay } from '../common/CurrencyDisplay';
 import { useAuth, AppRole, PortalType } from '../../context/AuthContext';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 export interface TopHeaderProps {
   currentWedding: Wedding | null;
@@ -182,6 +183,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             <span>{activeLateCount} Late</span>
           </div>
         )}
+
+        {/* Light / Dark Mode Palace Switcher */}
+        <ThemeToggle variant="button" />
 
         {/* User Profile & Portal Switcher Dropdown */}
         <div className="relative" ref={userMenuRef}>

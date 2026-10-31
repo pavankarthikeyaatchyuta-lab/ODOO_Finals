@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 import { DashboardUiProvider } from './context/DashboardUiContext';
@@ -720,13 +721,15 @@ function MainApplicationRouter() {
  */
 export function App() {
   return (
-    <AuthProvider>
-      <WeddingProvider>
-        <DashboardUiProvider>
-          <MainApplicationRouter />
-        </DashboardUiProvider>
-      </WeddingProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <WeddingProvider>
+          <DashboardUiProvider>
+            <MainApplicationRouter />
+          </DashboardUiProvider>
+        </WeddingProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
 import { RoyalLogo } from '../common/RoyalLogo';
+import { ThemeToggle } from '../common/ThemeToggle';
 import {
   Crown,
   LayoutDashboard,
@@ -204,6 +205,9 @@ export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
               <span className="tracking-wide uppercase text-[9px] font-bold">Extranet Live</span>
             </div>
+
+            {/* Palace Light / Dark Mode Switcher */}
+            <ThemeToggle variant="button" />
 
             {/* User Avatar Menu Dropdown */}
             <div className="relative">
