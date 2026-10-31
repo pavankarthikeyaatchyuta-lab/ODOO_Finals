@@ -38,6 +38,11 @@ interface PlanningTasksPageProps {
 
 type ViewMode = 'board' | 'list' | 'calendar';
 
+/**
+ * PlanningTasksPage component
+ *
+ * Wedding planning task board with milestone deadlines and blocker tracking.
+ */
 export const PlanningTasksPage: React.FC<PlanningTasksPageProps> = ({
   tasks,
   currentWedding,

@@ -10,6 +10,11 @@ interface QuoteComparisonMatrixProps {
   isLocked?: boolean;
 }
 
+/**
+ * QuoteComparisonMatrix component
+ *
+ * Side-by-side RFQ comparison matrix for 3 competing catering bids.
+ */
 export const QuoteComparisonMatrix: React.FC<QuoteComparisonMatrixProps> = ({
   quotes,
   onSelectWinner,

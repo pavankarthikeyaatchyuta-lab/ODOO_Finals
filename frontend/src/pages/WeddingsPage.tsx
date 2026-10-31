@@ -30,6 +30,11 @@ interface WeddingsPageProps {
   onNavigateToTab: (tab: any) => void;
 }
 
+/**
+ * WeddingsPage component
+ *
+ * Portfolio list of destination palace weddings with lifecycle filters.
+ */
 export const WeddingsPage: React.FC<WeddingsPageProps> = ({
   weddings,
   currentWedding,

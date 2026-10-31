@@ -6,6 +6,12 @@ import { authorizeSession } from '../services/auth.js';
 import { ApiError } from '../errors.js';
 import { audit } from '../access.js';
 
+/**
+ * Factory for authentication HTTP controller endpoints (login, refresh, logout).
+ *
+ * @param db - Prisma client instance
+ * @param identity - Identity provider service for credentials and tokens
+ */
 export function authController(db: PrismaClient, identity: IdentityProvider) {
   return {
     async login(body: LoginRequest) { return authorizeSession(db, identity, await identityCall(() => identity.signIn(body.email, body.password))); },

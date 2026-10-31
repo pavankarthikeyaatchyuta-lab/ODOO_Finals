@@ -27,6 +27,11 @@ interface ClientPortalLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * ClientPortalLayout component
+ *
+ * Dedicated bridal couple portal layout with header tabs (Overview, Schedule, Documents, Payments).
+ */
 export const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({
   currentTab,
   onSelectTab,

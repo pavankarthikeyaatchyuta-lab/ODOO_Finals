@@ -6,6 +6,11 @@ interface ResetPasswordPageProps {
   onNavigateToLogin: () => void;
 }
 
+/**
+ * ResetPasswordPage component
+ *
+ * Password reset screen with token validation.
+ */
 export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   token = 'tok-recovery-2026',
   onNavigateToLogin

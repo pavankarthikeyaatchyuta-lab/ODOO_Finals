@@ -34,6 +34,11 @@ interface OverviewPageProps {
   onNavigateToTab: (tab: any) => void;
 }
 
+/**
+ * OverviewPage component
+ *
+ * Executive season command dashboard showing margin tracking, vendor radar, and cashflow.
+ */
 export const OverviewPage: React.FC<OverviewPageProps> = ({
   metrics,
   weddings,

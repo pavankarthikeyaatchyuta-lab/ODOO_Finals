@@ -32,6 +32,11 @@ interface ClientPaymentManagerProps {
   ) => Promise<void>;
 }
 
+/**
+ * ClientPaymentManager component
+ *
+ * Client milestone payment tracker with receipt logging and balance calculation.
+ */
 export const ClientPaymentManager: React.FC<ClientPaymentManagerProps> = ({
   summary,
   coupleNames = 'Rahul Sharma & Ananya Singh',

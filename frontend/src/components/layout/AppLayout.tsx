@@ -18,6 +18,11 @@ export interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * AppLayout component
+ *
+ * Core application layout shell wrapping the sidebar, top header, and page container.
+ */
 export const AppLayout: React.FC<AppLayoutProps> = ({
   currentTab,
   onSelectTab,

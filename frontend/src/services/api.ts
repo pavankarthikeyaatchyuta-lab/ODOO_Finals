@@ -47,10 +47,16 @@ const API_BASE = (typeof window !== 'undefined' && (window as any).__API_BASE__)
 let cachedBackendStatus: boolean | null = null;
 let lastHealthCheck = 0;
 
+/**
+ * Retrieves the active JWT bearer token from localStorage.
+ */
 export const getAuthToken = (): string => {
   return localStorage.getItem('TRK_AUTH_TOKEN') || '';
 };
 
+/**
+ * Pings the backend REST API healthcheck endpoint with a 15-second throttle cache.
+ */
 export const checkBackendHealth = async (): Promise<boolean> => {
   const now = Date.now();
   if (cachedBackendStatus !== null && now - lastHealthCheck < 15000) {
@@ -71,6 +77,9 @@ export const checkBackendHealth = async (): Promise<boolean> => {
   }
 };
 
+/**
+ * Helper to retrieve and parse JSON data from localStorage with fallback defaults.
+ */
 const getItem = <T>(key: string, fallback: T): T => {
   try {
     const data = localStorage.getItem(STORAGE_PREFIX + key);
@@ -80,6 +89,9 @@ const getItem = <T>(key: string, fallback: T): T => {
   }
 };
 
+/**
+ * Helper to safely serialize and save state data to localStorage.
+ */
 const setItem = <T>(key: string, value: T): void => {
   try {
     localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
@@ -90,7 +102,9 @@ const setItem = <T>(key: string, value: T): void => {
 
 export const api = {
   checkBackendHealth,
+  /** Returns active base API endpoint URL. */
   getApiBase: () => API_BASE,
+  /** Authenticates user credentials against the backend API and stores JWT token. */
   login: async (email: string, password: string): Promise<{ accessToken: string; user: any }> => {
     const isHealthy = await checkBackendHealth();
     if (isHealthy) {
@@ -107,6 +121,7 @@ export const api = {
     }
     throw new Error('BACKEND_OFFLINE');
   },
+  /** Revokes the current session and clears token from localStorage. */
   logout: async (): Promise<void> => {
     const token = getAuthToken();
     if (!token) return;
@@ -293,16 +308,19 @@ export const api = {
     return updatedList.find(u => u.id === id);
   },
   // Weddings
+  /** Retrieves all destination weddings with offline persistence fallback. */
   getWeddings: async (): Promise<Wedding[]> => {
     return getItem('weddings', INITIAL_WEDDINGS);
   },
   
+  /** Fetches a single destination wedding by ID. */
   getWeddingById: async (id: string): Promise<Wedding | undefined> => {
     const list = getItem('weddings', INITIAL_WEDDINGS);
     return list.find(w => w.id === id);
   },
 
   // Enquiries & Intake
+  /** Retrieves bridal enquiries and qualification leads. */
   getEnquiries: async (): Promise<Enquiry[]> => {
     return getItem('enquiries', INITIAL_ENQUIRIES);
   },
@@ -379,6 +397,7 @@ export const api = {
     return newConsultation;
   },
 
+  /** Updates consultation status (CONFIRMED, COMPLETED, CANCELLED). */
   updateConsultationState: async (id: string, state: Consultation['state']): Promise<Consultation> => {
     const list = getItem('consultations', INITIAL_CONSULTATIONS);
     const updated = list.map(c => (c.id === id ? { ...c, state } : c));
@@ -482,10 +501,12 @@ export const api = {
   },
 
   // Vendors & Profiles
+  /** Fetches all certified luxury wedding vendor profiles. */
   getVendorProfiles: async (): Promise<VendorProfile[]> => {
     return getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
   },
 
+  /** Fetches specific vendor profile by vendor ID. */
   getVendorProfileById: async (id: string): Promise<VendorProfile | undefined> => {
     const list = getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
     return list.find(v => v.id === id);
@@ -503,11 +524,13 @@ export const api = {
   },
 
   // 3-Caterer Quotes & Selection
+  /** Retrieves catering quotes for the 3-way RFQ evaluation matrix. */
   getCatererQuotes: async (weddingId: string): Promise<CatererQuote[]> => {
     const list = getItem('quotes', INITIAL_CATERER_QUOTES);
     return list.filter(q => q.weddingId === weddingId);
   },
 
+  /** Selects the winning caterer quote and closes competing proposals. */
   selectWinningCaterer: async (quoteId: string): Promise<CatererQuote[]> => {
     const list = getItem('quotes', INITIAL_CATERER_QUOTES);
     const target = list.find(q => q.id === quoteId);
@@ -529,17 +552,20 @@ export const api = {
   },
 
   // Wedding Sub-Functions
+  /** Retrieves ceremonial functions (Mehendi, Sangeet, Varmala, Reception). */
   getWeddingFunctions: async (weddingId: string): Promise<WeddingFunction[]> => {
     const list = getItem('functions', INITIAL_FUNCTIONS);
     return list.filter(f => f.weddingId === weddingId);
   },
 
   // Automated Planning Tasks
+  /** Fetches all planning tasks for a wedding. */
   getTasks: async (weddingId: string): Promise<WeddingTask[]> => {
     const list = getItem('tasks', INITIAL_TASKS);
     return list.filter(t => t.weddingId === weddingId);
   },
 
+  /** Creates a new wedding task. */
   createTask: async (task: Omit<WeddingTask, 'id'>): Promise<WeddingTask> => {
     const list = getItem('tasks', INITIAL_TASKS);
     const newTask: WeddingTask = {
@@ -579,6 +605,7 @@ export const api = {
   },
 
   // Run Sheet
+  /** Retrieves minute-by-minute execution run sheet. */
   getRunSheet: async (weddingId: string): Promise<RunSheetItem[]> => {
     const list = getItem('run_sheet', INITIAL_RUN_SHEET);
     return list.filter(r => r.weddingId === weddingId);
@@ -592,6 +619,7 @@ export const api = {
   },
 
   // Vendor Arrivals
+  /** Retrieves vendor arrival docking log. */
   getVendorArrivals: async (weddingId: string): Promise<VendorArrival[]> => {
     const list = getItem('arrivals', INITIAL_VENDOR_ARRIVALS);
     return list.filter(a => a.weddingId === weddingId);
@@ -617,6 +645,7 @@ export const api = {
   },
 
   // Closed-Loop Delays & Schedule Changes
+  /** Retrieves active schedule delays and acknowledgements. */
   getDelays: async (weddingId: string): Promise<TimelineDelay[]> => {
     const list = getItem('delays', INITIAL_DELAYS);
     return list.filter(d => d.weddingId === weddingId);
@@ -663,6 +692,7 @@ export const api = {
     return updated.find(d => d.id === delayId)!;
   },
 
+  /** Publishes an approved schedule shift to all vendors. */
   publishScheduleChange: async (delayId: string): Promise<TimelineDelay> => {
     const list = getItem('delays', INITIAL_DELAYS);
     const now = new Date();
@@ -769,6 +799,7 @@ export const api = {
   },
 
   // Incidents
+  /** Retrieves wedding-day operational incident logs. */
   getIncidents: async (weddingId: string): Promise<Incident[]> => {
     const list = getItem('incidents', INITIAL_INCIDENTS);
     return list.filter(i => i.weddingId === weddingId);
@@ -806,6 +837,7 @@ export const api = {
   },
 
   // Client Payment Interface & Milestones
+  /** Retrieves client milestone payment summary and receivables. */
   getClientPaymentSummary: async (weddingId: string): Promise<ClientPaymentSummary> => {
     const allSummaries = getItem('client_payments', INITIAL_CLIENT_PAYMENT_SUMMARIES);
     if (allSummaries[weddingId]) {
@@ -866,6 +898,7 @@ export const api = {
     };
   },
 
+  /** Records a verified client milestone payment transaction. */
   recordClientPayment: async (
     weddingId: string,
     milestoneId: string,
@@ -927,6 +960,7 @@ export const api = {
   },
 
   // Change Orders & Additional Expenses
+  /** Retrieves change orders for a wedding. */
   getChangeOrders: async (weddingId: string): Promise<ChangeOrder[]> => {
     const list = getItem('change_orders', INITIAL_CHANGE_ORDERS);
     return list.filter(c => c.weddingId === weddingId);
@@ -1017,6 +1051,7 @@ export const api = {
   },
 
   // Settlements & Reconciliation
+  /** Retrieves post-event vendor settlement reconciliation records. */
   getSettlements: async (weddingId: string): Promise<VendorSettlement[]> => {
     const list = getItem('settlements', INITIAL_SETTLEMENTS);
     return list.filter(s => s.weddingId === weddingId);

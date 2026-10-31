@@ -24,6 +24,11 @@ interface PaymentMilestone {
   receiptNumber?: string;
 }
 
+/**
+ * ClientPaymentsPage component
+ *
+ * Client payment portal with milestone breakdown and bank transfer details.
+ */
 export const ClientPaymentsPage: React.FC = () => {
   const milestones: PaymentMilestone[] = [
     {

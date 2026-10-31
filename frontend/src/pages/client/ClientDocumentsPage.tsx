@@ -12,6 +12,11 @@ import {
   Building
 } from 'lucide-react';
 
+/**
+ * ClientDocumentsPage component
+ *
+ * Client repository for contracts, invoices, and floor plans.
+ */
 export const ClientDocumentsPage: React.FC = () => {
   const documents = [
     {

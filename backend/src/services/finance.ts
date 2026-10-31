@@ -8,8 +8,14 @@ import { requireDocument } from './documents.js';
 import { generateTasks } from './planning.js';
 
 const D = Prisma.Decimal;
+/**
+ * Sums an array of Prisma Decimal values with zero-initialization.
+ */
 export const sum = (values: Prisma.Decimal.Value[]) => values.reduce<Prisma.Decimal>((total, value) => total.plus(value), new D(0));
 const rounded = (value: Prisma.Decimal) => value.toDecimalPlaces(2, D.ROUND_HALF_UP);
+/**
+ * Validates that monetary amounts are finite, non-negative, and within supported precision.
+ */
 function storedAmount(value: Prisma.Decimal) {
   if (!value.isFinite() || value.lt(0) || value.gte('100000000000000')) throw new ApiError(400, 'INVALID_FINANCIAL_AMOUNT', 'Calculated amount exceeds the supported monetary range');
   return value;
@@ -19,6 +25,9 @@ const positive = (value: Prisma.Decimal) => D.max(value, 0);
 function conflict(code: string, message: string): never { throw new ApiError(409, code, message); }
 type Currency = z.infer<typeof f.paymentDto>['currency'];
 export const financeRoles = ['FOUNDER', 'FINANCE'] as const;
+/**
+ * Asserts that the authenticated user has finance or founder management privileges.
+ */
 export function financeUser(user: UserProfile) { if (!financeRoles.includes(user.role as 'FOUNDER' | 'FINANCE')) throw forbidden(); }
 
 export function presentPayment(p: BookingPayment) { return { id: p.id, weddingId: p.weddingId, amount: p.amount.toFixed(2), currency: p.currency, reference: p.reference, direction: p.direction, milestone: p.milestone, weddingVendorId: p.weddingVendorId, isDemo: p.isDemo, status: p.status, evidenceDocumentId: p.evidenceDocumentId, verificationMethod: p.verificationMethod, reviewedAt: p.reviewedAt?.toISOString() ?? null, reversedAt: p.reversedAt?.toISOString() ?? null, createdAt: p.createdAt.toISOString() }; }
@@ -30,15 +39,27 @@ export const presentBill = (p: VendorBill) => ({ id: p.id, weddingId: p.weddingI
 export const presentRecognition = (p: RevenueRecognition) => ({ id: p.id, weddingId: p.weddingId, reference: p.reference, amount: p.amount.toFixed(2), recognizedAt: p.recognizedAt.toISOString(), policy: p.policy, note: p.note, postedBy: p.postedBy, reversedAt: p.reversedAt?.toISOString() ?? null, createdAt: p.createdAt.toISOString() });
 export const presentLabour = (p: LabourEntry) => ({ id: p.id, weddingId: p.weddingId, userId: p.userId, rateId: p.rateId, reference: p.reference, hours: p.hours.toFixed(3), workedAt: p.workedAt.toISOString(), hourlyRate: p.hourlyRate.toFixed(2), cost: p.cost.toFixed(2), currency: p.currency, status: p.status, reviewedAt: p.reviewedAt?.toISOString() ?? null, createdAt: p.createdAt.toISOString() });
 
+/**
+ * Retrieves vendor association binding for a specific wedding.
+ */
 export async function vendorAssociation(tx: Tx, weddingId: string, id: string) {
   const row = await tx.weddingVendor.findFirst({ where: { id, weddingId }, include: { quotation: true, vendor: true } });
   if (!row) throw new ApiError(400, 'INVALID_VENDOR_ASSOCIATION', 'Vendor must be associated with this wedding');
   return row;
 }
+/**
+ * Resolves contracted baseline cost from quotation or manual contract amount.
+ */
 async function baseline(tx: Tx, association: WeddingVendor) { return association.quotationId ? (await tx.quotation.findUniqueOrThrow({ where: { id: association.quotationId } })).total : association.manualContractAmount; }
+/**
+ * Calculates the sum of approved change order extras for a specific vendor.
+ */
 async function approvedExtras(tx: Tx, weddingId: string, weddingVendorId: string) {
   return (await tx.additionalExpense.aggregate({ where: { weddingId, weddingVendorId, status: 'APPROVED' }, _sum: { total: true } }))._sum.total ?? new D(0);
 }
+/**
+ * Approves and locks financial assumptions and revenue recognition policy for a wedding.
+ */
 export async function configureFinance(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.financeInput>) {
   const wedding = await lockWedding(tx, user, weddingId);
   if (await tx.financeSettings.findUnique({ where: { weddingId } })) conflict('FINANCE_ALREADY_CONFIGURED', 'Approved financial assumptions are immutable; review changes outside this phase');
@@ -47,6 +68,9 @@ export async function configureFinance(tx: Tx, user: UserProfile, weddingId: str
   await audit(tx, user.id, 'FINANCE_POLICY_APPROVED', weddingId, weddingId, { policy: row.recognitionPolicy, contractedRevenue: row.contractedRevenue.toFixed(2) });
   return row;
 }
+/**
+ * Initiates a client receipt or vendor disbursement payment record.
+ */
 export async function createPayment(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.paymentInput>) {
   const wedding = await lockWedding(tx, user, weddingId);
   if (body.direction === 'VENDOR_DISBURSEMENT') { financeUser(user); await vendorAssociation(tx, weddingId, body.weddingVendorId!); }
@@ -54,6 +78,9 @@ export async function createPayment(tx: Tx, user: UserProfile, weddingId: string
   await audit(tx, user.id, 'PAYMENT_INITIATED', row.id, weddingId, { direction: row.direction, isDemo: row.isDemo });
   return presentPayment(row);
 }
+/**
+ * Enforces permission access to financial payment records.
+ */
 export async function paymentAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   let row = await tx.bookingPayment.findUnique({ where: { id } });
   if (!row) throw missing();
@@ -62,6 +89,9 @@ export async function paymentAccess(tx: Tx, user: UserProfile, id: string, write
   if (!financeRoles.includes(user.role as 'FOUNDER' | 'FINANCE') && row.direction === 'VENDOR_DISBURSEMENT') throw missing();
   return row;
 }
+/**
+ * Submits a payment claim with evidence document for finance review.
+ */
 export async function claimPayment(tx: Tx, user: UserProfile, id: string, evidenceDocumentId?: string) {
   const before = await paymentAccess(tx, user, id, true);
   if (before.status !== 'INITIATED') conflict('PAYMENT_STATE', 'Only initiated payments may be claimed');
@@ -70,6 +100,9 @@ export async function claimPayment(tx: Tx, user: UserProfile, id: string, eviden
   await audit(tx, user.id, 'PAYMENT_CLAIMED', id, row.weddingId);
   return presentPayment(row);
 }
+/**
+ * Verifies a payment claim against bank statement records and updates milestones.
+ */
 export async function verifyPayment(tx: Tx, user: UserProfile, id: string, note: string) {
   financeUser(user);
   const before = await paymentAccess(tx, user, id, true);
@@ -90,6 +123,9 @@ export async function verifyPayment(tx: Tx, user: UserProfile, id: string, note:
   if (row.direction === 'CLIENT_RECEIPT' && row.milestone === 'BOOKING' && !['COMPLETED', 'CANCELLED'].includes(wedding.state)) await generateTasks(tx, user, row.weddingId, true);
   return presentPayment(row);
 }
+/**
+ * Reverses or fails a payment record with full audit reasoning.
+ */
 export async function failPayment(tx: Tx, user: UserProfile, id: string, note: string, reverse: boolean) {
   financeUser(user);
   const before = await paymentAccess(tx, user, id, true);
@@ -99,6 +135,9 @@ export async function failPayment(tx: Tx, user: UserProfile, id: string, note: s
   await audit(tx, user.id, reverse ? 'PAYMENT_REVERSED' : 'PAYMENT_FAILED', id, row.weddingId, { note });
   return presentPayment(row);
 }
+/**
+ * Records an additional expense or on-the-day change order.
+ */
 export async function createExpense(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.expenseInput>) {
   const wedding = await lockWedding(tx, user, weddingId);
   if (body.weddingVendorId) { await vendorAssociation(tx, weddingId, body.weddingVendorId); if ((await tx.vendorBill.findUnique({ where: { weddingVendorId: body.weddingVendorId } }))?.verifiedAt) conflict('BILL_FINALIZED', 'A verified final vendor bill cannot receive new extra costs'); }
@@ -109,6 +148,9 @@ export async function createExpense(tx: Tx, user: UserProfile, weddingId: string
   await audit(tx, user.id, 'EXPENSE_REQUESTED', row.id, weddingId);
   return presentExpense(row, user);
 }
+/**
+ * Checks access control for an expense record.
+ */
 export async function expenseAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.additionalExpense.findUnique({ where: { id } }); if (!row) throw missing();
   if (write) await lockWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
@@ -116,6 +158,9 @@ export async function expenseAccess(tx: Tx, user: UserProfile, id: string, write
   if (user.role === 'CLIENT' && fresh.clientCharge.isZero()) throw missing();
   return fresh;
 }
+/**
+ * Approves or rejects an additional expense, validating client approval when billed to couple.
+ */
 export async function approveExpense(tx: Tx, user: UserProfile, id: string, note: string, approve: boolean) {
   financeUser(user);
   const before = await expenseAccess(tx, user, id, true);
@@ -126,6 +171,9 @@ export async function approveExpense(tx: Tx, user: UserProfile, id: string, note
   await audit(tx, user.id, approve ? 'EXPENSE_APPROVED' : 'EXPENSE_REJECTED', id, row.weddingId, { note, total: row.total.toFixed(2), clientCharge: row.clientCharge.toFixed(2) });
   return presentExpense(row, user);
 }
+/**
+ * Submits a final vendor bill for reconciliation.
+ */
 export async function createBill(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.billInput>) {
   const wedding = await lockWedding(tx, user, weddingId);
   await vendorAssociation(tx, weddingId, body.weddingVendorId);
@@ -134,11 +182,17 @@ export async function createBill(tx: Tx, user: UserProfile, weddingId: string, b
   await audit(tx, user.id, 'VENDOR_BILL_SUBMITTED', row.id, weddingId);
   return presentBill(row);
 }
+/**
+ * Checks access control for vendor bills.
+ */
 export async function billAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.vendorBill.findUnique({ where: { id } }); if (!row) throw missing();
   if (write) await lockWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
   return tx.vendorBill.findUniqueOrThrow({ where: { id } });
 }
+/**
+ * Verifies a final vendor bill, enforcing 3-way match against contract + approved extras.
+ */
 export async function verifyBill(tx: Tx, user: UserProfile, id: string, note: string) {
   const row = await billAccess(tx, user, id, true);
   if (row.verifiedAt) conflict('BILL_VERIFIED', 'The bill has already been verified');
@@ -149,6 +203,9 @@ export async function verifyBill(tx: Tx, user: UserProfile, id: string, note: st
   return presentBill(verified);
 }
 
+/**
+ * Computes live client balance: contracted revenue + approved extras - verified cash receipts.
+ */
 export async function clientBalance(tx: Tx, user: UserProfile, weddingId: string) {
   const wedding = await weddingAccess(tx, user, weddingId);
   const settings = await tx.financeSettings.findUnique({ where: { weddingId } });
@@ -162,6 +219,9 @@ export async function clientBalance(tx: Tx, user: UserProfile, weddingId: string
     return { id: row.id, weddingId, milestone: row.milestone, amount: row.amount.toFixed(2), dueAt: row.dueAt.toISOString(), approvedAt: row.approvedAt.toISOString(), verifiedReceived: received.toFixed(2), outstanding: positive(row.amount.minus(received)).toFixed(2) };
   }), unallocatedReceivable: collectible ? positive(collectible.minus(sum(rows.map(row => row.amount)))).toFixed(2) : null };
 }
+/**
+ * Performs post-wedding vendor reconciliation matching quotations, extras, advances, and final bills.
+ */
 export async function reconciliation(tx: Tx, user: UserProfile, weddingId: string) {
   await weddingAccess(tx, user, weddingId);
   const associations = await tx.weddingVendor.findMany({ where: { weddingId }, include: { vendor: true, quotation: true, bill: true }, orderBy: { id: 'asc' } });
@@ -179,6 +239,9 @@ export async function reconciliation(tx: Tx, user: UserProfile, weddingId: strin
   }
   return result;
 }
+/**
+ * Posts recognized revenue according to the approved policy (e.g. Completed Contract or Milestone).
+ */
 export async function recognizeRevenue(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.recognitionInput>) {
   await lockWedding(tx, user, weddingId);
   const settings = await tx.financeSettings.findUnique({ where: { weddingId } });
@@ -191,6 +254,9 @@ export async function recognizeRevenue(tx: Tx, user: UserProfile, weddingId: str
   await audit(tx, user.id, 'REVENUE_RECOGNIZED', row.id, weddingId, { note: row.note, amount: row.amount.toFixed(2), policy: row.policy });
   return presentRecognition(row);
 }
+/**
+ * Records internal wedding planner labor hours at approved hourly rates.
+ */
 export async function createLabour(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof f.labourInput>) {
   const wedding = await lockWedding(tx, user, weddingId);
   if (user.role !== 'FOUNDER' && user.role !== 'FINANCE' && body.userId !== user.id) throw forbidden();
@@ -204,6 +270,9 @@ export async function createLabour(tx: Tx, user: UserProfile, weddingId: string,
   return presentLabour(row);
 }
 
+/**
+ * Computes true wedding profitability: Recognized Revenue - Vendor Costs - Planner Labor - Direct Costs.
+ */
 export async function profitability(tx: Tx, user: UserProfile, weddingId: string): Promise<z.infer<typeof f.profitabilityDto>> {
   const wedding = await weddingAccess(tx, user, weddingId);
   const settings = await tx.financeSettings.findUnique({ where: { weddingId } });
@@ -224,6 +293,9 @@ export async function profitability(tx: Tx, user: UserProfile, weddingId: string
   }
   return { weddingId, title: wedding.title, weddingDate: wedding.weddingDate?.toISOString().slice(0, 10) ?? null, currency: wedding.currency as Currency, recognitionPolicy: settings?.recognitionPolicy ?? null, warnings, estimatedRevenue: money(settings?.estimatedRevenue ?? null), contractedRevenue: balance.contractedRevenue, recognizedRevenue: recognized.toFixed(2), cashCollected: balance.cashCollected, committedVendorCosts: money(committed), actualVendorCosts: actualVendor.toFixed(2), approvedLabourCosts: labour.toFixed(2), approvedOtherDirectCosts: direct.toFixed(2), outstandingReceivables: balance.outstandingReceivable, outstandingPayables: vendorRows.some(v => v.remainingPayable === null) ? null : sum(vendorRows.map(v => v.remainingPayable!)).toFixed(2), operationalProfit: settings ? recognized.minus(actual).toFixed(2) : null, estimatedTotalCosts: money(estimated), actualTotalCosts: actual.toFixed(2), costVariance: estimated ? actual.minus(estimated).toFixed(2) : null };
 }
+/**
+ * Generates cross-wedding seasonal executive dashboard metrics and upcoming cashflow dues.
+ */
 export async function dashboard(tx: Tx, user: UserProfile, query: z.infer<typeof f.reportQuery>) {
   const where: Prisma.WeddingWhereInput = { ...weddingFilter(user), ...(query.weddingId ? { id: query.weddingId } : {}), ...(query.from || query.to ? { weddingDate: { ...(query.from ? { gte: new Date(query.from) } : {}), ...(query.to ? { lte: new Date(query.to) } : {}) } } : {}) };
   // Totals cover the entire filtered wedding cohort, independently of the displayed page.

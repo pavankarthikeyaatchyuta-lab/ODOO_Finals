@@ -56,6 +56,11 @@ interface CommandCentrePageProps {
 
 type CommandSubTab = 'timeline' | 'arrivals' | 'incidents' | 'delays' | 'history';
 
+/**
+ * CommandCentrePage component
+ *
+ * Day-of execution cockpit: run-sheets, vendor check-ins, delays, and incidents.
+ */
 export const CommandCentrePage: React.FC<CommandCentrePageProps> = ({
   runSheet,
   arrivals,

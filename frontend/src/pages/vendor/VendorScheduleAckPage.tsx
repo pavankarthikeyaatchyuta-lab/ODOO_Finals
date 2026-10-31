@@ -32,6 +32,11 @@ interface Directive {
   problemReason?: string;
 }
 
+/**
+ * VendorScheduleAckPage component
+ *
+ * Vendor closed-loop schedule acknowledgement interface.
+ */
 export const VendorScheduleAckPage: React.FC = () => {
   const { user } = useAuth();
 

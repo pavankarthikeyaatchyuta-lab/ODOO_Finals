@@ -29,6 +29,11 @@ interface FinancePageProps {
   onRecordClientPayment?: (milestoneId: string, data: any) => Promise<void>;
 }
 
+/**
+ * FinancePage component
+ *
+ * Analytic accounting module: change orders, client billing, and vendor reconciliation.
+ */
 export const FinancePage: React.FC<FinancePageProps> = ({
   currentWedding,
   weddingsList = [],

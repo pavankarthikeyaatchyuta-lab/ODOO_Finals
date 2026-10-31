@@ -29,6 +29,11 @@ interface ClientsPageProps {
   onSelectWedding?: (wedding: Wedding) => void;
 }
 
+/**
+ * ClientsPage component
+ *
+ * Client relationship directory with contact details and consultation histories.
+ */
 export const ClientsPage: React.FC<ClientsPageProps> = ({
   weddings,
   onNavigateToTab,

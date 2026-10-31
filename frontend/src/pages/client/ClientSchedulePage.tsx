@@ -22,6 +22,11 @@ interface CeremonyEvent {
   liveNote?: string;
 }
 
+/**
+ * ClientSchedulePage component
+ *
+ * Client-facing ceremony schedule and timeline.
+ */
 export const ClientSchedulePage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<'ALL' | 'DAY_1' | 'DAY_2'>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>('c-03');

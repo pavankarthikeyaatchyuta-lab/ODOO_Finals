@@ -5,20 +5,32 @@ import { ApiError, missing } from '../errors.js';
 import type { Context } from '../http/routes.js';
 import { clientFilter, archiveClient } from '../services/foundation.js';
 
+/**
+ * HTTP handler to create a new client contact profile.
+ */
 export async function create({ tx, user, body }: Context<z.infer<typeof c.clientInput>, unknown>) {
   const row = await tx.client.create({ data: body });
   await audit(tx, user.id, 'CLIENT_CREATED', row.id, null);
   return row;
 }
+/**
+ * HTTP handler to list paginated client contacts scoped to user permissions.
+ */
 export async function list({ tx, user, query }: Context<unknown, z.infer<typeof c.pageQuery>>) {
   const where = clientFilter(user);
   return { data: await tx.client.findMany({ where, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: (query.page - 1) * query.pageSize, take: query.pageSize }), ...query, total: await tx.client.count({ where }) };
 }
+/**
+ * HTTP handler to retrieve a single client profile by ID.
+ */
 export async function read(ctx: Context<unknown, unknown>) {
   const row = await ctx.tx.client.findFirst({ where: { id: ctx.params.id, ...clientFilter(ctx.user) } });
   if (!row) throw missing();
   return row;
 }
+/**
+ * HTTP handler to update client contact attributes with audit trail.
+ */
 export async function update(ctx: Context<z.infer<typeof c.clientPatch>, unknown>) {
   await ctx.tx.$queryRaw`SELECT id FROM app."Client" WHERE id = ${ctx.params.id!}::uuid FOR UPDATE`;
   const current = await read(ctx);
@@ -27,4 +39,7 @@ export async function update(ctx: Context<z.infer<typeof c.clientPatch>, unknown
   await audit(ctx.tx, ctx.user.id, 'CLIENT_UPDATED', row.id, null);
   return row;
 }
+/**
+ * HTTP handler to safely soft-delete / archive an unassigned client record.
+ */
 export function remove(ctx: Context<unknown, unknown>) { return archiveClient(ctx.tx, ctx.user, ctx.params.id!); }

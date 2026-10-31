@@ -11,6 +11,11 @@ import { Select } from '../components/common/Select';
 import { VendorProfile } from '../types';
 import { api } from '../services/api';
 
+/**
+ * VendorsPage component
+ *
+ * Curated luxury vendor directory across catering, decor, photography, and sound.
+ */
 export const VendorsPage: React.FC = () => {
   const [vendors, setVendors] = useState<VendorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -28,6 +28,11 @@ interface VendorPortalLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * VendorPortalLayout component
+ *
+ * Vendor partner portal layout with header tabs (Overview, Schedule & Acks, Invoices).
+ */
 export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
   currentTab,
   onSelectTab,

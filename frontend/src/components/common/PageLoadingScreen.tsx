@@ -6,6 +6,11 @@ export interface PageLoadingScreenProps {
   submessage?: string;
 }
 
+/**
+ * PageLoadingScreen component
+ *
+ * Full-page luxury splash loader featuring the royal crest and progress pulse.
+ */
 export const PageLoadingScreen: React.FC<PageLoadingScreenProps> = ({
   message = 'Initializing The Royal Knot Platform...',
   submessage = 'Synchronizing luxury wedding operations & high-security palace protocol'

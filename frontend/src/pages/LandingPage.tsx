@@ -43,6 +43,11 @@ interface LandingPageProps {
   onNavigateToLogin: () => void;
 }
 
+/**
+ * LandingPage component
+ *
+ * Public landing showcase highlighting royal destination wedding management capabilities.
+ */
 export const LandingPage: React.FC<LandingPageProps> = ({
   onEnterPortal,
   onNavigateToLogin

@@ -18,6 +18,11 @@ interface WeddingContextType {
 
 const WeddingContext = createContext<WeddingContextType | undefined>(undefined);
 
+/**
+ * WeddingProvider component
+ *
+ * Wedding context provider managing active wedding selection and cross-cutting wedding metadata.
+ */
 export const WeddingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [weddingsList, setWeddingsList] = useState<Wedding[]>([]);
   const [enquiriesList, setEnquiriesList] = useState<Enquiry[]>([]);
@@ -114,6 +119,7 @@ export const WeddingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
+/** Hook to access active wedding context and selection handler. */
 export const useWedding = () => {
   const context = useContext(WeddingContext);
   if (!context) {

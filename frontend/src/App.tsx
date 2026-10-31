@@ -58,7 +58,12 @@ import {
   SeasonMetrics
 } from './types';
 
-// Inner Application Shell with Role & Portal Routing
+/**
+ * MainApplicationRouter component
+ *
+ * Central orchestrator for portal views (Agency, Client Portal, Vendor Portal),
+ * authentication sub-views, and top-level wedding state synchronization.
+ */
 function MainApplicationRouter() {
   const { user, isAuthenticated, activePortal } = useAuth();
   const weddingCtx = useWedding();
@@ -92,6 +97,12 @@ function MainApplicationRouter() {
     }
   });
 
+  /**
+   * Switches between the authenticated workspace and public landing page showcase.
+   * Persists the preference in sessionStorage.
+   *
+   * @param show - Whether to display the public landing showcase
+   */
   const handleSetShowPublicLanding = (show: boolean) => {
     setShowPublicLanding(show);
     try {
@@ -158,6 +169,12 @@ function MainApplicationRouter() {
     loadData();
   }, []);
 
+  /**
+   * Fetches full operational and financial datasets for a selected wedding
+   * including quotations, tasks, run sheets, arrivals, delays, incidents, and settlements.
+   *
+   * @param weddingId - Target wedding unique identifier
+   */
   const loadWeddingContext = async (weddingId: string) => {
     const [q, t, r, a, d, i, c, s, cps] = await Promise.all([
       api.getCatererQuotes(weddingId),
@@ -182,13 +199,22 @@ function MainApplicationRouter() {
     setClientPaymentSummary(cps);
   };
 
+  /**
+   * Handles wedding selection by updating local state and notifying WeddingContext.
+   *
+   * @param wedding - Selected wedding record
+   */
   const handleSelectWedding = (wedding: Wedding) => {
     setCurrentWedding(wedding);
     weddingCtx.selectWedding(wedding.id);
     loadWeddingContext(wedding.id);
   };
 
-  // Scenario 1: Digital Agreement Signing
+  /**
+   * Executes digital contract signing for an enquiry and syncs local wedding state.
+   *
+   * @param enquiryId - Enquiry / contract record identifier
+   */
   const handleSignAgreement = async (enquiryId: string) => {
     await api.signAgreement(enquiryId);
     const updated = await api.getEnquiries();
@@ -205,52 +231,101 @@ function MainApplicationRouter() {
     }
   };
 
-  // Scenario 2: 3-Caterer Selection
+  /**
+   * Selects the winning caterer proposal from a 3-way RFQ comparison,
+   * binding it to the wedding ledger and rejecting alternate quotes.
+   *
+   * @param quoteId - Winning quotation identifier
+   */
   const handleSelectWinningCaterer = async (quoteId: string) => {
     const updated = await api.selectWinningCaterer(quoteId);
     setQuotes(updated);
   };
 
-  // Scenario 3: Task Stage Update
+  /**
+   * Updates the workflow progress stage of a planning task with optional blocked reason.
+   *
+   * @param taskId - Task identifier
+   * @param stage - New workflow stage
+   * @param blockedReason - Optional justification when task is blocked
+   */
   const handleUpdateTaskStage = async (taskId: string, stage: WeddingTask['stage'], blockedReason?: string) => {
     const updated = await api.updateTaskStage(taskId, stage, blockedReason);
     setTasks(prev => prev.map(t => t.id === taskId ? updated : t));
   };
 
+  /**
+   * Appends a newly created task to the planning board.
+   *
+   * @param taskData - Task attributes excluding auto-generated ID
+   */
   const handleCreateTask = async (taskData: Omit<WeddingTask, 'id'>) => {
     const created = await api.createTask(taskData);
     setTasks(prev => [created, ...prev]);
   };
 
-  // Scenario 4: Vendor Arrival Check-In
+  /**
+   * Checks in a vendor at the venue dock, recording timestamp and punctuality status.
+   *
+   * @param arrivalId - Vendor arrival log identifier
+   */
   const handleCheckinVendor = async (arrivalId: string) => {
     const updated = await api.checkinVendor(arrivalId);
     setArrivals(prev => prev.map(a => a.id === arrivalId ? updated : a));
   };
 
-  // Closed-Loop Vendor Acknowledgement
+  /**
+   * Acknowledges a timeline delay on behalf of a vendor.
+   *
+   * @param delayId - Delay log identifier
+   * @param vendorId - Target vendor identifier
+   * @param note - Optional acknowledgment notes
+   */
   const handleAcknowledgeDelay = async (delayId: string, vendorId: string, note?: string) => {
     const updated = await api.acknowledgeDelayInstruction(delayId, vendorId, note);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
   };
 
+  /**
+   * Flags an operational conflict or problem regarding a proposed schedule shift.
+   *
+   * @param delayId - Delay log identifier
+   * @param vendorId - Reporting vendor identifier
+   * @param note - Description of the schedule conflict
+   */
   const handleReportDelayProblem = async (delayId: string, vendorId: string, note: string) => {
     const updated = await api.reportDelayProblem(delayId, vendorId, note);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
   };
 
+  /**
+   * Submits a newly proposed timeline change with dependent activity shift calculations.
+   *
+   * @param data - Proposal payload containing revised start/end times and reason
+   */
   const handleProposeScheduleChange = async (data: any) => {
     const created = await api.proposeScheduleChange(data);
     setDelays(prev => [created, ...prev]);
     return created;
   };
 
+  /**
+   * Approves a pending schedule change proposal.
+   *
+   * @param delayId - Delay/change log identifier
+   * @param approver - Authorizing planner or founder name
+   */
   const handleApproveScheduleChange = async (delayId: string, approver: string) => {
     const updated = await api.approveScheduleChange(delayId, approver);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
     return updated;
   };
 
+  /**
+   * Publishes an approved schedule change, incrementing schedule version and syncing run-sheet.
+   *
+   * @param delayId - Delay/change identifier
+   */
   const handlePublishScheduleChange = async (delayId: string) => {
     const updated = await api.publishScheduleChange(delayId);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
@@ -261,30 +336,55 @@ function MainApplicationRouter() {
     return updated;
   };
 
+  /**
+   * Creates a new live wedding-day incident log.
+   *
+   * @param incidentData - Incident attributes (title, severity, affected vendor)
+   */
   const handleCreateIncident = async (incidentData: any) => {
     const created = await api.createIncident(incidentData);
     setIncidents(prev => [created, ...prev]);
     return created;
   };
 
+  /**
+   * Updates an individual activity within the minute-by-minute execution run sheet.
+   *
+   * @param itemId - Run sheet line item identifier
+   * @param updates - Partial attributes to apply
+   */
   const handleUpdateRunSheetItem = async (itemId: string, updates: Partial<RunSheetItem>) => {
     const updated = await api.updateRunSheetItem(itemId, updates);
     setRunSheet(prev => prev.map(r => r.id === itemId ? updated : r));
     return updated;
   };
 
-  // Scenario 4: Incident Resolution
+  /**
+   * Resolves an open wedding-day incident with documented resolution actions.
+   *
+   * @param incidentId - Incident identifier
+   * @param note - Resolution notes and corrective measures
+   */
   const handleResolveIncident = async (incidentId: string, note: string) => {
     const updated = await api.resolveIncident(incidentId, note);
     setIncidents(prev => prev.map(i => i.id === incidentId ? updated : i));
   };
 
-  // Scenario 5: Change Order Creation & Approval
+  /**
+   * Registers a new on-the-day change order.
+   *
+   * @param orderData - Change order payload (category, items, unit price, quantity)
+   */
   const handleCreateChangeOrder = async (orderData: any) => {
     const created = await api.createChangeOrder(orderData);
     setChangeOrders(prev => [created, ...prev]);
   };
 
+  /**
+   * Authorizes a change order and refreshes vendor settlements and client payment balances.
+   *
+   * @param orderId - Change order identifier
+   */
   const handleApproveChangeOrder = async (orderId: string) => {
     const updated = await api.approveChangeOrder(orderId);
     setChangeOrders(prev => prev.map(c => c.id === orderId ? updated : c));
@@ -298,13 +398,23 @@ function MainApplicationRouter() {
     }
   };
 
+  /**
+   * Records a client milestone payment and updates live client receivables.
+   *
+   * @param milestoneId - Milestone identifier
+   * @param paymentData - Payment transaction details
+   */
   const handleRecordClientPayment = async (milestoneId: string, paymentData: any) => {
     if (!currentWedding) return;
     const updated = await api.recordClientPayment(currentWedding.id, milestoneId, paymentData);
     setClientPaymentSummary(updated);
   };
 
-  // Scenario 5: Vendor Settlement with Anti-Duplicate Protection
+  /**
+   * Disburses vendor final bill payout with anti-duplicate guard protection.
+   *
+   * @param settlementId - Vendor settlement identifier
+   */
   const handleDisbursePayment = async (settlementId: string) => {
     try {
       const updated = await api.settleVendorFinalBill(settlementId);
@@ -591,7 +701,12 @@ function MainApplicationRouter() {
   );
 }
 
-// Root Application Export wrapped in Context Providers
+/**
+ * Root App component
+ *
+ * Top-level application shell wrapping the system in AuthProvider,
+ * WeddingProvider, and DashboardUiProvider contexts.
+ */
 export function App() {
   return (
     <AuthProvider>

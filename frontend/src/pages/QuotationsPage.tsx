@@ -10,6 +10,11 @@ interface QuotationsPageProps {
   onNavigateToTab: (tab: any) => void;
 }
 
+/**
+ * QuotationsPage component
+ *
+ * RFQ management hub and 3-caterer decision comparison matrix.
+ */
 export const QuotationsPage: React.FC<QuotationsPageProps> = ({
   quotes,
   currentWedding,

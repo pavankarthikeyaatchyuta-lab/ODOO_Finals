@@ -34,6 +34,11 @@ interface EnquiriesPageProps {
   onRefreshEnquiries?: () => void;
 }
 
+/**
+ * EnquiriesPage component
+ *
+ * Bridal enquiry pipeline and digital agreement contract signing.
+ */
 export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
   enquiries: propEnquiries,
   onSignAgreement,

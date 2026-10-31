@@ -9,19 +9,37 @@ import { assertOwner, mutableWedding } from './workflow-access.js';
 export const eventInclude = { vendors: true, dependencies: true } satisfies Prisma.TimelineEventInclude;
 type EventRow = Prisma.TimelineEventGetPayload<{ include: typeof eventInclude }>;
 type Impact = z.infer<typeof o.impactDto>;
+/**
+ * Formats timeline event details including associated vendors and predecessor dependencies.
+ */
 export function presentEvent(row: EventRow) { return { id: row.id, weddingId: row.weddingId, functionId: row.functionId, title: row.title, plannedStart: row.plannedStart.toISOString(), plannedEnd: row.plannedEnd.toISOString(), actualStart: row.actualStart?.toISOString() ?? null, actualEnd: row.actualEnd?.toISOString() ?? null, ownerId: row.ownerId, status: row.status, version: row.version, vendorIds: row.vendors.map(v => v.vendorId).sort(), dependsOnIds: row.dependencies.map(d => d.dependsOnId).sort(), createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() }; }
+/**
+ * Formats a schedule change record along with impacted timeline event calculations.
+ */
 export function presentChange(row: ScheduleChange) { return { ...row, impacts: o.impactDto.array().parse(row.impacts), previousStart: row.previousStart.toISOString(), previousEnd: row.previousEnd.toISOString(), proposedStart: row.proposedStart.toISOString(), proposedEnd: row.proposedEnd.toISOString(), approvedAt: row.approvedAt?.toISOString() ?? null, decidedAt: row.decidedAt?.toISOString() ?? null, publishedAt: row.publishedAt?.toISOString() ?? null, createdAt: row.createdAt.toISOString() }; }
+/**
+ * Formats a closed-loop schedule instruction notification dispatched to a vendor or team member.
+ */
 export function presentNotification(row: ScheduleNotification) { return { id: row.id, weddingId: row.weddingId, changeId: row.changeId, vendorId: row.vendorId, userId: row.userId, instructionVersion: row.instructionVersion, instructions: o.impactDto.array().parse(row.instructions), deliveryStatus: row.deliveryStatus, status: row.status, sentAt: row.sentAt.toISOString(), acknowledgedAt: row.acknowledgedAt?.toISOString() ?? null, problemDescription: row.problemDescription }; }
+/**
+ * Formats vendor arrival dock status and computes late arrival minutes.
+ */
 export function presentArrival(row: VendorArrival, now = Date.now()) {
   const late = Math.max(0, (row.actualAt?.getTime() ?? now) - row.expectedAt.getTime());
   return { ...row, expectedAt: row.expectedAt.toISOString(), actualAt: row.actualAt?.toISOString() ?? null, confirmedAt: row.confirmedAt?.toISOString() ?? null, createdAt: row.createdAt.toISOString(), isLate: late > 0, lateMinutes: Math.floor(late / 60000) };
 }
+/**
+ * Checks access permissions to a timeline event with optimistic concurrency support.
+ */
 export async function eventAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.timelineEvent.findUnique({ where: { id } });
   if (!row) throw missing();
   if (write) await mutableWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
   return tx.timelineEvent.findUniqueOrThrow({ where: { id }, include: eventInclude });
 }
+/**
+ * Validates event dependencies, cycles, and vendor associations across the wedding DAG.
+ */
 async function validateEventLinks(tx: Tx, weddingId: string, id: string, start: Date, ownerId: string | null, functionId: string | null, vendorIds: string[], dependsOnIds: string[]) {
   if (ownerId) await assertOwner(tx, weddingId, ownerId);
   if (functionId && !await tx.weddingFunction.findFirst({ where: { id: functionId, weddingId } })) throw new ApiError(400, 'INVALID_FUNCTION', 'Function must belong to the wedding');
@@ -37,6 +55,9 @@ async function validateEventLinks(tx: Tx, weddingId: string, id: string, start: 
   const visit = (node: string) => { if (visits.has(node)) throw new ApiError(400, 'DEPENDENCY_CYCLE', 'Event dependencies cannot contain a cycle'); if (finished.has(node)) return; visits.add(node); for (const parent of graph.get(node) ?? []) visit(parent); visits.delete(node); finished.add(node); };
   visit(id);
 }
+/**
+ * Creates an execution timeline event and validates predecessor relationships.
+ */
 export async function createEvent(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof o.eventInput>) {
   await mutableWedding(tx, user, weddingId);
   const id = randomUUID();
@@ -46,6 +67,9 @@ export async function createEvent(tx: Tx, user: UserProfile, weddingId: string, 
   await audit(tx, user.id, 'TIMELINE_EVENT_CREATED', id, weddingId);
   return presentEvent(row);
 }
+/**
+ * Updates timeline event details with optimistic version check.
+ */
 export async function updateEvent(tx: Tx, user: UserProfile, id: string, body: z.infer<typeof o.eventPatch>) {
   const before = await eventAccess(tx, user, id, true);
   if (before.version !== body.expectedVersion) throw new ApiError(409, 'STALE_EVENT_VERSION', 'Reload the event before editing');
@@ -59,6 +83,9 @@ export async function updateEvent(tx: Tx, user: UserProfile, id: string, body: z
   await audit(tx, user.id, 'TIMELINE_EVENT_METADATA_UPDATED', id, row.weddingId, { previousVersion: before.version, version: row.version, previousVendorIds: before.vendors.map(v => v.vendorId), vendorIds: vendors, previousDependencies: before.dependencies.map(d => d.dependsOnId), dependsOnIds: dependencies, previousOwnerId: before.ownerId, ownerId: row.ownerId });
   return presentEvent(row);
 }
+/**
+ * Records live execution timestamps (in-progress, done) as ceremonies take place.
+ */
 export async function recordExecution(tx: Tx, user: UserProfile, id: string, body: z.infer<typeof o.executionInput>) {
   const before = await eventAccess(tx, user, id, true);
   if (user.role === 'COORDINATOR' && (before.ownerId !== user.id || !['IN_PROGRESS', 'DONE'].includes(body.status))) throw forbidden();
@@ -72,6 +99,9 @@ export async function recordExecution(tx: Tx, user: UserProfile, id: string, bod
   await audit(tx, user.id, 'TIMELINE_EXECUTION_RECORDED', id, row.weddingId, { previousStatus: before.status, status: row.status, actualStart: start?.toISOString() ?? null, actualEnd: end?.toISOString() ?? null });
   return presentEvent(row);
 }
+/**
+ * Proposes a timeline adjustment and calculates cascading ripple shifts for downstream dependencies.
+ */
 export async function proposeChange(tx: Tx, user: UserProfile, eventId: string, body: z.infer<typeof o.proposalInput>) {
   const source = await eventAccess(tx, user, eventId, true);
   const wedding = await tx.wedding.findUniqueOrThrow({ where: { id: source.weddingId } });
@@ -91,11 +121,17 @@ export async function proposeChange(tx: Tx, user: UserProfile, eventId: string, 
   await audit(tx, user.id, 'SCHEDULE_CHANGE_PROPOSED', row.id, row.weddingId, { impactedEventIds: impacts.map(i => i.eventId), previousStart: row.previousStart.toISOString(), proposedStart: row.proposedStart.toISOString() });
   return presentChange(row);
 }
+/**
+ * Checks access control for a schedule change proposal.
+ */
 export async function changeAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.scheduleChange.findUnique({ where: { id } }); if (!row) throw missing();
   if (write) await mutableWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
   return tx.scheduleChange.findUniqueOrThrow({ where: { id } });
 }
+/**
+ * Approves or rejects a proposed schedule change with dual-approval enforcement.
+ */
 export async function decideChange(tx: Tx, user: UserProfile, id: string, note: string, approved: boolean) {
   const before = await changeAccess(tx, user, id, true);
   const wedding = await tx.wedding.findUniqueOrThrow({ where: { id: before.weddingId } });
@@ -106,6 +142,9 @@ export async function decideChange(tx: Tx, user: UserProfile, id: string, note: 
   await audit(tx, user.id, approved ? 'SCHEDULE_CHANGE_APPROVED' : 'SCHEDULE_CHANGE_REJECTED', id, row.weddingId, { note });
   return presentChange(row);
 }
+/**
+ * Publishes an approved schedule change, updates event timings, and issues targeted notifications.
+ */
 export async function publishChange(tx: Tx, user: UserProfile, id: string) {
   const before = await changeAccess(tx, user, id, true);
   const wedding = await tx.wedding.findUniqueOrThrow({ where: { id: before.weddingId } });
@@ -131,7 +170,13 @@ export async function publishChange(tx: Tx, user: UserProfile, id: string) {
   await audit(tx, user.id, 'SCHEDULE_CHANGE_PUBLISHED', id, wedding.id, { instructionVersion, vendorIds: [...vendors], staffIds: [...staff.keys()] });
   return presentChange(row);
 }
+/**
+ * Checks access control for a vendor instruction notification.
+ */
 export async function notificationAccess(tx: Tx, user: UserProfile, id: string) { const row = await tx.scheduleNotification.findUnique({ where: { id } }); if (!row) throw missing(); await weddingAccess(tx, user, row.weddingId); return row; }
+/**
+ * Generates a secure, expiring magic capability link for vendor acknowledgement.
+ */
 export async function vendorLink(tx: Tx, user: UserProfile, id: string) {
   const row = await notificationAccess(tx, user, id);
   if (!row.vendorId) throw new ApiError(400, 'NOT_VENDOR_NOTIFICATION', 'Only vendor notifications use a capability link');
@@ -140,6 +185,9 @@ export async function vendorLink(tx: Tx, user: UserProfile, id: string) {
   await audit(tx, user.id, 'VENDOR_INBOX_LINK_ISSUED', id, row.weddingId);
   return { token, notificationId: id };
 }
+/**
+ * Records vendor or staff acknowledgement or reported problem for a schedule change.
+ */
 export async function respondNotification(tx: Tx, row: ScheduleNotification, body: z.infer<typeof o.responseInput>, actorId: string, actorType: string) {
   await tx.$queryRaw`SELECT id FROM app."ScheduleNotification" WHERE id = ${row.id}::uuid FOR UPDATE`;
   const current = await tx.scheduleNotification.findUniqueOrThrow({ where: { id: row.id } });
@@ -152,6 +200,9 @@ export async function respondNotification(tx: Tx, row: ScheduleNotification, bod
   await audit(tx, actorId, 'SCHEDULE_INSTRUCTION_RESPONDED', row.id, row.weddingId, { actorType, status: result.status, instructionVersion: row.instructionVersion });
   return presentNotification(result);
 }
+/**
+ * Validates a vendor capability token and retrieves the corresponding schedule notification.
+ */
 export async function capabilityNotification(tx: Tx, token: string) {
   const row = await tx.scheduleNotification.findFirst({ where: { tokenHash: createHash('sha256').update(token).digest('hex'), vendorId: { not: null }, tokenExpiresAt: { gt: new Date() }, wedding: { archivedAt: null, state: { not: 'CANCELLED' } } } });
   if (!row) throw missing();

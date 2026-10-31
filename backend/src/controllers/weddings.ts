@@ -6,19 +6,31 @@ import type { Context } from '../http/routes.js';
 import { createWedding, archiveWedding } from '../services/foundation.js';
 import { generateTasks } from '../services/planning.js';
 
+/**
+ * HTTP handler to create a new destination wedding with linked client profiles.
+ */
 export async function create(ctx: Context<z.infer<typeof c.createWeddingInput>, unknown>) {
   return presentWedding(await createWedding(ctx.tx, ctx.user, ctx.body), ctx.user);
 }
+/**
+ * HTTP handler to list weddings filtered by state and caller authorization.
+ */
 export async function list({ tx, user, query }: Context<unknown, z.infer<typeof c.pageQuery> & { state?: z.infer<typeof c.weddingState> }>) {
   const where = { ...weddingFilter(user), state: query.state };
   const rows = await tx.wedding.findMany({ where, include: weddingInclude, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: (query.page - 1) * query.pageSize, take: query.pageSize });
   return { data: rows.map(row => presentWedding(row, user)), page: query.page, pageSize: query.pageSize, total: await tx.wedding.count({ where }) };
 }
+/**
+ * HTTP handler to fetch wedding details by ID.
+ */
 export async function read(ctx: Context<unknown, unknown>) {
   const row = await ctx.tx.wedding.findFirst({ where: { id: ctx.params.id, ...weddingFilter(ctx.user) }, include: weddingInclude });
   if (!row) throw missing();
   return presentWedding(row, ctx.user);
 }
+/**
+ * HTTP handler to update wedding lifecycle state, date, or metadata with transition guards.
+ */
 export async function update({ tx, user, params, body }: Context<z.infer<typeof c.weddingPatch>, unknown>) {
   const before = await weddingAccess(tx, user, params.id!, true);
   if (body.state && !({ ENQUIRY: ['PROPOSAL', 'CANCELLED'], PROPOSAL: ['ENQUIRY', 'CANCELLED'], AGREEMENT: ['CANCELLED'], BOOKING_CONFIRMED: ['CANCELLED'], PLANNING: ['EXECUTION', 'CANCELLED'], EXECUTION: ['COMPLETED', 'CANCELLED'] } as Record<string, string[]>)[before.state]?.includes(body.state)) throw new ApiError(409, 'INVALID_TRANSITION', 'This wedding lifecycle transition is unavailable');
@@ -29,4 +41,7 @@ export async function update({ tx, user, params, body }: Context<z.infer<typeof 
   if (body.weddingDate && row.proposalStatus === 'CONFIRMED' && !['CANCELLED', 'COMPLETED'].includes(row.state)) await generateTasks(tx, user, row.id, true);
   return presentWedding(await tx.wedding.findUniqueOrThrow({ where: { id: row.id }, include: weddingInclude }), user);
 }
+/**
+ * HTTP handler to safely archive a wedding that possesses no financial history.
+ */
 export function remove(ctx: Context<unknown, unknown>) { return archiveWedding(ctx.tx, ctx.user, ctx.params.id!); }

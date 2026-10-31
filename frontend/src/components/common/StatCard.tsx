@@ -14,6 +14,11 @@ interface StatCardProps {
   className?: string;
 }
 
+/**
+ * StatCard component
+ *
+ * Executive KPI summary statistic card displaying figures and trends.
+ */
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,

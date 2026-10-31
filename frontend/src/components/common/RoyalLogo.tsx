@@ -7,6 +7,11 @@ export interface RoyalLogoProps {
   subtext?: string;
 }
 
+/**
+ * RoyalLogo component
+ *
+ * Official The Royal Knot brand crest emblem with luxury golden circular styling.
+ */
 export const RoyalLogo: React.FC<RoyalLogoProps> = ({
   size = 'md',
   className = '',

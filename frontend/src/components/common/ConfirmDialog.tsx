@@ -15,6 +15,11 @@ export interface ConfirmDialogProps {
   loading?: boolean;
 }
 
+/**
+ * ConfirmDialog component
+ *
+ * Confirmation modal dialog for destructive or critical workflow actions.
+ */
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,
   onClose,

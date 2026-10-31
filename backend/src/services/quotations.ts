@@ -8,14 +8,23 @@ import { mutableWedding } from './workflow-access.js';
 const roundInclude = { requests: { orderBy: { id: 'asc' as const }, include: { vendor: true, quotation: { include: { items: { orderBy: { id: 'asc' as const } } } } } } } satisfies Prisma.QuotationRoundInclude;
 type RoundRow = Prisma.QuotationRoundGetPayload<{ include: typeof roundInclude }>;
 type QuoteRow = NonNullable<RoundRow['requests'][number]['quotation']>;
+/**
+ * Formats a vendor quotation and its itemized line entries.
+ */
 export function presentQuote(row: QuoteRow) {
   return { id: row.id, requestId: row.requestId, pricePerPlate: row.pricePerPlate.toFixed(2), guestCount: row.guestCount, additionalHourRate: row.additionalHourRate.toFixed(2), additionalHours: row.additionalHours.toFixed(2), menuDetails: row.menuDetails, inclusions: row.inclusions, exclusions: row.exclusions, total: row.total.toFixed(2), createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(),
     items: row.items.map(item => ({ id: item.id, description: item.description, quantity: item.quantity.toFixed(3), unitPrice: item.unitPrice.toFixed(2), total: item.total.toFixed(2) })) };
 }
+/**
+ * Formats a quotation comparison round including all vendor requests and proposals.
+ */
 export function presentRound(row: RoundRow) {
   return { id: row.id, weddingId: row.weddingId, categoryCode: row.categoryCode, currency: row.currency, status: row.status, createdAt: row.createdAt.toISOString(),
     requests: row.requests.map(request => ({ id: request.id, roundId: request.roundId, vendorId: request.vendorId, vendorName: request.vendor.name, status: request.status, closedAt: request.closedAt?.toISOString() ?? null, quotation: request.quotation ? presentQuote(request.quotation) : null })) };
 }
+/**
+ * Enforces access permissions for a quotation round with optional row lock.
+ */
 export async function roundAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const ref = await tx.quotationRound.findUnique({ where: { id } });
   if (!ref) throw missing();
@@ -25,6 +34,14 @@ export async function roundAccess(tx: Tx, user: UserProfile, id: string, write =
   } else await weddingAccess(tx, user, ref.weddingId);
   return tx.quotationRound.findUniqueOrThrow({ where: { id }, include: roundInclude });
 }
+/**
+ * Initiates an RFQ comparison round for a category (enforcing 3 caterers for catering).
+ *
+ * @param tx - Prisma transaction
+ * @param user - Acting planner
+ * @param weddingId - Wedding ID
+ * @param body - Category code and invited vendor IDs
+ */
 export async function createRound(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof w.roundInput>) {
   const wedding = await mutableWedding(tx, user, weddingId);
   if (body.categoryCode === 'CATERING' && body.vendorIds.length !== 3) throw new ApiError(400, 'THREE_CATERERS_REQUIRED', 'Catering comparison requires exactly three distinct vendors');
@@ -35,6 +52,11 @@ export async function createRound(tx: Tx, user: UserProfile, weddingId: string, 
   await audit(tx, user.id, 'QUOTATION_REQUESTS_CREATED', row.id, weddingId, { vendorIds: body.vendorIds, currency: row.currency });
   return presentRound(row);
 }
+/**
+ * Calculates quotation line totals and overall price ensuring precise decimal arithmetic.
+ *
+ * @param body - Quotation line items and per-plate pricing
+ */
 export function calculateQuote(body: z.infer<typeof w.quoteInput>) {
   const decimal = (value: string) => new Prisma.Decimal(value);
   const round = (value: Prisma.Decimal) => value.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
@@ -44,6 +66,15 @@ export function calculateQuote(body: z.infer<typeof w.quoteInput>) {
   if (total.lte(0) || total.gte('100000000000000') || items.some(item => item.total.gte('100000000000000'))) throw new ApiError(400, 'INVALID_QUOTATION_TOTAL', 'Total must be positive and within the supported monetary range');
   return { items, total };
 }
+/**
+ * Submits or updates a vendor quotation proposal for an active RFQ round.
+ *
+ * @param tx - Prisma transaction
+ * @param user - Acting user
+ * @param requestId - RFQ request ID
+ * @param body - Quotation pricing details
+ * @param existingQuoteId - Optional ID when updating an existing quote
+ */
 export async function submitQuote(tx: Tx, user: UserProfile, requestId: string, body: z.infer<typeof w.quoteInput>, existingQuoteId?: string) {
   const request = await tx.quotationRequest.findUnique({ where: { id: requestId } });
   if (!request) throw missing();
@@ -67,6 +98,13 @@ export async function submitQuote(tx: Tx, user: UserProfile, requestId: string, 
   await tx.quotationRequest.update({ where: { id: requestId }, data: { status: 'SUBMITTED' } });
   return presentQuote(row);
 }
+/**
+ * Selects the winning vendor quotation, binds vendor to the wedding, and closes competing bids.
+ *
+ * @param tx - Prisma transaction
+ * @param user - Authorizing planner / founder
+ * @param quoteId - Winning quotation ID
+ */
 export async function selectQuote(tx: Tx, user: UserProfile, quoteId: string) {
   const quote = await tx.quotation.findUnique({ where: { id: quoteId }, include: { request: true } });
   if (!quote) throw missing();

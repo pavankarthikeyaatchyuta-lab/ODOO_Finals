@@ -10,6 +10,11 @@ interface LoginPageProps {
   onBackToLanding?: () => void;
 }
 
+/**
+ * LoginPage component
+ *
+ * Authentication screen supporting credentials login and quick role preview switchers.
+ */
 export const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToForgotPassword,
   onNavigateToInvite,

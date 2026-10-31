@@ -6,6 +6,11 @@ export interface StaticHeroCrestProps {
   className?: string;
 }
 
+/**
+ * StaticHeroCrest component
+ *
+ * Crisp static 2D fallback crest rendered when WebGL is unavailable or reduced-motion is requested.
+ */
 export const StaticHeroCrest: React.FC<StaticHeroCrestProps> = ({ className = '' }) => {
   const shouldReduceMotion = useReducedMotion();
 

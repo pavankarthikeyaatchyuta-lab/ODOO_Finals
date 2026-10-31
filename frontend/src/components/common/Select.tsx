@@ -12,6 +12,11 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   placeholder?: string;
 }
 
+/**
+ * Select component
+ *
+ * Styled dropdown select menu with custom chevron.
+ */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
   options,
   error = false,

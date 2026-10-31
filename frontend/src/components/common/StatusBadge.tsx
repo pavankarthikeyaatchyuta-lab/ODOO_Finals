@@ -15,6 +15,11 @@ interface StatusBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
+/**
+ * StatusBadge component
+ *
+ * Color-coded status badge for operational and lifecycle statuses.
+ */
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   label,
   variant = 'neutral',

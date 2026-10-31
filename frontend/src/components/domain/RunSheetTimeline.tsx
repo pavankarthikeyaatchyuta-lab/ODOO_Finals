@@ -9,6 +9,11 @@ interface RunSheetTimelineProps {
   onCheckinVendor: (arrivalId: string) => void;
 }
 
+/**
+ * RunSheetTimeline component
+ *
+ * Minute-by-minute execution timeline with vendor arrival check-in docking.
+ */
 export const RunSheetTimeline: React.FC<RunSheetTimelineProps> = ({
   items,
   arrivals,

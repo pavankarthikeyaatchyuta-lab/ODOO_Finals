@@ -13,6 +13,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
 }
 
+/**
+ * Button component
+ *
+ * Reusable styled button supporting primary, secondary, outline, and ghost variants.
+ */
 export const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',

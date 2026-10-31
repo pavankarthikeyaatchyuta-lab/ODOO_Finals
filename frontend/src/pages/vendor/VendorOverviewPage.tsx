@@ -22,6 +22,11 @@ interface VendorOverviewPageProps {
   pendingAckCount?: number;
 }
 
+/**
+ * VendorOverviewPage component
+ *
+ * Vendor dashboard overview of assigned wedding and arrival schedule.
+ */
 export const VendorOverviewPage: React.FC<VendorOverviewPageProps> = ({
   onNavigateTab,
   pendingAckCount = 1

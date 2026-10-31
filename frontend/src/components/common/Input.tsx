@@ -8,6 +8,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   suffixText?: string;
 }
 
+/**
+ * Input component
+ *
+ * Standardized form text/number input with validation styling.
+ */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
   error = false,
   leftIcon,

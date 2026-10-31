@@ -7,13 +7,30 @@ import { ApiError, forbidden, missing } from '../errors.js';
 import { agreementGate, lockWedding, mutableWedding } from './workflow-access.js';
 import type { DocumentStore } from '../storage.js';
 
+/**
+ * Selects the appropriate locking mechanism (immutable financial lock vs mutable wedding lock)
+ * depending on the uploaded document category.
+ */
 function writableDocumentWedding(tx: Tx, user: UserProfile, weddingId: string, kind: Document['kind']) {
   return ['PAYMENT_EVIDENCE', 'EXPENSE_EVIDENCE', 'VENDOR_BILL'].includes(kind) ? lockWedding(tx, user, weddingId) : mutableWedding(tx, user, weddingId);
 }
 
+/**
+ * Formats a document record for client and API consumers.
+ *
+ * @param row - Document database record
+ */
 export function presentDocument(row: Document) {
   return { id: row.id, weddingId: row.weddingId, kind: row.kind, status: row.status, fileName: row.fileName, contentType: row.contentType, size: row.size, sha256: row.sha256, verifiedAt: row.verifiedAt?.toISOString() ?? null, createdAt: row.createdAt.toISOString() };
 }
+/**
+ * Enforces authorization for document access and upload operations.
+ *
+ * @param tx - Prisma transaction
+ * @param user - Requesting user
+ * @param id - Document identifier
+ * @param upload - Whether user is uploading/updating file content
+ */
 export async function documentAccess(tx: Tx, user: UserProfile, id: string, upload = false) {
   const row = await tx.document.findUnique({ where: { id } });
   if (!row) throw missing();
@@ -38,6 +55,14 @@ export async function documentAccess(tx: Tx, user: UserProfile, id: string, uplo
   }
   return row;
 }
+/**
+ * Registers a new document metadata entry prior to binary payload upload.
+ *
+ * @param tx - Prisma transaction
+ * @param user - Uploading user
+ * @param weddingId - Associated wedding ID
+ * @param body - Document kind, filename, mime-type
+ */
 export async function createDocument(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof w.documentInput>) {
   await writableDocumentWedding(tx, user, weddingId, body.kind);
   if (user.role === 'CLIENT') {

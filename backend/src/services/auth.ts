@@ -4,6 +4,14 @@ import { ApiError } from '../errors.js';
 import { audit } from '../access.js';
 import { uuid, sessionDto } from '../contracts.js';
 
+/**
+ * Validates an identity session, checks account active status, logs audit event,
+ * and returns an authenticated user token payload.
+ *
+ * @param db - Prisma client instance
+ * @param identity - Identity provider
+ * @param session - Identity session candidate
+ */
 export async function authorizeSession(db: PrismaClient, identity: IdentityProvider, session: IdentitySession | null) {
   if (!session) throw new ApiError(401, 'INVALID_CREDENTIALS', 'Invalid credentials or session');
   try {

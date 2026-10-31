@@ -7,6 +7,11 @@ interface InvitationAcceptPageProps {
   onNavigateToLogin: () => void;
 }
 
+/**
+ * InvitationAcceptPage component
+ *
+ * Team member onboarding and invitation acceptance page.
+ */
 export const InvitationAcceptPage: React.FC<InvitationAcceptPageProps> = ({
   token = 'inv-demo-2026-partner',
   onNavigateToLogin

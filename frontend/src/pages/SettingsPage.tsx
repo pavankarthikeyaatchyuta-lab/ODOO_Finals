@@ -6,6 +6,11 @@ export interface SettingsPageProps {
   onNavigateToTab?: (tab: any) => void;
 }
 
+/**
+ * SettingsPage component
+ *
+ * Agency settings, operational defaults, and demo data reset.
+ */
 export const SettingsPage: React.FC<SettingsPageProps> = ({ onNavigateToTab }) => {
   const [backendStatus, setBackendStatus] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);

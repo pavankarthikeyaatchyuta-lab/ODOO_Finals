@@ -9,6 +9,11 @@ export interface MotionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
 }
 
+/**
+ * MotionCard component
+ *
+ * Framer-motion animated card supporting entrance and hover micro-interactions.
+ */
 export const MotionCard: React.FC<MotionCardProps> = ({
   children,
   className = '',

@@ -24,6 +24,11 @@ interface ChangeOrderManagerProps {
   onCreateOrder?: (orderData: Omit<ChangeOrder, 'id' | 'code' | 'createdAt' | 'status' | 'billingStatus' | 'clientApproved'>) => Promise<void> | void;
 }
 
+/**
+ * ChangeOrderManager component
+ *
+ * Captures, filters, and approves on-the-day change orders and extra plates.
+ */
 export const ChangeOrderManager: React.FC<ChangeOrderManagerProps> = ({
   weddingId,
   changeOrders,

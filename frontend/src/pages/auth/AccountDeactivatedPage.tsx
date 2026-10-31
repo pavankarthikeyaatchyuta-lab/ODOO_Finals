@@ -6,6 +6,11 @@ interface AccountDeactivatedPageProps {
   onReturnToLogin: () => void;
 }
 
+/**
+ * AccountDeactivatedPage component
+ *
+ * Suspended account notification screen.
+ */
 export const AccountDeactivatedPage: React.FC<AccountDeactivatedPageProps> = ({ onReturnToLogin }) => {
   const { logout } = useAuth();
 

@@ -6,6 +6,11 @@ export interface HeroScene3DProps {
   className?: string;
 }
 
+/**
+ * HeroScene3D component
+ *
+ * WebGL Three.js 3D luxury gold crest scene with cursor-tracking gyroscope and fallback detection.
+ */
 export const HeroScene3D: React.FC<HeroScene3DProps> = ({ className = '' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);

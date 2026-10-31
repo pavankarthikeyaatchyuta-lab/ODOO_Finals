@@ -46,6 +46,11 @@ interface ReportsPageProps {
 
 const PIE_COLORS = ['#C5A059', '#1B3B6F', '#0D1B2A', '#8E7341', '#4A6B94'];
 
+/**
+ * ReportsPage component
+ *
+ * Season analytics, profit variance reports, and historical wedding metrics.
+ */
 export const ReportsPage: React.FC<ReportsPageProps> = ({
   metrics,
   weddingsList = []

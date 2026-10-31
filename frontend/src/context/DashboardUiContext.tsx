@@ -25,6 +25,11 @@ interface DashboardUiContextValue {
 
 const DashboardUiContext = createContext<DashboardUiContextValue | null>(null);
 
+/**
+ * DashboardUiProvider component
+ *
+ * UI state context provider maintaining view filters, pagination, and search terms.
+ */
 export const DashboardUiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { activeWeddingId } = useWedding();

@@ -21,6 +21,11 @@ interface ReconciliationShieldProps {
   onDisbursePayment: (settlementId: string) => Promise<void> | void;
 }
 
+/**
+ * ReconciliationShield component
+ *
+ * Post-event 3-way matching settlement shield with anti-duplicate payout protection.
+ */
 export const ReconciliationShield: React.FC<ReconciliationShieldProps> = ({
   settlements,
   onDisbursePayment

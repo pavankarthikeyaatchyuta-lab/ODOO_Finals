@@ -19,6 +19,11 @@ interface ClientOverviewPageProps {
   onNavigateTab: (tab: ClientTabKey) => void;
 }
 
+/**
+ * ClientOverviewPage component
+ *
+ * Bridal couple dashboard overview of upcoming milestones and venue dates.
+ */
 export const ClientOverviewPage: React.FC<ClientOverviewPageProps> = ({ onNavigateTab }) => {
   const { user } = useAuth();
   const isFamily = user?.role === 'FAMILY' || user?.isFamilyMember;

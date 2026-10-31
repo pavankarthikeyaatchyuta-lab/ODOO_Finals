@@ -31,6 +31,11 @@ export interface TopHeaderProps {
   isBackendConnected?: boolean;
 }
 
+/**
+ * TopHeader component
+ *
+ * Top navigation header displaying active wedding selector, user badge, and portal switchers.
+ */
 export const TopHeader: React.FC<TopHeaderProps> = ({
   currentWedding,
   weddingsList,

@@ -8,6 +8,11 @@ interface DelayAckBoardProps {
   onAcknowledgeInstruction: (delayId: string, vendorId: string) => void;
 }
 
+/**
+ * DelayAckBoard component
+ *
+ * Closed-loop schedule change acknowledgement board tracking real-time vendor receipt.
+ */
 export const DelayAckBoard: React.FC<DelayAckBoardProps> = ({
   delays,
   onAcknowledgeInstruction

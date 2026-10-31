@@ -107,6 +107,11 @@ export const DEMO_PROFILES: Record<AppRole, AuthUser> = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * AuthProvider component
+ *
+ * Authentication context provider managing user sessions, JWT tokens, and portal roles.
+ */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
@@ -364,6 +369,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+/** Hook to access current authentication state, user profile, and session methods. */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

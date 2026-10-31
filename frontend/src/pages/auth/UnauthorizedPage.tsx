@@ -6,6 +6,11 @@ interface UnauthorizedPageProps {
   onReturnToDashboard: () => void;
 }
 
+/**
+ * UnauthorizedPage component
+ *
+ * Role access denied fallback screen.
+ */
 export const UnauthorizedPage: React.FC<UnauthorizedPageProps> = ({ onReturnToDashboard }) => {
   const { user, logout } = useAuth();
 

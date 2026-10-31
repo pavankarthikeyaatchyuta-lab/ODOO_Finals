@@ -32,6 +32,11 @@ export interface TeamAccountsPageProps {
   onNavigateToTab?: (tab: any) => void;
 }
 
+/**
+ * TeamAccountsPage component
+ *
+ * Founder governance console for creating, inviting, and managing team accounts.
+ */
 export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
   weddings = []
 }) => {

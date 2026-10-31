@@ -6,6 +6,11 @@ interface ForgotPasswordPageProps {
   onNavigateToReset?: (token: string) => void;
 }
 
+/**
+ * ForgotPasswordPage component
+ *
+ * Password recovery request screen.
+ */
 export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
   onNavigateToLogin,
   onNavigateToReset

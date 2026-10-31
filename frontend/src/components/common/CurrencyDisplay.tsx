@@ -7,6 +7,11 @@ interface CurrencyDisplayProps {
   showDecimals?: boolean;
 }
 
+/**
+ * CurrencyDisplay component
+ *
+ * Formats monetary values in INR Lakhs, Crores, or standard currency.
+ */
 export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   amount,
   format = 'standard',

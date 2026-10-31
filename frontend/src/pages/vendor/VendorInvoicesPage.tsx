@@ -28,6 +28,11 @@ interface InvoiceRecord {
   referenceId: string;
 }
 
+/**
+ * VendorInvoicesPage component
+ *
+ * Vendor final invoice submission and settlement status tracker.
+ */
 export const VendorInvoicesPage: React.FC = () => {
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([
     {

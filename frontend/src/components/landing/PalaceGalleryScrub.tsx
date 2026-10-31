@@ -53,6 +53,11 @@ const PALACE_ESTATES: PalaceEstate[] = [
   }
 ];
 
+/**
+ * PalaceGalleryScrub component
+ *
+ * Interactive palace showcase gallery with scroll-scrubbing image preview.
+ */
 export const PalaceGalleryScrub: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>('taj-lake-palace');
 

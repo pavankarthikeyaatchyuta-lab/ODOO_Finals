@@ -2,6 +2,14 @@ import { createHash } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import { ApiError } from '../errors.js';
 
+/**
+ * Rate-limits authentication attempts using an atomic sliding-window database counter.
+ *
+ * @param db - Prisma client instance
+ * @param scope - Rate limit category scope (e.g. 'login', 'reset')
+ * @param identity - Client IP or email address
+ * @param maximum - Maximum allowed attempts per 60-second window
+ */
 export async function consumeAuthLimit(db: PrismaClient, scope: string, identity: string, maximum: number) {
   const key = createHash('sha256').update(`${scope}:${identity}`).digest('hex');
   const [row] = await db.$queryRaw<{ count: number }[]>`
