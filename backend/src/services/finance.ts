@@ -10,6 +10,10 @@ import { generateTasks } from './planning.js';
 const D = Prisma.Decimal;
 export const sum = (values: Prisma.Decimal.Value[]) => values.reduce<Prisma.Decimal>((total, value) => total.plus(value), new D(0));
 const rounded = (value: Prisma.Decimal) => value.toDecimalPlaces(2, D.ROUND_HALF_UP);
+function storedAmount(value: Prisma.Decimal) {
+  if (!value.isFinite() || value.lt(0) || value.gte('100000000000000')) throw new ApiError(400, 'INVALID_FINANCIAL_AMOUNT', 'Calculated amount exceeds the supported monetary range');
+  return value;
+}
 const money = (value: Prisma.Decimal | null) => value?.toFixed(2) ?? null;
 const positive = (value: Prisma.Decimal) => D.max(value, 0);
 function conflict(code: string, message: string): never { throw new ApiError(409, code, message); }
@@ -82,7 +86,8 @@ export async function verifyPayment(tx: Tx, user: UserProfile, id: string, note:
   }
   const row = await tx.bookingPayment.update({ where: { id }, data: { status: 'VERIFIED', reviewedBy: user.id, reviewedAt: new Date(), reviewNote: note, verificationMethod: 'MANUAL_BANK_REVIEW' } });
   await audit(tx, user.id, 'PAYMENT_VERIFIED', id, row.weddingId, { method: row.verificationMethod!, note, isDemo: row.isDemo, direction: row.direction });
-  if (row.direction === 'CLIENT_RECEIPT' && row.milestone === 'BOOKING') await generateTasks(tx, user, row.weddingId, true);
+  const wedding = await tx.wedding.findUniqueOrThrow({ where: { id: row.weddingId } });
+  if (row.direction === 'CLIENT_RECEIPT' && row.milestone === 'BOOKING' && !['COMPLETED', 'CANCELLED'].includes(wedding.state)) await generateTasks(tx, user, row.weddingId, true);
   return presentPayment(row);
 }
 export async function failPayment(tx: Tx, user: UserProfile, id: string, note: string, reverse: boolean) {
@@ -98,9 +103,9 @@ export async function createExpense(tx: Tx, user: UserProfile, weddingId: string
   const wedding = await lockWedding(tx, user, weddingId);
   if (body.weddingVendorId) { await vendorAssociation(tx, weddingId, body.weddingVendorId); if ((await tx.vendorBill.findUnique({ where: { weddingVendorId: body.weddingVendorId } }))?.verifiedAt) conflict('BILL_FINALIZED', 'A verified final vendor bill cannot receive new extra costs'); }
   if (body.supportingDocumentId) await requireDocument(tx, weddingId, body.supportingDocumentId, 'EXPENSE_EVIDENCE');
-  const netAmount = rounded(new D(body.quantity).mul(body.unitRate));
+  const netAmount = storedAmount(rounded(new D(body.quantity).mul(body.unitRate)));
   const taxAmount = rounded(netAmount.mul(body.taxRate).div(100));
-  const row = await tx.additionalExpense.create({ data: { ...body, weddingId, currency: wedding.currency, netAmount, taxAmount, total: netAmount.plus(taxAmount), requestedBy: user.id } });
+  const row = await tx.additionalExpense.create({ data: { ...body, weddingId, currency: wedding.currency, netAmount, taxAmount, total: storedAmount(netAmount.plus(taxAmount)), requestedBy: user.id } });
   await audit(tx, user.id, 'EXPENSE_REQUESTED', row.id, weddingId);
   return presentExpense(row, user);
 }
@@ -193,7 +198,7 @@ export async function createLabour(tx: Tx, user: UserProfile, weddingId: string,
   const rate = await tx.labourRate.findUnique({ where: { id: body.rateId } });
   if (!member?.user.active || member.user.role === 'CLIENT' || !rate || rate.userId !== body.userId || rate.currency !== wedding.currency || rate.effectiveFrom > new Date(body.workedAt)) throw new ApiError(400, 'INVALID_LABOUR_RATE', 'An active assigned team member and applicable founder-approved rate are required');
   if (Date.parse(body.workedAt) > Date.now()) throw new ApiError(400, 'FUTURE_LABOUR', 'Worked time cannot be in the future');
-  const cost = rounded(rate.hourlyRate.mul(body.hours));
+  const cost = storedAmount(rounded(rate.hourlyRate.mul(body.hours)));
   const row = await tx.labourEntry.create({ data: { ...body, workedAt: new Date(body.workedAt), weddingId, currency: wedding.currency, hourlyRate: rate.hourlyRate, cost, submittedBy: user.id } });
   await audit(tx, user.id, 'LABOUR_SUBMITTED', row.id, weddingId);
   return presentLabour(row);

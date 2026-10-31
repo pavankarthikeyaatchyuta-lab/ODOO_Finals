@@ -5732,7 +5732,7 @@
         }
       },
       "patch": {
-        "summary": "Update wedding details or Phase 1 lifecycle state",
+        "summary": "Update wedding details or permitted lifecycle state; booking qualification uses dedicated workflows",
         "security": [
           {
             "bearerAuth": []
@@ -5889,6 +5889,8 @@
                     "enum": [
                       "ENQUIRY",
                       "PROPOSAL",
+                      "EXECUTION",
+                      "COMPLETED",
                       "CANCELLED"
                     ]
                   }
@@ -14115,6 +14117,10 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "isDemo": {
+                    "default": false,
+                    "type": "boolean"
                   }
                 },
                 "required": [

@@ -46,6 +46,7 @@ export function createApp(db: PrismaClient, identity: IdentityProvider, config: 
 
   registerAuthRoutes(app, db, identity);
   registerVendorInbox(app, db);
+  app.use(base, (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   app.use(base, authenticate(db, identity));
   registerUsersRoutes(route, identity);
   registerClientsRoutes(route);

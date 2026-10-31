@@ -42,7 +42,7 @@ export const functionDto = z.object({ id: uuid, weddingId: uuid, type: functionT
 export const proposalInput = z.object({ bookingDepositRequired: positiveMoney }).strict();
 export const generationDto = z.object({ id: uuid, weddingId: uuid, templateVersion: z.string(), packageType: z.enum(['FULL_SERVICE', 'PARTIAL_DAY_OF']), dateBasis: z.iso.date(), taskCount: z.number().int(), createdAt: timestamp }).strict();
 export const proposalDto = z.object({ weddingId: uuid, status: z.literal('CONFIRMED'), currency, bookingDepositRequired: z.string(), confirmedAt: timestamp, taskGeneration: generationDto.nullable() }).strict();
-export const paymentInput = z.object({ amount: positiveMoney, reference: z.string().trim().min(3).max(150).transform(v => v.toUpperCase()), evidenceDocumentId: uuid.optional() }).strict();
+export const paymentInput = z.object({ amount: positiveMoney, reference: z.string().trim().min(3).max(150).transform(v => v.toUpperCase()), evidenceDocumentId: uuid.optional(), isDemo: z.boolean().default(false) }).strict();
 export const paymentReviewInput = z.object({ verifiedEvidence: z.literal(true), note: z.string().trim().min(10).max(2000) }).strict();
 export const paymentDto = z.object({ id: uuid, weddingId: uuid, amount: z.string(), currency, reference: z.string(), status: z.enum(['INITIATED', 'CLAIMED', 'VERIFIED', 'REJECTED', 'FAILED', 'REVERSED']), evidenceDocumentId: uuid.nullable(), createdAt: timestamp, reviewedAt: timestamp.nullable() }).strict();
 export const paymentDecisionDto = z.object({ payment: paymentDto, taskGeneration: generationDto.nullable() }).strict();

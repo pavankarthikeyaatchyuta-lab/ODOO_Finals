@@ -1,9 +1,9 @@
 import EmbeddedPostgres from 'embedded-postgres';
 import { Client } from 'pg';
 import { randomUUID } from 'node:crypto';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, dirname, delimiter } from 'node:path';
+import { join, dirname, basename, resolve, delimiter } from 'node:path';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
 
@@ -16,8 +16,10 @@ if (!address || typeof address === 'string') throw new Error('Unable to allocate
 const port = address.port;
 await new Promise<void>((resolve, reject) => socket.close(error => error ? reject(error) : resolve()));
 const password = randomUUID();
-const directory = await mkdtemp(join(tmpdir(), 'royal-knot-pg-'));
-const pg = new EmbeddedPostgres({ databaseDir: directory, user: 'postgres', password, port, persistent: false, postgresFlags: ['-h', '127.0.0.1'], onLog: () => {}, onError: () => {} });
+const testRoot = resolve(tmpdir());
+const directory = await mkdtemp(join(testRoot, 'royal-knot-pg-'));
+// Own cleanup so Windows file-handle release can be retried after PostgreSQL stops.
+const pg = new EmbeddedPostgres({ databaseDir: directory, user: 'postgres', password, port, persistent: true, postgresFlags: ['-h', '127.0.0.1'], onLog: () => {}, onError: () => {} });
 const ownerUrl = `postgresql://postgres:${password}@127.0.0.1:${port}/royal_knot_test?schema=app`;
 const runtimeUrl = `postgresql://rk_backend:${password}@127.0.0.1:${port}/royal_knot_test?schema=app&connection_limit=10`;
 const env = { ...process.env, PATH: dirname(process.execPath) + delimiter + process.env.PATH, DATABASE_URL: runtimeUrl, DIRECT_URL: ownerUrl, TEST_ADMIN_URL: ownerUrl, ROYAL_KNOT_ISOLATED_TEST: 'true' };
@@ -38,6 +40,8 @@ try {
   await run(['node_modules/prisma/build/index.js', 'migrate', 'deploy'], { DATABASE_URL: ownerUrl });
   // A second deploy must be safe and leave all custom constraints intact.
   await run(['node_modules/prisma/build/index.js', 'migrate', 'deploy'], { DATABASE_URL: ownerUrl });
+  // Fails if the migrated database and schema.prisma disagree on tables, columns, keys or indexes.
+  await run(['node_modules/prisma/build/index.js', 'migrate', 'diff', '--from-url', ownerUrl, '--to-schema-datamodel', 'prisma/schema.prisma', '--exit-code'], { DATABASE_URL: ownerUrl });
   const setup = new Client({ connectionString: ownerUrl });
   await setup.connect();
   try {
@@ -45,5 +49,10 @@ try {
     await setup.query(statement.rows[0]!.sql);
   } finally { await setup.end(); }
   await run(['--import', 'tsx', 'scripts/openapi.ts', '--check']);
-  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts', 'tests/finance.test.ts']);
-} finally { await pg.stop(); }
+  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts', 'tests/finance.test.ts', 'tests/e2e.test.ts', 'tests/qa.test.ts']);
+} finally {
+  await pg.stop();
+  const target = resolve(directory);
+  if (dirname(target) !== testRoot || !basename(target).startsWith('royal-knot-pg-')) throw new Error('Refusing cleanup outside the generated test directory');
+  await rm(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+}

@@ -31,7 +31,7 @@ export const enquiryInput = z.object({
 export const createWeddingInput = z.object({ clientIds: enquiryInput.shape.clientIds, wedding: weddingInput }).strict();
 export const followUpStatus = z.enum(['PENDING', 'CONTACTED', 'FOLLOW_UP_DUE', 'CLOSED']);
 export const enquiryPatch = z.object({ stage: enquiryStage.optional(), source: z.string().trim().max(100).nullable().optional(), internalNotes: notes.optional(), followUpStatus: followUpStatus.optional(), followUpAt: timestamp.nullable().optional() }).strict().refine(v => Object.keys(v).length > 0);
-export const weddingPatch = weddingInput.partial().extend({ state: z.enum(['ENQUIRY', 'PROPOSAL', 'CANCELLED']).optional() }).strict().refine(v => Object.keys(v).length > 0);
+export const weddingPatch = weddingInput.partial().extend({ state: z.enum(['ENQUIRY', 'PROPOSAL', 'EXECUTION', 'COMPLETED', 'CANCELLED']).optional() }).strict().refine(v => Object.keys(v).length > 0);
 export const requestConsultation = z.object({ weddingId: uuid, preferredAt: timestamp, message: z.string().trim().max(2000).nullable().optional() }).strict();
 export const consultationDecision = z.discriminatedUnion('state', [
   z.object({ state: z.literal('CONFIRMED'), startAt: timestamp, endAt: timestamp, plannerId: uuid, internalNotes: notes.optional() }).strict().refine(v => Date.parse(v.endAt) > Date.parse(v.startAt), 'endAt must be after startAt'),

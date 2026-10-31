@@ -3,7 +3,7 @@ import type { z } from 'zod';
 import * as w from '../workflow-contracts.js';
 import { audit, weddingAccess, type Tx } from '../access.js';
 import { ApiError, forbidden, missing } from '../errors.js';
-import { assertOwner, mutableWedding } from './workflow-access.js';
+import { assertOwner, lockWedding, mutableWedding } from './workflow-access.js';
 import { requireDocument } from './documents.js';
 import { templatesFor } from '../task-templates.js';
 
@@ -46,6 +46,8 @@ export async function generateTasks(tx: Tx, user: UserProfile, weddingId: string
 export async function confirmProposal(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof w.proposalInput>) {
   const wedding = await mutableWedding(tx, user, weddingId);
   if (wedding.proposalStatus === 'CONFIRMED') throw new ApiError(409, 'PROPOSAL_ALREADY_CONFIRMED', 'The proposal is already confirmed');
+  const finance = await tx.financeSettings.findUnique({ where: { weddingId } });
+  if (finance && finance.contractedRevenue.lt(body.bookingDepositRequired)) throw new ApiError(409, 'DEPOSIT_EXCEEDS_CONTRACT', 'Booking deposit cannot exceed the approved client contract');
   const row = await tx.wedding.update({ where: { id: weddingId }, data: { proposalStatus: 'CONFIRMED', proposalConfirmedAt: new Date(), proposalConfirmedBy: user.id, bookingDepositRequired: body.bookingDepositRequired, ...(wedding.state === 'ENQUIRY' ? { state: 'PROPOSAL' as const } : {}) } });
   await audit(tx, user.id, 'PROPOSAL_CONFIRMED', weddingId, weddingId, { bookingDepositRequired: row.bookingDepositRequired!.toFixed(2), currency: row.currency });
   return { weddingId, status: 'CONFIRMED', currency: row.currency, bookingDepositRequired: row.bookingDepositRequired!.toFixed(2), confirmedAt: row.proposalConfirmedAt!.toISOString(), taskGeneration: await generateTasks(tx, user, weddingId, true) };
@@ -63,7 +65,7 @@ export async function claimPayment(tx: Tx, user: UserProfile, weddingId: string,
 export async function paymentAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.bookingPayment.findUnique({ where: { id } });
   if (!row || row.direction !== 'CLIENT_RECEIPT' || row.milestone !== 'BOOKING') throw missing();
-  if (write) await mutableWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
+  if (write) await lockWedding(tx, user, row.weddingId); else await weddingAccess(tx, user, row.weddingId);
   return tx.bookingPayment.findUniqueOrThrow({ where: { id } });
 }
 export async function decidePayment(tx: Tx, user: UserProfile, id: string, note: string, verified: boolean) {
@@ -71,7 +73,8 @@ export async function decidePayment(tx: Tx, user: UserProfile, id: string, note:
   if (before.status !== 'CLAIMED') throw new ApiError(409, 'PAYMENT_ALREADY_REVIEWED', 'Only unreviewed claims may be verified or rejected');
   const row = await tx.bookingPayment.update({ where: { id }, data: { status: verified ? 'VERIFIED' : 'REJECTED', reviewedBy: user.id, reviewedAt: new Date(), reviewNote: note, verificationMethod: verified ? 'MANUAL_BANK_REVIEW' : null } });
   await audit(tx, user.id, verified ? 'BOOKING_PAYMENT_VERIFIED' : 'BOOKING_PAYMENT_REJECTED', id, row.weddingId, { method: 'MANUAL_BANK_REVIEW', reference: row.reference, note });
-  return { payment: presentPayment(row), taskGeneration: verified ? await generateTasks(tx, user, row.weddingId, true) : null };
+  const wedding = await tx.wedding.findUniqueOrThrow({ where: { id: row.weddingId } });
+  return { payment: presentPayment(row), taskGeneration: verified && !['COMPLETED', 'CANCELLED'].includes(wedding.state) ? await generateTasks(tx, user, row.weddingId, true) : null };
 }
 export async function taskAccess(tx: Tx, user: UserProfile, id: string, write = false) {
   const row = await tx.weddingTask.findUnique({ where: { id } });

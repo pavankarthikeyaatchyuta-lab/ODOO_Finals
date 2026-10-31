@@ -4,8 +4,12 @@ import type { z } from 'zod';
 import * as w from '../workflow-contracts.js';
 import { audit, weddingAccess, type Tx } from '../access.js';
 import { ApiError, forbidden, missing } from '../errors.js';
-import { agreementGate, mutableWedding } from './workflow-access.js';
+import { agreementGate, lockWedding, mutableWedding } from './workflow-access.js';
 import type { DocumentStore } from '../storage.js';
+
+function writableDocumentWedding(tx: Tx, user: UserProfile, weddingId: string, kind: Document['kind']) {
+  return ['PAYMENT_EVIDENCE', 'EXPENSE_EVIDENCE', 'VENDOR_BILL'].includes(kind) ? lockWedding(tx, user, weddingId) : mutableWedding(tx, user, weddingId);
+}
 
 export function presentDocument(row: Document) {
   return { id: row.id, weddingId: row.weddingId, kind: row.kind, status: row.status, fileName: row.fileName, contentType: row.contentType, size: row.size, sha256: row.sha256, verifiedAt: row.verifiedAt?.toISOString() ?? null, createdAt: row.createdAt.toISOString() };
@@ -17,7 +21,7 @@ export async function documentAccess(tx: Tx, user: UserProfile, id: string, uplo
   if (['EXPENSE_EVIDENCE', 'VENDOR_BILL'].includes(row.kind) && !['FOUNDER', 'FINANCE'].includes(user.role) && (user.role === 'CLIENT' || row.uploadedBy !== user.id)) throw forbidden();
   if (row.kind === 'PAYMENT_EVIDENCE' && !['FOUNDER', 'FINANCE'].includes(user.role) && row.uploadedBy !== user.id) throw forbidden();
   if (upload) {
-    await mutableWedding(tx, user, row.weddingId);
+    await writableDocumentWedding(tx, user, row.weddingId, row.kind);
     if (row.uploadedBy !== user.id) throw forbidden();
     if (row.status !== 'PENDING') throw new ApiError(409, 'DOCUMENT_IMMUTABLE', 'Verified documents cannot be overwritten');
   }
@@ -35,7 +39,7 @@ export async function documentAccess(tx: Tx, user: UserProfile, id: string, uplo
   return row;
 }
 export async function createDocument(tx: Tx, user: UserProfile, weddingId: string, body: z.infer<typeof w.documentInput>) {
-  await mutableWedding(tx, user, weddingId);
+  await writableDocumentWedding(tx, user, weddingId, body.kind);
   if (user.role === 'CLIENT') {
     if (!['SIGNED_AGREEMENT', 'PAYMENT_EVIDENCE'].includes(body.kind)) throw forbidden();
     if (body.kind === 'SIGNED_AGREEMENT' && (await tx.agreement.findUnique({ where: { weddingId } }))?.status !== 'SENT') throw new ApiError(409, 'AGREEMENT_NOT_SENT', 'A sent agreement is required before uploading a signature document');
@@ -48,7 +52,7 @@ export async function createDocument(tx: Tx, user: UserProfile, weddingId: strin
 }
 export async function completeDocument(tx: Tx, user: UserProfile, id: string, store: DocumentStore) {
   const row = await documentAccess(tx, user, id);
-  await mutableWedding(tx, user, row.weddingId);
+  await writableDocumentWedding(tx, user, row.weddingId, row.kind);
   if (row.uploadedBy !== user.id) throw forbidden();
   if (row.status === 'VERIFIED') return presentDocument(row);
   const { bytes, contentType } = await store.read(row.storagePath);

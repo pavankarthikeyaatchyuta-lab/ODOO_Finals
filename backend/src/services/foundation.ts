@@ -28,6 +28,7 @@ export async function createWedding(tx: Tx, user: UserProfile, body: z.infer<typ
 export async function archiveWedding(tx: Tx, user: UserProfile, id: string) {
   const wedding = await weddingAccess(tx, user, id, true);
   if (!['ENQUIRY', 'PROPOSAL', 'CANCELLED'].includes(wedding.state)) throw new ApiError(409, 'WEDDING_IN_USE', 'Only provisional or cancelled weddings can be archived');
+  if (await tx.financeSettings.count({ where: { weddingId: id } }) || await tx.bookingPayment.count({ where: { weddingId: id } }) || await tx.additionalExpense.count({ where: { weddingId: id } }) || await tx.vendorBill.count({ where: { weddingId: id } }) || await tx.labourEntry.count({ where: { weddingId: id } })) throw new ApiError(409, 'FINANCIAL_HISTORY_EXISTS', 'Weddings with financial history must remain visible for reconciliation and reporting');
   const active = await tx.consultation.count({ where: { weddingId: id, state: { in: ['REQUESTED', 'CONFIRMED'] } } });
   if (active) throw new ApiError(409, 'ACTIVE_CONSULTATIONS', 'Cancel or complete outstanding consultations before archiving');
   const row = await tx.wedding.update({ where: { id }, data: { archivedAt: new Date() } });

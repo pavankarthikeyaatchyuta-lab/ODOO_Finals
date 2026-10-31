@@ -12,7 +12,7 @@ export function registerWeddingsRoutes(route: RouteRegistrar) {
   });
   route('get', '/weddings', { summary: 'List accessible weddings', query: c.pageQuery.extend({ state: c.weddingState.optional() }), response: c.listOf(c.weddingDto), handler: weddings.list });
   route('get', '/weddings/:id', { summary: 'Read accessible wedding with explicit client-safe projection', response: c.weddingDto, handler: weddings.read });
-  route('patch', '/weddings/:id', { summary: 'Update wedding details or Phase 1 lifecycle state', roles: staffWrite, body: c.weddingPatch, response: c.weddingDto,
+  route('patch', '/weddings/:id', { summary: 'Update wedding details or permitted lifecycle state; booking qualification uses dedicated workflows', roles: staffWrite, body: c.weddingPatch, response: c.weddingDto,
     async guard({ tx, user, params, body }) {
       await weddingAccess(tx, user, params.id!, true);
       if (body.budgetMax !== undefined && user.role !== 'FOUNDER') throw forbidden();

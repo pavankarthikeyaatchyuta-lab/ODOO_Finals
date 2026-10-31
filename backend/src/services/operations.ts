@@ -79,6 +79,7 @@ export async function proposeChange(tx: Tx, user: UserProfile, eventId: string, 
   const events = await tx.timelineEvent.findMany({ where: { weddingId: source.weddingId }, include: eventInclude });
   const affected = new Set([eventId]);
   for (let changed = true; changed;) { changed = false; for (const event of events) if (!affected.has(event.id) && event.dependencies.some(dep => affected.has(dep.dependsOnId))) { affected.add(event.id); changed = true; } }
+  if (events.some(event => affected.has(event.id) && ['DONE', 'CANCELLED'].includes(event.status))) throw new ApiError(409, 'EVENT_EXECUTION_CLOSED', 'A schedule change cannot rewrite completed or cancelled affected events');
   const delta = Date.parse(body.proposedEnd) - source.plannedEnd.getTime();
   const impacts: Impact[] = events.filter(event => affected.has(event.id)).map(event => ({ eventId: event.id, title: event.title, previousStart: event.plannedStart.toISOString(), previousEnd: event.plannedEnd.toISOString(), proposedStart: event.id === eventId ? new Date(body.proposedStart).toISOString() : new Date(event.plannedStart.getTime() + (body.shiftDependents ? delta : 0)).toISOString(), proposedEnd: event.id === eventId ? new Date(body.proposedEnd).toISOString() : new Date(event.plannedEnd.getTime() + (body.shiftDependents ? delta : 0)).toISOString(), expectedVersion: event.version, vendorIds: event.vendors.map(v => v.vendorId), ownerId: event.ownerId }));
   const proposed = new Map(impacts.map(impact => [impact.eventId, impact]));

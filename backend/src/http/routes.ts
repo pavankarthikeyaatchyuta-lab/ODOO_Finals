@@ -69,7 +69,7 @@ export function createRouteRegistrar(app: Express, db: PrismaClient) {
           if (!checked.success) throw new Error('Response contract violation');
           if (key) await tx.idempotencyRecord.create({ data: { actorId: user.id, key, fingerprint, response: result } });
           return result;
-        }, { maxWait: 10000, timeout: 30000 });
+        }, { maxWait: 10000, timeout: 30000, isolationLevel: method === 'get' ? Prisma.TransactionIsolationLevel.RepeatableRead : Prisma.TransactionIsolationLevel.ReadCommitted });
         res.status(method === 'post' ? 201 : 200).json(response);
       } catch (error) { next(error); }
     });

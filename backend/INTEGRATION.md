@@ -69,11 +69,11 @@ See [PHASE_1B_API.md](PHASE_1B_API.md) for request/response examples, validation
 
 Direct wedding creation uses `{ clientIds, wedding }`, the same structure as enquiry creation without enquiry metadata. Use either direct wedding intake or the enquiry creation flow for an intended wedding; do not POST a second wedding after receiving one from enquiry creation. DELETE archives rather than physically deleting records. Archived weddings and their enquiries/consultations are excluded from normal APIs, including client access. Their UUIDs, links and audit history remain stored. Client responses for staff include nullable `archivedAt`.
 
-Reuse `UserProfile` for application users, `Role` for fixed roles and `PackageType` for the two supported packages. There is no duplicate User/Role/WeddingPackage table. `WeddingFunction` now provides a schema-only child relation (`id`, `weddingId`, `type`, `name`, optional paired `startAt`/`endAt`, optional `venue`, timestamps) for Mehendi/Sangeet/Reception. Function planning APIs and automation remain later-phase work.
+Reuse `UserProfile` for application users, `Role` for fixed roles and `PackageType` for the two supported packages. There is no duplicate User/Role/WeddingPackage table. `WeddingFunction` provides a child relation (`id`, `weddingId`, `type`, `name`, optional paired `startAt`/`endAt`, optional `venue`, timestamps) for Mehendi/Sangeet/Reception. Its implemented planning/task APIs are documented in `PHASE_3_API.md` and timeline integration in `PHASE_4_API.md`.
 
 Enquiry stages: `NEW`, `CONTACTED`, `CONSULTATION_SCHEDULED`, `PROPOSAL_SENT`, `LOST`. Stage changes do not confirm a booking or automatically change wedding lifecycle.
 
-Wedding states: `ENQUIRY`, `PROPOSAL`, `AGREEMENT`, `BOOKING_CONFIRMED`, `PLANNING`, `EXECUTION`, `COMPLETED`, `CANCELLED`. Phase 1 exposes only `ENQUIRY → PROPOSAL`, `PROPOSAL → ENQUIRY`, and cancellation from either. Agreement and booking confirmation require future workflows and cannot be set through this API. Later modules extend transitions around this stable record.
+Wedding states: `ENQUIRY`, `PROPOSAL`, `AGREEMENT`, `BOOKING_CONFIRMED`, `PLANNING`, `EXECUTION`, `COMPLETED`, `CANCELLED`. Ordinary patches allow enquiry/proposal transitions, planning → execution → completion and permitted cancellation. Agreement status and proposal/deposit qualification use the dedicated Phase 2/3 workflows; they cannot be forced through a state patch. Automatic task generation records booking confirmation and enters PLANNING without replacing the wedding UUID.
 
 Packages: `FULL_SERVICE`, `PARTIAL_DAY_OF`. Unknown wedding dates are null. Enquiry creation body:
 
@@ -91,9 +91,9 @@ A planner can attach unused contacts or contacts already accessible through thei
 
 Founder sees all weddings. Planners can manage assigned weddings. Coordinators and finance have read-only Phase 1 operational access to assigned weddings. Finance and founder can read budget; planners may capture an initial enquiry budget but do not receive it back. Clients can read linked weddings/enquiries/consultations and request consultations. No client directory or staff directory is exposed to clients.
 
-Client wedding fields are exactly `id`, `title`, `weddingDate`, `packageType`, `state`, `guestCount`, `preferredTheme`, `createdAt`, `updatedAt`. Client enquiry fields are exactly `id`, `weddingId`, `stage`, `createdAt`, `updatedAt`. Client consultation fields are exactly `id`, `weddingId`, `state`, `preferredAt`, `message`, `startAt`, `endAt`, `createdAt`, `updatedAt`.
+Client wedding fields are exactly `id`, `title`, `weddingDate`, `packageType`, `state`, `guestCount`, `preferredTheme`, `coupleDetails`, `location`, `requirements`, `currency`, `proposalStatus`, `timezone`, `createdAt`, `updatedAt`. Client enquiry fields are exactly `id`, `weddingId`, `stage`, `createdAt`, `updatedAt`. Client consultation fields are exactly `id`, `weddingId`, `state`, `preferredAt`, `message`, `startAt`, `endAt`, `createdAt`, `updatedAt`.
 
-Client APIs must not return internal notes, assignment IDs, planner IDs, financial information, vendor negotiations or private incident information. Future modules must add an explicit client projection and privacy tests before exposure. Do not spread database records into client responses.
+Client APIs must not return internal notes, assignment IDs, planner IDs, internal financial information, vendor negotiations or private incident information. Phase 5 provides explicit client-safe contract, approved charge, receipt and balance responses. Use those projections and privacy tests before exposure. Do not spread database records into client responses.
 
 ## Consultations
 
