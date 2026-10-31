@@ -13,7 +13,8 @@ import {
   Incident,
   ChangeOrder,
   VendorSettlement,
-  SeasonMetrics
+  SeasonMetrics,
+  ClientPaymentSummary
 } from '../types';
 
 export const INITIAL_WEDDINGS: Wedding[] = [
@@ -578,9 +579,10 @@ export const INITIAL_CHANGE_ORDERS: ChangeOrder[] = [
     weddingId: 'wed-001',
     code: 'CO-2026-001',
     description: '60 Unexpected VIP Banquet Guests (+60 Royal Dinner Plates)',
+    expenseType: 'EXTRA_PLATES',
     vendorId: 'vendor-c1',
     vendorName: 'SpiceHeaven Royal Caterers',
-    category: 'Catering',
+    category: 'Catering & Banquets',
     quantity: 60,
     unitPrice: 2500, // ₹2,500 per additional plate
     totalAmount: 150000, // ₹1,50,000
@@ -595,6 +597,7 @@ export const INITIAL_CHANGE_ORDERS: ChangeOrder[] = [
     weddingId: 'wed-001',
     code: 'CO-2026-002',
     description: 'Extended DJ Performance (+1 Hour past midnight curfew license)',
+    expenseType: 'EXTRA_DJ_HOURS',
     vendorId: 'vendor-dj',
     vendorName: 'DJ Shadow & Sound Rig',
     category: 'Music & Sound',
@@ -606,6 +609,42 @@ export const INITIAL_CHANGE_ORDERS: ChangeOrder[] = [
     status: 'APPROVED',
     billingStatus: 'BILLED_TO_CLIENT',
     createdAt: '2026-12-23 23:45'
+  },
+  {
+    id: 'co-003',
+    weddingId: 'wed-001',
+    code: 'CO-2026-003',
+    description: 'Emergency 65kVA Silent Generator Rental (Mandap Chandelier Peak Load)',
+    expenseType: 'GENERATOR',
+    vendorId: 'vendor-sound',
+    vendorName: 'Royal Sound & Light Systems',
+    category: 'Technical & Power',
+    quantity: 1,
+    unitPrice: 25000,
+    totalAmount: 25000, // ₹25,000
+    clientApproved: true,
+    authorizedBy: 'Amit Sharma (Lead Operations Director)',
+    status: 'APPROVED',
+    billingStatus: 'BILLED_TO_CLIENT',
+    createdAt: '2026-12-23 15:30'
+  },
+  {
+    id: 'co-004',
+    weddingId: 'wed-001',
+    code: 'CO-2026-004',
+    description: '25 Additional Breakfast Covers for Morning After-Party',
+    expenseType: 'EXTRA_GUESTS',
+    vendorId: 'vendor-c1',
+    vendorName: 'SpiceHeaven Royal Caterers',
+    category: 'Catering & Banquets',
+    quantity: 25,
+    unitPrice: 1200,
+    totalAmount: 30000,
+    clientApproved: false,
+    authorizedBy: 'Pending Client Approval',
+    status: 'PENDING',
+    billingStatus: 'PENDING_INVOICE',
+    createdAt: '2026-12-24 02:00'
   }
 ];
 
@@ -617,11 +656,11 @@ export const INITIAL_SETTLEMENTS: VendorSettlement[] = [
     vendorName: 'SpiceHeaven Royal Caterers',
     category: 'Catering & Dining',
     agreedContractAmount: 720000, // Agreed 400 plates @ ₹1,800
-    approvedExtras: 90000, // Additional approved catering changes
-    totalPayableAmount: 810000, // Matches Scenario 5: ₹8,10,000
-    advancesPaid: 300000, // Advance already disbursed: ₹3,00,000
-    finalBillAmountSubmitted: 810000,
-    balanceDue: 510000, // Expected Net Due: ₹5,10,000
+    approvedExtras: 150000, // 60 extra plates @ ₹2,500
+    totalPayableAmount: 870000, // ₹8,70,000
+    advancesPaid: 300000, // Advance disbursed: ₹3,00,000
+    finalBillAmountSubmitted: 870000,
+    balanceDue: 570000, // Net Due: ₹5,70,000
     status: 'RECONCILED',
     hasDiscrepancy: false,
     duplicatePaymentBlocked: false,
@@ -659,6 +698,63 @@ export const INITIAL_SETTLEMENTS: VendorSettlement[] = [
         reference: 'ICICI Bank IMPS / Ref #889102'
       }
     ]
+  },
+  {
+    id: 'set-003',
+    weddingId: 'wed-001',
+    vendorId: 'vendor-sound',
+    vendorName: 'Royal Sound & Light Systems',
+    category: 'Power & Production',
+    agreedContractAmount: 250000,
+    approvedExtras: 25000, // Silent generator emergency hire
+    totalPayableAmount: 275000,
+    advancesPaid: 100000,
+    finalBillAmountSubmitted: 275000,
+    balanceDue: 175000,
+    status: 'RECONCILED',
+    hasDiscrepancy: false,
+    duplicatePaymentBlocked: false,
+    paymentHistory: [
+      {
+        transactionId: 'TXN-ADV-102',
+        amount: 100000,
+        type: 'ADVANCE',
+        date: '2026-11-05',
+        reference: 'Axis Bank NEFT / Ref #AXIS77219'
+      }
+    ]
+  },
+  {
+    id: 'set-004',
+    weddingId: 'wed-001',
+    vendorId: 'vendor-photo',
+    vendorName: 'Stories by Joseph Radhik (Photography)',
+    category: 'Cinematography & Stills',
+    agreedContractAmount: 850000,
+    approvedExtras: 0,
+    totalPayableAmount: 850000,
+    advancesPaid: 850000,
+    finalBillAmountSubmitted: 850000,
+    balanceDue: 0,
+    status: 'PAID', // Already PAID - clicking Disburse tests Anti-Duplicate Shield!
+    hasDiscrepancy: false,
+    duplicatePaymentBlocked: false,
+    paymentHistory: [
+      {
+        transactionId: 'TXN-ADV-014',
+        amount: 400000,
+        type: 'ADVANCE',
+        date: '2026-08-15',
+        reference: 'HDFC RTGS #330192'
+      },
+      {
+        transactionId: 'TXN-FIN-088',
+        amount: 450000,
+        type: 'FINAL',
+        date: '2026-12-24',
+        reference: 'HDFC RTGS #881290 (Final Settlement)'
+      }
+    ]
   }
 ];
 
@@ -677,12 +773,44 @@ export const INITIAL_SEASON_METRICS: SeasonMetrics = {
   openIncidentsCount: 1,
   upcomingReceivables30Days: 45000000, // ₹4.50 Crores
   upcomingVendorDues30Days: 28000000, // ₹2.80 Crores
+  totalPlanningHours: 1840,
   weddingWiseProfits: [
-    { weddingId: 'wed-001', name: 'Sharma-Singh (Udaipur)', revenue: 35000000, cost: 25000000, labor: 3000000, profit: 7000000, margin: 20.0, status: 'EXECUTION' },
-    { weddingId: 'wed-002', name: 'Rathore-Devi (Jaipur)', revenue: 60000000, cost: 44000000, labor: 4500000, profit: 11500000, margin: 19.17, status: 'IN_PLANNING' },
-    { weddingId: 'wed-003', name: 'Oberoi-Kapoor (Fairmont)', revenue: 12000000, cost: 8500000, labor: 1200000, profit: 2300000, margin: 19.16, status: 'CONFIRMED' },
-    { weddingId: 'wed-004', name: 'Mehta-Reddy (Samode)', revenue: 22000000, cost: 15500000, labor: 2000000, profit: 4500000, margin: 20.45, status: 'CLOSED' },
-    { weddingId: 'wed-005', name: 'Verma-Chopra (Taj Lake)', revenue: 42000000, cost: 29000000, labor: 3500000, profit: 9500000, margin: 22.62, status: 'CLOSED' }
+    { weddingId: 'wed-001', name: 'Sharma-Singh (Udaipur)', revenue: 35000000, cost: 25000000, labor: 3000000, profit: 7000000, margin: 20.0, planningHours: 180, status: 'EXECUTION' },
+    { weddingId: 'wed-002', name: 'Rathore-Devi (Jaipur)', revenue: 60000000, cost: 44000000, labor: 4500000, profit: 11500000, margin: 19.17, planningHours: 290, status: 'IN_PLANNING' },
+    { weddingId: 'wed-003', name: 'Oberoi-Kapoor (Fairmont)', revenue: 12000000, cost: 8500000, labor: 1200000, profit: 2300000, margin: 19.16, planningHours: 95, status: 'CONFIRMED' },
+    { weddingId: 'wed-004', name: 'Mehta-Reddy (Samode)', revenue: 22000000, cost: 15500000, labor: 2000000, profit: 4500000, margin: 20.45, planningHours: 140, status: 'CLOSED' },
+    { weddingId: 'wed-005', name: 'Verma-Chopra (Taj Lake)', revenue: 42000000, cost: 29000000, labor: 3500000, profit: 9500000, margin: 22.62, planningHours: 215, status: 'CLOSED' },
+    { weddingId: 'wed-006', name: 'Kapadia-Jain (Jodhpur Umaid)', revenue: 55000000, cost: 38000000, labor: 4200000, profit: 12800000, margin: 23.27, planningHours: 260, status: 'CLOSED' },
+    { weddingId: 'wed-007', name: 'Deshmukh-Patil (Goa Caravela)', revenue: 18000000, cost: 13000000, labor: 1600000, profit: 3400000, margin: 18.88, planningHours: 110, status: 'CLOSED' },
+    { weddingId: 'wed-008', name: 'Bansal-Agarwal (Mussoorie)', revenue: 25000000, cost: 18000000, labor: 2200000, profit: 4800000, margin: 19.20, planningHours: 150, status: 'CLOSED' }
+  ],
+  planningLaborAllocations: [
+    { role: 'Lead Luxury Directors', hours: 480, hourlyRate: 2500, totalCost: 12000000, headcount: 4 },
+    { role: 'Senior Wedding Planners', hours: 620, hourlyRate: 1800, totalCost: 11160000, headcount: 6 },
+    { role: 'On-Site Operations Leads', hours: 540, hourlyRate: 1200, totalCost: 6480000, headcount: 8 },
+    { role: 'Hospitality & Protocol Specialists', hours: 200, hourlyRate: 900, totalCost: 1800000, headcount: 5 }
+  ],
+  budgetVsActualVariances: [
+    { category: 'Catering & Banquets', estimatedCost: 78000000, actualCost: 81500000, variance: 3500000, variancePct: 4.48 },
+    { category: 'Floral & Production Decor', estimatedCost: 62000000, actualCost: 61000000, variance: -1000000, variancePct: -1.61 },
+    { category: 'Technical AV, Lighting & Curfew', estimatedCost: 24000000, actualCost: 25500000, variance: 1500000, variancePct: 6.25 },
+    { category: 'Cinematography & Stills', estimatedCost: 18000000, actualCost: 17800000, variance: -200000, variancePct: -1.11 },
+    { category: 'Vintage Transport & Boats', estimatedCost: 16000000, actualCost: 12200000, variance: -3800000, variancePct: -23.75 }
+  ],
+  vendorPerformanceIndex: [
+    { vendorName: 'SpiceHeaven Royal Caterers', category: 'Catering & Dining', rating: 4.9, punctualityPct: 98, totalSpend: 48000000, weddingsServed: 18, incidentCount: 0 },
+    { vendorName: 'Stories by Joseph Radhik', category: 'Photography & Stills', rating: 5.0, punctualityPct: 100, totalSpend: 24000000, weddingsServed: 15, incidentCount: 0 },
+    { vendorName: 'Royal Sound & Light Systems', category: 'Technical AV & Power', rating: 4.7, punctualityPct: 94, totalSpend: 19000000, weddingsServed: 14, incidentCount: 1 },
+    { vendorName: 'DJ Shadow & Sound Rig', category: 'Music & DJ Console', rating: 4.6, punctualityPct: 92, totalSpend: 8500000, weddingsServed: 12, incidentCount: 1 },
+    { vendorName: 'Palace Royal Transport Fleet', category: 'Luxury Transport', rating: 4.8, punctualityPct: 96, totalSpend: 12000000, weddingsServed: 16, incidentCount: 0 }
+  ],
+  monthlyRevenueTrends: [
+    { month: 'Aug 2026', clientRevenue: 32000000, vendorExpense: 21000000, netProfit: 6800000 },
+    { month: 'Sep 2026', clientRevenue: 45000000, vendorExpense: 31000000, netProfit: 9500000 },
+    { month: 'Oct 2026', clientRevenue: 62000000, vendorExpense: 41000000, netProfit: 13500000 },
+    { month: 'Nov 2026', clientRevenue: 85000000, vendorExpense: 59000000, netProfit: 18500000 },
+    { month: 'Dec 2026', clientRevenue: 112000000, vendorExpense: 78000000, netProfit: 24000000 },
+    { month: 'Jan 2027', clientRevenue: 26000000, vendorExpense: 20000000, netProfit: 2500000 }
   ]
 };
 
@@ -874,3 +1002,149 @@ export const INITIAL_VENDOR_PROFILES: VendorProfile[] = [
     ]
   }
 ];
+
+
+export const INITIAL_CLIENT_PAYMENT_SUMMARIES: Record<string, ClientPaymentSummary> = {
+  'wed-001': {
+    weddingId: 'wed-001',
+    totalContractValue: 35000000, // ₹3.50 Crores
+    totalExtrasBilled: 165000, // ₹1.65 Lakhs from approved change orders
+    totalGrossDue: 35165000,
+    totalAmountPaid: 20000000, // ₹2.00 Crores
+    remainingBalanceDue: 15165000, // ₹1.5165 Crores
+    overallStatus: 'PARTIALLY_PAID',
+    milestones: [
+      {
+        id: 'cpm-01',
+        weddingId: 'wed-001',
+        type: 'BOOKING_DEPOSIT',
+        title: 'Stage 1: Booking Deposit & Date Retainer (20%)',
+        description: 'Initial retainer securing Jagmandir Island Palace & lead director reservation.',
+        dueDate: '2026-08-10',
+        amountDue: 5000000,
+        amountPaid: 5000000,
+        status: 'PAID',
+        invoiceNumber: 'INV-TRK-2026-001',
+        paidAt: '2026-08-08',
+        transactions: [
+          {
+            id: 'ctxn-01',
+            weddingId: 'wed-001',
+            milestoneId: 'cpm-01',
+            amount: 5000000,
+            date: '2026-08-08',
+            method: 'RTGS',
+            reference: 'RTGS/HDFC/99210192',
+            receiptNumber: 'RCP-2026-0881',
+            receivedBy: 'Finance Desk (Rameshwar Vyas)',
+            notes: 'Received via HDFC Bank Corporate Account.'
+          }
+        ]
+      },
+      {
+        id: 'cpm-02',
+        weddingId: 'wed-001',
+        type: 'ADVANCE_PAYMENT',
+        title: 'Stage 2: Mid-Term Operations Advance (40%)',
+        description: 'Vendor lock-in disbursements (Catering, Production, Floral bookings).',
+        dueDate: '2026-11-20',
+        amountDue: 15000000,
+        amountPaid: 15000000,
+        status: 'PAID',
+        invoiceNumber: 'INV-TRK-2026-042',
+        paidAt: '2026-11-19',
+        transactions: [
+          {
+            id: 'ctxn-02',
+            weddingId: 'wed-001',
+            milestoneId: 'cpm-02',
+            amount: 15000000,
+            date: '2026-11-19',
+            method: 'RTGS',
+            reference: 'RTGS/ICICI/88341904',
+            receiptNumber: 'RCP-2026-1204',
+            receivedBy: 'Finance Desk (Rameshwar Vyas)',
+            notes: 'Approved by Mr. Vikram Singh (Father of Bride).'
+          }
+        ]
+      },
+      {
+        id: 'cpm-03',
+        weddingId: 'wed-001',
+        type: 'FINAL_SETTLEMENT',
+        title: 'Stage 3: Final Reconciled Settlement (Balance + Approved Extras)',
+        description: 'Post-wedding settlement including base contract balance plus 60 extra banquet plates & +1hr DJ performance.',
+        dueDate: '2026-12-30',
+        amountDue: 15165000,
+        amountPaid: 0,
+        status: 'PENDING',
+        invoiceNumber: 'INV-TRK-2026-099-FINAL',
+        transactions: []
+      }
+    ]
+  },
+  'wed-002': {
+    weddingId: 'wed-002',
+    totalContractValue: 60000000,
+    totalExtrasBilled: 0,
+    totalGrossDue: 60000000,
+    totalAmountPaid: 20000000,
+    remainingBalanceDue: 40000000,
+    overallStatus: 'PARTIALLY_PAID',
+    milestones: [
+      {
+        id: 'cpm-04',
+        weddingId: 'wed-002',
+        type: 'BOOKING_DEPOSIT',
+        title: 'Stage 1: Booking Retainer (Rambagh Palace)',
+        description: 'Initial deposit securing Rambagh Palace and team.',
+        dueDate: '2026-10-15',
+        amountDue: 20000000,
+        amountPaid: 20000000,
+        status: 'PAID',
+        invoiceNumber: 'INV-TRK-2026-061',
+        paidAt: '2026-10-14',
+        transactions: [
+          {
+            id: 'ctxn-03',
+            weddingId: 'wed-002',
+            milestoneId: 'cpm-04',
+            amount: 20000000,
+            date: '2026-10-14',
+            method: 'RTGS',
+            reference: 'RTGS/KOTAK/77112001',
+            receiptNumber: 'RCP-2026-1188',
+            receivedBy: 'Finance Desk',
+            notes: 'Singhania Family Office Transfer'
+          }
+        ]
+      },
+      {
+        id: 'cpm-05',
+        weddingId: 'wed-002',
+        type: 'ADVANCE_PAYMENT',
+        title: 'Stage 2: Advance Payment (60 Days Prior)',
+        description: 'Production advances for 3-day Rambagh setup.',
+        dueDate: '2027-01-10',
+        amountDue: 25000000,
+        amountPaid: 0,
+        status: 'PENDING',
+        invoiceNumber: 'INV-TRK-2027-005',
+        transactions: []
+      },
+      {
+        id: 'cpm-06',
+        weddingId: 'wed-002',
+        type: 'FINAL_SETTLEMENT',
+        title: 'Stage 3: Post-Wedding Final Bill',
+        description: 'Final bill plus any approved incidentals.',
+        dueDate: '2027-02-28',
+        amountDue: 15000000,
+        amountPaid: 0,
+        status: 'PENDING',
+        invoiceNumber: 'INV-TRK-2027-030',
+        transactions: []
+      }
+    ]
+  }
+};

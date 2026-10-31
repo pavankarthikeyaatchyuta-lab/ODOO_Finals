@@ -1,3 +1,47 @@
+
+// --- Client Payment Lifecycle (3 Stages) ---
+export type ClientMilestoneType = 'BOOKING_DEPOSIT' | 'ADVANCE_PAYMENT' | 'FINAL_SETTLEMENT';
+export type ClientPaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'PENDING' | 'OVERDUE';
+
+export interface ClientPaymentTransaction {
+  id: string;
+  weddingId: string;
+  milestoneId: string;
+  amount: number;
+  date: string;
+  method: 'RTGS' | 'NEFT' | 'IMPS' | 'CHEQUE' | 'BANK_TRANSFER';
+  reference: string;
+  receiptNumber: string;
+  receivedBy: string;
+  notes?: string;
+}
+
+export interface ClientPaymentMilestone {
+  id: string;
+  weddingId: string;
+  type: ClientMilestoneType;
+  title: string; // e.g. "Stage 1: Booking Deposit (20%)"
+  description: string;
+  dueDate: string;
+  amountDue: number;
+  amountPaid: number;
+  status: ClientPaymentStatus;
+  invoiceNumber: string;
+  paidAt?: string;
+  transactions: ClientPaymentTransaction[];
+}
+
+export interface ClientPaymentSummary {
+  weddingId: string;
+  totalContractValue: number;
+  totalExtrasBilled: number;
+  totalGrossDue: number; // totalContractValue + totalExtrasBilled
+  totalAmountPaid: number;
+  remainingBalanceDue: number;
+  overallStatus: ClientPaymentStatus;
+  milestones: ClientPaymentMilestone[];
+}
+
 // ==========================================
 // THE ROYAL KNOT - TYPE DEFINITIONS
 // Standalone Wedding Operations & Financial System
@@ -283,11 +327,14 @@ export interface Incident {
 }
 
 // --- Change Orders & Additional Costs ---
+export type ExpenseCategory = 'EXTRA_GUESTS' | 'EXTRA_PLATES' | 'EXTRA_DJ_HOURS' | 'GENERATOR' | 'OTHER';
+
 export interface ChangeOrder {
   id: string;
   weddingId: string;
   code: string; // "CO-001"
   description: string; // "60 Extra Banquet Guests @ Royal Dinner"
+  expenseType: ExpenseCategory;
   vendorId: string;
   vendorName: string;
   category: string;
@@ -328,6 +375,39 @@ export interface VendorSettlement {
 }
 
 // --- Founder Executive Dashboard & Season Metrics ---
+export interface PlanningLaborAllocation {
+  role: string;
+  hours: number;
+  hourlyRate: number;
+  totalCost: number;
+  headcount: number;
+}
+
+export interface BudgetVsActualVariance {
+  category: string;
+  estimatedCost: number;
+  actualCost: number;
+  variance: number;
+  variancePct: number;
+}
+
+export interface VendorPerformanceMetric {
+  vendorName: string;
+  category: string;
+  rating: number; // e.g. 4.9
+  punctualityPct: number; // e.g. 98
+  totalSpend: number;
+  weddingsServed: number;
+  incidentCount: number;
+}
+
+export interface SeasonMonthlyTrend {
+  month: string;
+  clientRevenue: number;
+  vendorExpense: number;
+  netProfit: number;
+}
+
 export interface SeasonMetrics {
   seasonYear: number;
   totalWeddingsPlanned: number; // 25
@@ -343,6 +423,7 @@ export interface SeasonMetrics {
   openIncidentsCount: number;
   upcomingReceivables30Days: number;
   upcomingVendorDues30Days: number;
+  totalPlanningHours: number;
   weddingWiseProfits: Array<{
     weddingId: string;
     name: string;
@@ -351,6 +432,11 @@ export interface SeasonMetrics {
     labor: number;
     profit: number;
     margin: number;
+    planningHours: number;
     status: WeddingStatus;
   }>;
+  planningLaborAllocations: PlanningLaborAllocation[];
+  budgetVsActualVariances: BudgetVsActualVariance[];
+  vendorPerformanceIndex: VendorPerformanceMetric[];
+  monthlyRevenueTrends: SeasonMonthlyTrend[];
 }

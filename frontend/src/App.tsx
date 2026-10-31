@@ -16,6 +16,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 import {
+  ClientPaymentSummary,
   Wedding,
   Enquiry,
   CatererQuote,
@@ -43,6 +44,7 @@ export function App() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [changeOrders, setChangeOrders] = useState<ChangeOrder[]>([]);
   const [settlements, setSettlements] = useState<VendorSettlement[]>([]);
+  const [clientPaymentSummary, setClientPaymentSummary] = useState<ClientPaymentSummary | null>(null);
   const [metrics, setMetrics] = useState<SeasonMetrics | null>(null);
 
   // Initial Data Load
@@ -66,7 +68,7 @@ export function App() {
   }, []);
 
   const loadWeddingContext = async (weddingId: string) => {
-    const [q, t, r, a, d, i, c, s] = await Promise.all([
+    const [q, t, r, a, d, i, c, s, cps] = await Promise.all([
       api.getCatererQuotes(weddingId),
       api.getTasks(weddingId),
       api.getRunSheet(weddingId),
@@ -74,7 +76,8 @@ export function App() {
       api.getDelays(weddingId),
       api.getIncidents(weddingId),
       api.getChangeOrders(weddingId),
-      api.getSettlements(weddingId)
+      api.getSettlements(weddingId),
+      api.getClientPaymentSummary(weddingId)
     ]);
 
     setQuotes(q);
@@ -85,6 +88,7 @@ export function App() {
     setIncidents(i);
     setChangeOrders(c);
     setSettlements(s);
+    setClientPaymentSummary(cps);
   };
 
   const handleSelectWedding = (wedding: Wedding) => {
@@ -182,10 +186,29 @@ export function App() {
     setIncidents(prev => prev.map(i => i.id === incidentId ? updated : i));
   };
 
-  // Scenario 5: Change Order Approval
+  // Scenario 5: Change Order Creation & Approval
+  const handleCreateChangeOrder = async (orderData: any) => {
+    const created = await api.createChangeOrder(orderData);
+    setChangeOrders(prev => [created, ...prev]);
+  };
+
   const handleApproveChangeOrder = async (orderId: string) => {
     const updated = await api.approveChangeOrder(orderId);
     setChangeOrders(prev => prev.map(c => c.id === orderId ? updated : c));
+    if (currentWedding) {
+      const [refreshedSettlements, refreshedCps] = await Promise.all([
+        api.getSettlements(currentWedding.id),
+        api.getClientPaymentSummary(currentWedding.id)
+      ]);
+      setSettlements(refreshedSettlements);
+      setClientPaymentSummary(refreshedCps);
+    }
+  };
+
+  const handleRecordClientPayment = async (milestoneId: string, paymentData: any) => {
+    if (!currentWedding) return;
+    const updated = await api.recordClientPayment(currentWedding.id, milestoneId, paymentData);
+    setClientPaymentSummary(updated);
   };
 
   // Scenario 5: Vendor Settlement with Anti-Duplicate Protection
@@ -304,15 +327,20 @@ export function App() {
       {currentTab === 'finance' && (
         <FinancePage
           currentWedding={currentWedding}
+          weddingsList={weddings}
+          onSelectWedding={handleSelectWedding}
           changeOrders={changeOrders}
           settlements={settlements}
+          clientPaymentSummary={clientPaymentSummary || undefined}
           onDisbursePayment={handleDisbursePayment}
           onApproveChangeOrder={handleApproveChangeOrder}
+          onCreateChangeOrder={handleCreateChangeOrder}
+          onRecordClientPayment={handleRecordClientPayment}
         />
       )}
 
       {currentTab === 'reports' && (
-        <ReportsPage metrics={metrics} />
+        <ReportsPage metrics={metrics} weddingsList={weddings} />
       )}
 
       {currentTab === 'settings' && (

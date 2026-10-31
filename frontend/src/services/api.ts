@@ -13,9 +13,11 @@ import {
   Incident,
   ChangeOrder,
   VendorSettlement,
-  SeasonMetrics
+  SeasonMetrics,
+  ClientPaymentSummary,
+  ClientPaymentMilestone,
+  ClientPaymentTransaction
 } from '../types';
-
 import {
   INITIAL_WEDDINGS,
   INITIAL_ENQUIRIES,
@@ -31,7 +33,8 @@ import {
   INITIAL_INCIDENTS,
   INITIAL_CHANGE_ORDERS,
   INITIAL_SETTLEMENTS,
-  INITIAL_SEASON_METRICS
+  INITIAL_SEASON_METRICS,
+  INITIAL_CLIENT_PAYMENT_SUMMARIES
 } from './mockData';
 
 // Storage keys for persistence across reloads in demo mode
@@ -480,7 +483,7 @@ export const api = {
       if (d.id === delayId) {
         return {
           ...d,
-          affectedVendors: d.affectedVendors.map(v => {
+          affectedVendors: d.affectedVendors.map((v: any) => {
             if (v.vendorId === vendorId) {
               return {
                 ...v,
@@ -567,26 +570,215 @@ export const api = {
     return updated.find(i => i.id === incidentId)!;
   },
 
-  // Change Orders
+  // Client Payment Interface & Milestones
+  getClientPaymentSummary: async (weddingId: string): Promise<ClientPaymentSummary> => {
+    const allSummaries = getItem('client_payments', INITIAL_CLIENT_PAYMENT_SUMMARIES);
+    if (allSummaries[weddingId]) {
+      return allSummaries[weddingId];
+    }
+    // Fallback default structure for other weddings
+    return {
+      weddingId,
+      totalContractValue: 35000000,
+      totalExtrasBilled: 0,
+      totalGrossDue: 35000000,
+      totalAmountPaid: 20000000,
+      remainingBalanceDue: 15000000,
+      overallStatus: 'PARTIALLY_PAID',
+      milestones: [
+        {
+          id: `cpm-${weddingId}-01`,
+          weddingId,
+          type: 'BOOKING_DEPOSIT',
+          title: 'Stage 1: Booking Deposit (20%)',
+          description: 'Reservation retainer',
+          dueDate: '2026-08-10',
+          amountDue: 5000000,
+          amountPaid: 5000000,
+          status: 'PAID',
+          invoiceNumber: 'INV-BK-001',
+          paidAt: '2026-08-08',
+          transactions: []
+        },
+        {
+          id: `cpm-${weddingId}-02`,
+          weddingId,
+          type: 'ADVANCE_PAYMENT',
+          title: 'Stage 2: Operations Advance (40%)',
+          description: 'Vendor lock-in disbursement',
+          dueDate: '2026-11-20',
+          amountDue: 15000000,
+          amountPaid: 15000000,
+          status: 'PAID',
+          invoiceNumber: 'INV-ADV-001',
+          paidAt: '2026-11-19',
+          transactions: []
+        },
+        {
+          id: `cpm-${weddingId}-03`,
+          weddingId,
+          type: 'FINAL_SETTLEMENT',
+          title: 'Stage 3: Final Reconciled Settlement',
+          description: 'Post-event final settlement',
+          dueDate: '2026-12-30',
+          amountDue: 15000000,
+          amountPaid: 0,
+          status: 'PENDING',
+          invoiceNumber: 'INV-FIN-001',
+          transactions: []
+        }
+      ]
+    };
+  },
+
+  recordClientPayment: async (
+    weddingId: string,
+    milestoneId: string,
+    data: {
+      amount: number;
+      method: 'RTGS' | 'NEFT' | 'IMPS' | 'CHEQUE' | 'BANK_TRANSFER';
+      reference: string;
+      notes?: string;
+    }
+  ): Promise<ClientPaymentSummary> => {
+    const allSummaries = getItem('client_payments', INITIAL_CLIENT_PAYMENT_SUMMARIES);
+    const summary = allSummaries[weddingId] || (await api.getClientPaymentSummary(weddingId));
+
+    const updatedMilestones = summary.milestones.map(m => {
+      if (m.id === milestoneId) {
+        const newPaid = m.amountPaid + data.amount;
+        const newStatus: ClientPaymentMilestone['status'] =
+          newPaid >= m.amountDue ? 'PAID' : newPaid > 0 ? 'PARTIALLY_PAID' : 'PENDING';
+
+        const txn: ClientPaymentTransaction = {
+          id: `ctxn-${Date.now().toString().slice(-4)}`,
+          weddingId,
+          milestoneId,
+          amount: data.amount,
+          date: new Date().toISOString().split('T')[0],
+          method: data.method,
+          reference: data.reference,
+          receiptNumber: `RCP-${Date.now().toString().slice(-4)}`,
+          receivedBy: 'Finance Controller Desk',
+          notes: data.notes
+        };
+
+        return {
+          ...m,
+          amountPaid: newPaid,
+          status: newStatus,
+          paidAt: newStatus === 'PAID' ? new Date().toISOString().split('T')[0] : m.paidAt,
+          transactions: [txn, ...m.transactions]
+        };
+      }
+      return m;
+    });
+
+    const totalPaid = updatedMilestones.reduce((acc, m) => acc + m.amountPaid, 0);
+    const balanceDue = Math.max(0, summary.totalGrossDue - totalPaid);
+    const overallStatus = balanceDue === 0 ? 'PAID' : totalPaid > 0 ? 'PARTIALLY_PAID' : 'PENDING';
+
+    const updatedSummary: ClientPaymentSummary = {
+      ...summary,
+      totalAmountPaid: totalPaid,
+      remainingBalanceDue: balanceDue,
+      overallStatus,
+      milestones: updatedMilestones
+    };
+
+    allSummaries[weddingId] = updatedSummary;
+    setItem('client_payments', allSummaries);
+    return updatedSummary;
+  },
+
+  // Change Orders & Additional Expenses
   getChangeOrders: async (weddingId: string): Promise<ChangeOrder[]> => {
     const list = getItem('change_orders', INITIAL_CHANGE_ORDERS);
     return list.filter(c => c.weddingId === weddingId);
   },
 
+  createChangeOrder: async (
+    order: Omit<ChangeOrder, 'id' | 'code' | 'createdAt' | 'status' | 'billingStatus' | 'clientApproved'>
+  ): Promise<ChangeOrder> => {
+    const list = getItem('change_orders', INITIAL_CHANGE_ORDERS);
+    const newOrder: ChangeOrder = {
+      ...order,
+      id: `co-${Date.now().toString().slice(-4)}`,
+      code: `CO-2026-${String(list.length + 1).padStart(3, '0')}`,
+      status: 'PENDING',
+      clientApproved: false,
+      billingStatus: 'PENDING_INVOICE',
+      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16)
+    };
+    const updated = [newOrder, ...list];
+    setItem('change_orders', updated);
+    return newOrder;
+  },
+
   approveChangeOrder: async (changeOrderId: string): Promise<ChangeOrder> => {
     const list = getItem('change_orders', INITIAL_CHANGE_ORDERS);
-    const updated = list.map(c => {
-      if (c.id === changeOrderId) {
+    const target = list.find(c => c.id === changeOrderId);
+    if (!target) throw new Error('Change order not found');
+
+    const updatedOrder: ChangeOrder = {
+      ...target,
+      status: 'APPROVED',
+      clientApproved: true,
+      billingStatus: 'BILLED_TO_CLIENT'
+    };
+
+    const updatedList = list.map(c => (c.id === changeOrderId ? updatedOrder : c));
+    setItem('change_orders', updatedList);
+
+    // 1. Authoritative Cascade: Update Vendor Settlements
+    const settlements = getItem('settlements', INITIAL_SETTLEMENTS);
+    const updatedSettlements = settlements.map(s => {
+      if (s.weddingId === target.weddingId && s.vendorId === target.vendorId) {
+        const approvedExtras = s.approvedExtras + target.totalAmount;
+        const totalPayable = s.agreedContractAmount + approvedExtras;
+        const balanceDue = totalPayable - s.advancesPaid;
         return {
-          ...c,
-          status: 'APPROVED' as const,
-          clientApproved: true
+          ...s,
+          approvedExtras,
+          totalPayableAmount: totalPayable,
+          finalBillAmountSubmitted: totalPayable,
+          balanceDue,
+          status: balanceDue === 0 ? ('PAID' as const) : ('RECONCILED' as const)
         };
       }
-      return c;
+      return s;
     });
-    setItem('change_orders', updated);
-    return updated.find(c => c.id === changeOrderId)!;
+    setItem('settlements', updatedSettlements);
+
+    // 2. Authoritative Cascade: Update Client Payment Summary
+    const allSummaries = getItem('client_payments', INITIAL_CLIENT_PAYMENT_SUMMARIES);
+    if (allSummaries[target.weddingId]) {
+      const summary = allSummaries[target.weddingId];
+      const newExtrasBilled = summary.totalExtrasBilled + target.totalAmount;
+      const newGrossDue = summary.totalContractValue + newExtrasBilled;
+      const newBalanceDue = newGrossDue - summary.totalAmountPaid;
+
+      const newMilestones = summary.milestones.map(m => {
+        if (m.type === 'FINAL_SETTLEMENT') {
+          return {
+            ...m,
+            amountDue: m.amountDue + target.totalAmount
+          };
+        }
+        return m;
+      });
+
+      allSummaries[target.weddingId] = {
+        ...summary,
+        totalExtrasBilled: newExtrasBilled,
+        totalGrossDue: newGrossDue,
+        remainingBalanceDue: newBalanceDue,
+        milestones: newMilestones
+      };
+      setItem('client_payments', allSummaries);
+    }
+
+    return updatedOrder;
   },
 
   // Settlements & Reconciliation
@@ -631,9 +823,29 @@ export const api = {
     return updated.find(s => s.id === settlementId)!;
   },
 
-  // Season Metrics
-  getSeasonMetrics: async (): Promise<SeasonMetrics> => {
-    return getItem('season_metrics', INITIAL_SEASON_METRICS);
+  // Season Metrics & Founder Analytics
+  getSeasonMetrics: async (filters?: { year?: number; weddingId?: string }): Promise<SeasonMetrics> => {
+    const metrics: SeasonMetrics = getItem('season_metrics', INITIAL_SEASON_METRICS);
+    if (!filters?.weddingId || filters.weddingId === 'ALL') {
+      return metrics;
+    }
+    // Filter specifically for selected wedding
+    const match = metrics.weddingWiseProfits.find((w: any) => w.weddingId === filters.weddingId);
+    if (!match) return metrics;
+
+    return {
+      ...metrics,
+      totalWeddingsPlanned: 1,
+      completedWeddings: match.status === 'CLOSED' ? 1 : 0,
+      inProgressWeddings: match.status !== 'CLOSED' ? 1 : 0,
+      totalSeasonRevenue: match.revenue,
+      totalVendorExpenditure: match.cost,
+      totalPlannerLaborCost: match.labor,
+      totalNetProfit: match.profit,
+      averageMarginPercent: match.margin,
+      totalPlanningHours: match.planningHours,
+      weddingWiseProfits: [match]
+    };
   },
 
   resetDemoData: () => {
