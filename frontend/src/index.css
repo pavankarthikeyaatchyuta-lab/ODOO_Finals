@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-royal-navy: #0D1B2A;
+  --color-royal-blue: #1B3B6F;
+  --color-royal-slate: #212F45;
+  --color-royal-gold: #C5A059;
+  --color-royal-gold-light: #DFCA9B;
+  --color-royal-gold-dark: #9D7C36;
+  --color-royal-ivory: #FDFBF7;
+  --color-royal-cream: #F5F1E8;
+  --color-royal-card: #FFFFFF;
+  --font-serif: "Playfair Display", "Cinzel", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: #FDFBF7;
+  color: #0D1B2A;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
