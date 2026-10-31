@@ -32,10 +32,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onBackToLanding
 }) => {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('founder@theroyalknot.com');
-  const [password, setPassword] = useState('royalKnot2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedPresetRole, setSelectedPresetRole] = useState<AppRole>('FOUNDER');
+  const [selectedPresetRole, setSelectedPresetRole] = useState<AppRole | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRolePreset = (roleKey: AppRole) => {
@@ -43,7 +43,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     const profile = DEMO_PROFILES[roleKey];
     if (profile) {
       setEmail(profile.email);
-      setPassword('royalKnot2026!');
+      setPassword('');
       setErrorMessage(null);
     }
   };
