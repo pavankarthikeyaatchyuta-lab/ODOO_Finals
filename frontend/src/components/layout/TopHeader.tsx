@@ -1,22 +1,22 @@
 import React from 'react';
 import {
-  Bell,
-  Search,
   RotateCcw,
   Calendar,
   MapPin,
   Users,
-  ShieldCheck
+  ShieldCheck,
+  Menu
 } from 'lucide-react';
 import { Wedding } from '../../types';
 import { CurrencyDisplay } from '../common/CurrencyDisplay';
 
-interface TopHeaderProps {
+export interface TopHeaderProps {
   currentWedding: Wedding;
   weddingsList: Wedding[];
   onSelectWedding: (wedding: Wedding) => void;
   onResetDemoData: () => void;
   activeLateCount?: number;
+  onOpenMobileMenu?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -24,14 +24,25 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   weddingsList,
   onSelectWedding,
   onResetDemoData,
-  activeLateCount = 1
+  activeLateCount = 1,
+  onOpenMobileMenu
 }) => {
   return (
-    <header className="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* Left: Active Wedding Selector with Context */}
-      <div className="flex items-center gap-4">
+    <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      {/* Left: Mobile Menu Trigger + Active Wedding Selector */}
+      <div className="flex items-center gap-3">
+        {onOpenMobileMenu && (
+          <button
+            onClick={onOpenMobileMenu}
+            className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+          <span className="hidden sm:inline text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Active Event:
           </span>
           <select
@@ -40,7 +51,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               const selected = weddingsList.find(w => w.id === e.target.value);
               if (selected) onSelectWedding(selected);
             }}
-            className="text-sm font-bold text-[#0D1B2A] bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-hidden focus:ring-2 focus:ring-[#C5A059]"
+            className="text-xs sm:text-sm font-bold text-[#0D1B2A] bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-hidden focus:ring-2 focus:ring-[#C5A059]"
           >
             {weddingsList.map(w => (
               <option key={w.id} value={w.id}>
@@ -51,7 +62,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
 
         {/* Wedding Quick Metadata Badges */}
-        <div className="hidden lg:flex items-center gap-3 text-xs text-slate-600 pl-3 border-l border-slate-200">
+        <div className="hidden xl:flex items-center gap-3 text-xs text-slate-600 pl-3 border-l border-slate-200">
           <span className="flex items-center gap-1 font-medium">
             <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
             {currentWedding.weddingDate}
@@ -65,29 +76,29 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             {currentWedding.guestCount} Guests
           </span>
           <span className="flex items-center gap-1 font-medium">
-            <span className="text-slate-600 font-semibold">Budget:</span>
+            <span className="text-slate-500 font-semibold">Budget:</span>
             <CurrencyDisplay amount={currentWedding.budgetMax} format="compact" className="text-[#1B3B6F]" />
           </span>
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* Reset Demo State Button */}
         <button
           onClick={onResetDemoData}
           title="Reset to official demo scenario data"
           className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-[#0D1B2A] px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
-          <span className="hidden sm:inline">Reset Demo State</span>
+          <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+          <span className="hidden md:inline">Reset Demo State</span>
         </button>
 
         {/* Operational Alert Pill */}
         {activeLateCount > 0 && (
-          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold px-3 py-1.5 rounded-full animate-pulse">
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold px-2.5 py-1.5 rounded-full animate-pulse">
             <span className="w-2 h-2 rounded-full bg-rose-600"></span>
-            <span>{activeLateCount} Vendor Alert</span>
+            <span>{activeLateCount} Alert</span>
           </div>
         )}
 
@@ -95,7 +106,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {currentWedding.agreementSigned ? (
           <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Agreement Gated: Signed</span>
+            <span>Gated: Signed</span>
           </div>
         ) : (
           <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md">

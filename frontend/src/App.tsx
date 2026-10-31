@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, NavItemKey } from './components/layout/Sidebar';
-import { TopHeader } from './components/layout/TopHeader';
+import { AppLayout } from './components/layout/AppLayout';
+import { NavItemKey } from './components/layout/Sidebar';
 import { api } from './services/api';
 
 import { OverviewPage } from './pages/OverviewPage';
@@ -169,109 +169,97 @@ export function App() {
   const openIncidentsCount = incidents.filter(i => i.status !== 'RESOLVED').length;
 
   return (
-    <div className="flex h-screen bg-[#FDFBF7] text-[#0D1B2A] overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar
-        currentTab={currentTab}
-        onSelectTab={setCurrentTab}
-        activeLateCount={activeLateCount}
-        openIncidentsCount={openIncidentsCount}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <TopHeader
-          currentWedding={currentWedding}
-          weddingsList={weddings}
+    <AppLayout
+      currentTab={currentTab}
+      onSelectTab={setCurrentTab}
+      currentWedding={currentWedding}
+      weddingsList={weddings}
+      onSelectWedding={handleSelectWedding}
+      onResetDemoData={api.resetDemoData}
+      activeLateCount={activeLateCount}
+      openIncidentsCount={openIncidentsCount}
+    >
+      {currentTab === 'overview' && (
+        <OverviewPage
+          metrics={metrics}
+          weddings={weddings}
           onSelectWedding={handleSelectWedding}
-          onResetDemoData={api.resetDemoData}
-          activeLateCount={activeLateCount}
+          onNavigateToTab={setCurrentTab}
         />
+      )}
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
-          {currentTab === 'overview' && (
-            <OverviewPage
-              metrics={metrics}
-              weddings={weddings}
-              onSelectWedding={handleSelectWedding}
-              onNavigateToTab={setCurrentTab}
-            />
-          )}
+      {currentTab === 'enquiries' && (
+        <EnquiriesPage
+          enquiries={enquiries}
+          onSignAgreement={handleSignAgreement}
+          onNavigateToTab={setCurrentTab}
+        />
+      )}
 
-          {currentTab === 'enquiries' && (
-            <EnquiriesPage
-              enquiries={enquiries}
-              onSignAgreement={handleSignAgreement}
-              onNavigateToTab={setCurrentTab}
-            />
-          )}
+      {currentTab === 'clients' && (
+        <ClientsPage weddings={weddings} />
+      )}
 
-          {currentTab === 'clients' && (
-            <ClientsPage weddings={weddings} />
-          )}
+      {currentTab === 'weddings' && (
+        <WeddingsPage
+          weddings={weddings}
+          currentWedding={currentWedding}
+          onSelectWedding={handleSelectWedding}
+          onNavigateToTab={setCurrentTab}
+        />
+      )}
 
-          {currentTab === 'weddings' && (
-            <WeddingsPage
-              weddings={weddings}
-              currentWedding={currentWedding}
-              onSelectWedding={handleSelectWedding}
-              onNavigateToTab={setCurrentTab}
-            />
-          )}
+      {currentTab === 'vendors' && (
+        <VendorsPage />
+      )}
 
-          {currentTab === 'vendors' && (
-            <VendorsPage />
-          )}
+      {currentTab === 'quotations' && (
+        <QuotationsPage
+          quotes={quotes}
+          currentWedding={currentWedding}
+          onSelectWinner={handleSelectWinningCaterer}
+          onNavigateToTab={setCurrentTab}
+        />
+      )}
 
-          {currentTab === 'quotations' && (
-            <QuotationsPage
-              quotes={quotes}
-              currentWedding={currentWedding}
-              onSelectWinner={handleSelectWinningCaterer}
-              onNavigateToTab={setCurrentTab}
-            />
-          )}
+      {currentTab === 'tasks' && (
+        <PlanningTasksPage
+          tasks={tasks}
+          currentWedding={currentWedding}
+          onUpdateStage={handleUpdateTaskStage}
+        />
+      )}
 
-          {currentTab === 'tasks' && (
-            <PlanningTasksPage
-              tasks={tasks}
-              currentWedding={currentWedding}
-              onUpdateStage={handleUpdateTaskStage}
-            />
-          )}
+      {currentTab === 'command-centre' && (
+        <CommandCentrePage
+          runSheet={runSheet}
+          arrivals={arrivals}
+          delays={delays}
+          incidents={incidents}
+          onCheckinVendor={handleCheckinVendor}
+          onAcknowledgeInstruction={handleAcknowledgeDelay}
+          onResolveIncident={handleResolveIncident}
+        />
+      )}
 
-          {currentTab === 'command-centre' && (
-            <CommandCentrePage
-              runSheet={runSheet}
-              arrivals={arrivals}
-              delays={delays}
-              incidents={incidents}
-              onCheckinVendor={handleCheckinVendor}
-              onAcknowledgeInstruction={handleAcknowledgeDelay}
-              onResolveIncident={handleResolveIncident}
-            />
-          )}
+      {currentTab === 'finance' && (
+        <FinancePage
+          currentWedding={currentWedding}
+          changeOrders={changeOrders}
+          settlements={settlements}
+          onDisbursePayment={handleDisbursePayment}
+          onApproveChangeOrder={handleApproveChangeOrder}
+        />
+      )}
 
-          {currentTab === 'finance' && (
-            <FinancePage
-              currentWedding={currentWedding}
-              changeOrders={changeOrders}
-              settlements={settlements}
-              onDisbursePayment={handleDisbursePayment}
-              onApproveChangeOrder={handleApproveChangeOrder}
-            />
-          )}
+      {currentTab === 'reports' && (
+        <ReportsPage metrics={metrics} />
+      )}
 
-          {currentTab === 'reports' && (
-            <ReportsPage metrics={metrics} />
-          )}
-
-          {currentTab === 'settings' && (
-            <SettingsPage />
-          )}
-        </main>
-      </div>
-    </div>
+      {currentTab === 'settings' && (
+        <SettingsPage />
+      )}
+    </AppLayout>
   );
 }
 
