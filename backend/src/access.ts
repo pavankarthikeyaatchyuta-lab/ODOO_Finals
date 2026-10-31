@@ -22,6 +22,7 @@ export function presentWedding(row: WeddingRow, user: UserProfile) {
     id: row.id, title: row.title, weddingDate: row.weddingDate?.toISOString().slice(0, 10) ?? null,
     packageType: row.packageType, state: row.state, guestCount: row.guestCount,
     preferredTheme: row.preferredTheme, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(),
+    coupleDetails: row.coupleDetails, location: row.location, requirements: row.requirements, currency: row.currency,
   };
   if (user.role === 'CLIENT') return visible;
   return { ...visible, internalNotes: row.internalNotes, clientIds: row.clients.map(c => c.clientId), assignedUserIds: row.assignments.map(a => a.userId),
@@ -29,7 +30,7 @@ export function presentWedding(row: WeddingRow, user: UserProfile) {
 }
 export function presentEnquiry(row: Prisma.EnquiryGetPayload<{}>, user: UserProfile) {
   const visible = { id: row.id, weddingId: row.weddingId, stage: row.stage, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() };
-  return user.role === 'CLIENT' ? visible : { ...visible, source: row.source, internalNotes: row.internalNotes };
+  return user.role === 'CLIENT' ? visible : { ...visible, source: row.source, internalNotes: row.internalNotes, followUpStatus: row.followUpStatus, followUpAt: row.followUpAt?.toISOString() ?? null, assignedToId: row.assignedToId };
 }
 export function presentConsultation(row: Prisma.ConsultationGetPayload<{}>, user: UserProfile) {
   const visible = { id: row.id, weddingId: row.weddingId, state: row.state, preferredAt: row.preferredAt.toISOString(), message: row.message,

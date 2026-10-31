@@ -13,8 +13,14 @@ import { registerClientsRoutes } from './routes/clients.js';
 import { registerEnquiriesRoutes } from './routes/enquiries.js';
 import { registerWeddingsRoutes } from './routes/weddings.js';
 import { registerConsultationsRoutes } from './routes/consultations.js';
+import { registerDocumentsRoutes } from './routes/documents.js';
+import { registerAgreementsRoutes } from './routes/agreements.js';
+import { registerVendorsRoutes } from './routes/vendors.js';
+import { registerQuotationsRoutes } from './routes/quotations.js';
+import { registerActivityRoutes } from './routes/activity.js';
+import { unavailableStore, type DocumentStore } from './storage.js';
 
-export interface AppConfig { allowedOrigins: string[] }
+export interface AppConfig { allowedOrigins: string[]; documents?: DocumentStore }
 const base = '/api/v1';
 
 export function createApp(db: PrismaClient, identity: IdentityProvider, config: AppConfig, app = express()) {
@@ -41,6 +47,11 @@ export function createApp(db: PrismaClient, identity: IdentityProvider, config: 
   registerEnquiriesRoutes(route);
   registerWeddingsRoutes(route);
   registerConsultationsRoutes(route);
+  registerDocumentsRoutes(route, config.documents ?? unavailableStore);
+  registerAgreementsRoutes(route);
+  registerVendorsRoutes(route);
+  registerQuotationsRoutes(route);
+  registerActivityRoutes(route);
   app.use((_req, _res, next) => next(missing()));
   app.use(errorHandler);
   return app;

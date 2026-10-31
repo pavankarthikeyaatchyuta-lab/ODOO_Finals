@@ -5,6 +5,7 @@ const schema = z.object({
   SUPABASE_URL: z.url().refine(value => ['https:', 'http:'].includes(new URL(value).protocol)),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20), ALLOWED_ORIGINS: z.string().min(1), AUTH_REDIRECT_URL: z.url(),
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
+  DOCUMENT_BUCKET: z.string().regex(/^[a-z0-9-]+$/).default('wedding-documents'),
 });
 export function readConfig(input: NodeJS.ProcessEnv) {
   const env = schema.parse(input);

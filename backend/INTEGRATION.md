@@ -1,5 +1,7 @@
 # Phase 1 frontend contract
 
+**Phase 2 update:** [PHASE_2_API.md](PHASE_2_API.md) and current OpenAPI/shared types add client requirements, enquiry follow-up/assignment, verified agreement documents, gated sharing, vendors and transactional quotation comparison/selection. Historical Phase 1 examples below describe the original foundation; use the current generated schemas for additive response fields.
+
 This replaces all Odoo models, ORM methods and XML/OWL integration described in the historical frontend plan. Use React + Vite + TypeScript. API and financial authority belong to Express. Phase 1 has no agreements, vendor screens, financial workflows or command-centre endpoints.
 
 ## Existing frontend scaffold handoff

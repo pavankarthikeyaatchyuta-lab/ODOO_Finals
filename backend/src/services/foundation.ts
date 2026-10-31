@@ -20,7 +20,7 @@ export async function createWedding(tx: Tx, user: UserProfile, body: z.infer<typ
     ...body.wedding, weddingDate: body.wedding.weddingDate ? new Date(body.wedding.weddingDate) : null,
     clients: { create: body.clientIds.map(clientId => ({ clientId })) },
     ...(user.role === 'PLANNER' ? { assignments: { create: { userId: user.id } } } : {}),
-    ...(enquiry ? { enquiry: { create: enquiry } } : {}),
+    ...(enquiry ? { enquiry: { create: { ...enquiry, ...(user.role === 'PLANNER' ? { assignedToId: user.id } : {}) } } } : {}),
   }, include: { ...weddingInclude, enquiry: true } });
   await audit(tx, user.id, enquiry ? 'ENQUIRY_CREATED' : 'WEDDING_CREATED', wedding.enquiry?.id ?? wedding.id, wedding.id);
   return wedding;

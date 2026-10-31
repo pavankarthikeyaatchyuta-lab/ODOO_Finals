@@ -20,7 +20,8 @@ export async function read(ctx: Context<unknown, unknown>) {
 }
 export async function update({ tx, user, params, body }: Context<z.infer<typeof c.weddingPatch>, unknown>) {
   const before = await weddingAccess(tx, user, params.id!, true);
-  if (body.state && !({ ENQUIRY: ['PROPOSAL', 'CANCELLED'], PROPOSAL: ['ENQUIRY', 'CANCELLED'] } as Record<string, string[]>)[before.state]?.includes(body.state)) throw new ApiError(409, 'INVALID_TRANSITION', 'This wedding lifecycle transition is unavailable in Phase 1');
+  if (body.state && !({ ENQUIRY: ['PROPOSAL', 'CANCELLED'], PROPOSAL: ['ENQUIRY', 'CANCELLED'], AGREEMENT: ['CANCELLED'] } as Record<string, string[]>)[before.state]?.includes(body.state)) throw new ApiError(409, 'INVALID_TRANSITION', 'This wedding lifecycle transition is unavailable in Phase 1');
+  if (body.currency && body.currency !== before.currency && await tx.quotationRound.count({ where: { weddingId: before.id } })) throw new ApiError(409, 'CURRENCY_LOCKED', 'Currency cannot change after procurement starts');
   const row = await tx.wedding.update({ where: { id: params.id }, data: { ...body, ...(body.weddingDate !== undefined ? { weddingDate: body.weddingDate ? new Date(body.weddingDate) : null } : {}) }, include: weddingInclude });
   await audit(tx, user.id, 'WEDDING_UPDATED', row.id, row.id, { previousState: before.state, state: row.state });
   return presentWedding(row, user);

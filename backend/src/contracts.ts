@@ -11,12 +11,16 @@ const text = z.string().trim().min(1).max(200);
 export const email = z.email().max(254).transform(v => v.toLowerCase());
 const notes = z.string().trim().max(5000).nullable();
 export const pageQuery = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(25) }).strict();
-export const clientInput = z.object({ name: text, email, phone: z.string().trim().min(3).max(40).nullable().optional() }).strict();
+export const clientInput = z.object({ name: text, email, phone: z.string().trim().min(3).max(40).nullable().optional(), requirements: z.string().trim().max(5000).nullable().optional() }).strict();
 export const clientPatch = clientInput.partial().refine(v => Object.keys(v).length > 0);
 export const weddingInput = z.object({
   title: text, weddingDate: z.iso.date().nullable().optional(), packageType,
   guestCount: z.number().int().min(1).max(100000).nullable().optional(),
   preferredTheme: z.string().trim().max(200).nullable().optional(),
+  coupleDetails: z.string().trim().max(2000).nullable().optional(),
+  location: z.string().trim().max(300).nullable().optional(),
+  requirements: z.string().trim().max(5000).nullable().optional(),
+  currency: z.enum(['INR', 'USD', 'EUR', 'GBP', 'AED']).optional(),
   budgetMax: z.string().regex(/^\d{1,14}(\.\d{1,2})?$/).nullable().optional(),
   internalNotes: notes.optional(),
 }).strict();
@@ -25,7 +29,8 @@ export const enquiryInput = z.object({
   wedding: weddingInput, source: z.string().trim().max(100).nullable().optional(), internalNotes: notes.optional(),
 }).strict();
 export const createWeddingInput = z.object({ clientIds: enquiryInput.shape.clientIds, wedding: weddingInput }).strict();
-export const enquiryPatch = z.object({ stage: enquiryStage.optional(), source: z.string().trim().max(100).nullable().optional(), internalNotes: notes.optional() }).strict().refine(v => Object.keys(v).length > 0);
+export const followUpStatus = z.enum(['PENDING', 'CONTACTED', 'FOLLOW_UP_DUE', 'CLOSED']);
+export const enquiryPatch = z.object({ stage: enquiryStage.optional(), source: z.string().trim().max(100).nullable().optional(), internalNotes: notes.optional(), followUpStatus: followUpStatus.optional(), followUpAt: timestamp.nullable().optional() }).strict().refine(v => Object.keys(v).length > 0);
 export const weddingPatch = weddingInput.partial().extend({ state: z.enum(['ENQUIRY', 'PROPOSAL', 'CANCELLED']).optional() }).strict().refine(v => Object.keys(v).length > 0);
 export const requestConsultation = z.object({ weddingId: uuid, preferredAt: timestamp, message: z.string().trim().max(2000).nullable().optional() }).strict();
 export const consultationDecision = z.discriminatedUnion('state', [
@@ -38,12 +43,12 @@ export const invitationInput = z.object({ email, displayName: text, role: role.e
 });
 export const userPatch = z.object({ role: role.exclude(['FOUNDER', 'CLIENT']).optional(), active: z.boolean().optional() }).strict().refine(v => Object.keys(v).length > 0);
 export const profileDto = z.object({ id: uuid, email: z.email(), displayName: z.string(), role, active: z.boolean(), timezone: z.literal('Asia/Kolkata') }).strict();
-export const clientDto = z.object({ id: uuid, name: z.string(), email: z.email(), phone: z.string().nullable(), userId: uuid.nullable(), archivedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
-export const clientWeddingDto = z.object({ id: uuid, title: z.string(), weddingDate: z.iso.date().nullable(), packageType, state: weddingState, guestCount: z.number().int().nullable(), preferredTheme: z.string().nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
+export const clientDto = z.object({ id: uuid, name: z.string(), email: z.email(), phone: z.string().nullable(), requirements: z.string().nullable(), userId: uuid.nullable(), archivedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
+export const clientWeddingDto = z.object({ id: uuid, title: z.string(), weddingDate: z.iso.date().nullable(), packageType, state: weddingState, guestCount: z.number().int().nullable(), preferredTheme: z.string().nullable(), coupleDetails: z.string().nullable(), location: z.string().nullable(), requirements: z.string().nullable(), currency: z.string(), createdAt: timestamp, updatedAt: timestamp }).strict();
 export const staffWeddingDto = clientWeddingDto.extend({ budgetMax: z.string().nullable().optional(), internalNotes: z.string().nullable(), clientIds: z.array(uuid), assignedUserIds: z.array(uuid) }).strict();
 export const weddingDto = z.union([staffWeddingDto, clientWeddingDto]);
 export const clientEnquiryDto = z.object({ id: uuid, weddingId: uuid, stage: enquiryStage, createdAt: timestamp, updatedAt: timestamp }).strict();
-export const staffEnquiryDto = clientEnquiryDto.extend({ source: z.string().nullable(), internalNotes: z.string().nullable() }).strict();
+export const staffEnquiryDto = clientEnquiryDto.extend({ source: z.string().nullable(), internalNotes: z.string().nullable(), followUpStatus, followUpAt: timestamp.nullable(), assignedToId: uuid.nullable() }).strict();
 export const enquiryDto = z.union([staffEnquiryDto, clientEnquiryDto]);
 export const clientConsultationDto = z.object({ id: uuid, weddingId: uuid, state: consultationState, preferredAt: timestamp, message: z.string().nullable(), startAt: timestamp.nullable(), endAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
 export const staffConsultationDto = clientConsultationDto.extend({ plannerId: uuid.nullable(), internalNotes: z.string().nullable(), requestedBy: uuid }).strict();

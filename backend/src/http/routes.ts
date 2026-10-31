@@ -19,16 +19,16 @@ export function createRouteRegistrar(app: Express, db: PrismaClient) {
   const namedSchemas = new Map<z.ZodType, string>([[c.errorDto, 'ErrorResponse'], [c.profileDto, 'UserProfile'], [c.clientDto, 'Client'], [c.weddingDto, 'WeddingResponse'], [c.enquiryDto, 'EnquiryResponse'], [c.consultationDto, 'ConsultationResponse'], [c.assignmentDto, 'WeddingAssignment']]);
   const schemas = Object.fromEntries([...namedSchemas].map(([schema, name]) => [name, z.toJSONSchema(schema, { unrepresentable: 'any' })]));
   const responseSchema = (schema: z.ZodType) => namedSchemas.has(schema) ? { $ref: `#/components/schemas/${namedSchemas.get(schema)}` } : z.toJSONSchema(schema, { unrepresentable: 'any' });
-  app.locals.openapi = { openapi: '3.1.0', info: { title: 'The Royal Knot Phase 1 API', version: '1.0.0' }, servers: [{ url: '/' }],
+  app.locals.openapi = { openapi: '3.1.0', info: { title: 'The Royal Knot API', version: '1.1.0' }, servers: [{ url: '/' }],
     components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } }, schemas }, paths };
   for (const name of ['health', 'ready', 'openapi.json']) paths[`${base}/${name}`] = { get: { security: [], responses: { '200': { description: 'Success' }, ...(name === 'ready' ? { '503': { description: 'Unavailable' } } : {}) } } };
 
   function route<B extends z.ZodType = typeof empty, Q extends z.ZodType = typeof empty>(method: 'get' | 'post' | 'patch' | 'delete', path: string, options: {
-    summary: string; roles?: Role[]; body?: B; query?: Q; response: z.ZodType;
+    summary: string; roles?: Role[]; body?: B; query?: Q; response: z.ZodType; cacheResponse?: boolean;
     guard?: (ctx: Context<z.output<B>, z.output<Q>>) => Promise<unknown>;
     handler: (ctx: Context<z.output<B>, z.output<Q>>) => Promise<unknown>;
   }) {
-    const write = method !== 'get';
+    const write = method !== 'get' && options.cacheResponse !== false;
     const parameters: Record<string, unknown>[] = [...path.matchAll(/:([A-Za-z]+)/g)].map(m => ({ name: m[1], in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }));
     if (write) parameters.push({ name: 'Idempotency-Key', in: 'header', required: true, schema: { type: 'string', minLength: 8, maxLength: 128 }, description: 'Reuse only for retries of the same request. Different payload returns 409.' });
     if (options.query) {
@@ -45,6 +45,7 @@ export function createRouteRegistrar(app: Express, db: PrismaClient) {
     };
     app[method](`${base}${path}`, async (req, res, next) => {
       try {
+        if (options.cacheResponse === false) res.set('Cache-Control', 'no-store');
         const user = res.locals.user as UserProfile;
         if (!(options.roles ?? everyone).includes(user.role)) throw forbidden();
         const params = z.record(z.string(), c.uuid).parse(req.params);

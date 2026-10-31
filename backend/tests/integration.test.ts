@@ -83,7 +83,7 @@ describe('authentication, authorization and privacy', () => {
   });
   it('returns only explicit client-visible fields on detail and list responses', async () => {
     const wedding = await api('get', `/weddings/${weddingId}`, 'client').expect(200);
-    assert.deepEqual(Object.keys(wedding.body).sort(), ['id', 'title', 'weddingDate', 'packageType', 'state', 'guestCount', 'preferredTheme', 'createdAt', 'updatedAt'].sort());
+    assert.deepEqual(Object.keys(wedding.body).sort(), ['id', 'title', 'weddingDate', 'packageType', 'state', 'guestCount', 'preferredTheme', 'coupleDetails', 'location', 'requirements', 'currency', 'createdAt', 'updatedAt'].sort());
     const enquiries = await api('get', '/enquiries', 'client').expect(200);
     const enquiry = await api('get', `/enquiries/${enquiryId}`, 'client').expect(200);
     for (const row of [enquiry.body, ...enquiries.body.data]) assert.deepEqual(Object.keys(row).sort(), ['id', 'weddingId', 'stage', 'createdAt', 'updatedAt'].sort());
