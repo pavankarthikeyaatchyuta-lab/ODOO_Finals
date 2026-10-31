@@ -10,6 +10,7 @@ export interface AppLayoutProps {
   weddingsList: Wedding[];
   onSelectWedding: (wedding: Wedding) => void;
   onResetDemoData: () => void;
+  onViewShowcase?: () => void;
   activeLateCount?: number;
   openIncidentsCount?: number;
   isBackendConnected?: boolean;
@@ -23,6 +24,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   weddingsList,
   onSelectWedding,
   onResetDemoData,
+  onViewShowcase,
   activeLateCount = 0,
   openIncidentsCount = 0,
   isBackendConnected = false,
@@ -49,12 +51,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           weddingsList={weddingsList}
           onSelectWedding={onSelectWedding}
           onResetDemoData={onResetDemoData}
+          onViewShowcase={onViewShowcase}
           activeLateCount={activeLateCount}
+          openIncidentsCount={openIncidentsCount}
           isBackendConnected={isBackendConnected}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Dynamic Page Content */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

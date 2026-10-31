@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useAuth, DEMO_PROFILES, AppRole } from '../../context/AuthContext';
-import { Crown, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Building, Store, Heart } from 'lucide-react';
+import { Crown, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Building, Store, Heart, ArrowLeft } from 'lucide-react';
 
 interface LoginPageProps {
   onNavigateToRegister?: () => void;
   onNavigateToForgotPassword?: () => void;
   onNavigateToInvite?: (token: string) => void;
+  onBackToLanding?: () => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToForgotPassword,
-  onNavigateToInvite
+  onNavigateToInvite,
+  onBackToLanding
 }) => {
   const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('founder@theroyalknot.com');
@@ -45,10 +47,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     try {
       const success = await login(email, password);
       if (!success) {
-        setErrorMessage('Authentication failed. Please verify your credentials or invitation status.');
+        setErrorMessage('Authentication rejected. Please check credentials or select a verified demo persona.');
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Unable to connect to authorization server. Please try again.');
+    } catch {
+      setErrorMessage('A network error occurred while connecting to the authorization service.');
     }
   };
 
@@ -61,6 +63,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       </div>
 
       <div className="w-full max-w-md relative z-10 space-y-6">
+        {/* Back to Landing link if provided */}
+        {onBackToLanding && (
+          <div className="text-center">
+            <button
+              onClick={onBackToLanding}
+              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#0D1B2A] font-semibold transition-colors py-1 px-3 rounded-full hover:bg-slate-200/50"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Public Showcase & Landing Page</span>
+            </button>
+          </div>
+        )}
+
         {/* Brand Logo & Header */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 bg-[#0D1B2A] rounded-2xl border border-[#C5A059]/40 shadow-md flex items-center justify-center mx-auto">
@@ -83,97 +98,78 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <button
               type="button"
               onClick={() => handleRolePreset('FOUNDER')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'FOUNDER'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Building className="w-3.5 h-3.5 mx-auto mb-0.5 text-[#1B3B6F]" />
-              <span className="text-[11px] block">Admin</span>
+              Founder
             </button>
-
             <button
               type="button"
               onClick={() => handleRolePreset('PLANNER')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'PLANNER'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 mx-auto mb-0.5 text-[#C5A059]" />
-              <span className="text-[11px] block">Planner</span>
+              Planner
             </button>
-
             <button
               type="button"
               onClick={() => handleRolePreset('COORDINATOR')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'COORDINATOR'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5 mx-auto mb-0.5 text-emerald-600" />
-              <span className="text-[11px] block">Coord.</span>
+              Coordinator
             </button>
-
             <button
               type="button"
               onClick={() => handleRolePreset('FINANCE')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'FINANCE'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <span className="font-mono text-xs font-bold text-[#1B3B6F] block">₹</span>
-              <span className="text-[11px] block">Finance</span>
+              Finance
             </button>
-
             <button
               type="button"
               onClick={() => handleRolePreset('VENDOR')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'VENDOR'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Store className="w-3.5 h-3.5 mx-auto mb-0.5 text-amber-600" />
-              <span className="text-[11px] block">Vendor</span>
+              Caterer
             </button>
-
             <button
               type="button"
               onClick={() => handleRolePreset('CLIENT')}
-              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+              className={`py-1.5 px-2 rounded-lg font-medium text-center transition-all ${
                 selectedPresetRole === 'CLIENT'
-                  ? 'border-[#C5A059] bg-[#FDFBF7] font-bold text-[#0D1B2A] shadow-2xs'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                  ? 'bg-[#0D1B2A] text-[#C5A059] shadow-xs'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <Heart className="w-3.5 h-3.5 mx-auto mb-0.5 text-rose-500" />
-              <span className="text-[11px] block">Couple</span>
+              Couple
             </button>
           </div>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xl space-y-6">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 className="font-serif font-bold text-lg text-[#0D1B2A]">
-              Secure Stakeholder Sign In
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Access your personalized management portal with verified permissions.
-            </p>
-          </div>
-
+        {/* Primary Login Card */}
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-6 sm:p-8 space-y-5">
           {errorMessage && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-medium animate-in fade-in">
-              {errorMessage}
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-shake">
+              <ShieldCheck className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
             </div>
           )}
 
@@ -183,47 +179,51 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 Official Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4 h-4" />
+                </div>
                 <input
                   type="email"
-                  required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="name@theroyalknot.com"
-                  className="w-full text-xs font-medium pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#C5A059] focus:border-transparent text-xs text-[#0D1B2A] bg-slate-50/50"
+                  required
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  Password
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Security Passphrase
                 </label>
                 {onNavigateToForgotPassword && (
                   <button
                     type="button"
                     onClick={onNavigateToForgotPassword}
-                    className="text-[11px] font-semibold text-[#1B3B6F] hover:text-[#0D1B2A] cursor-pointer"
+                    className="text-[11px] text-[#C5A059] hover:underline font-medium"
                   >
-                    Forgot password?
+                    Forgot Password?
                   </button>
                 )}
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full text-xs font-medium pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                  className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#C5A059] focus:border-transparent text-xs text-[#0D1B2A] bg-slate-50/50"
+                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -233,31 +233,43 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#1B3B6F] hover:bg-[#0D1B2A] text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full py-3 px-4 rounded-xl bg-[#0D1B2A] text-[#DFCA9B] font-bold text-xs uppercase tracking-wider hover:bg-slate-900 transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
             >
-              <span>{isLoading ? 'Verifying Credentials...' : 'Sign In to Portal'}</span>
-              <ArrowRight className="w-4 h-4 text-[#DFCA9B]" />
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-[#DFCA9B] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>Authenticate & Enter Workspace</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
-          {/* Invitation Acceptance Link */}
+          {/* Invitation code link */}
           {onNavigateToInvite && (
-            <div className="pt-2 text-center text-xs text-slate-500 border-t border-slate-100">
-              Have an official invitation link?{' '}
+            <div className="pt-2 border-t border-slate-100 text-center">
               <button
                 type="button"
                 onClick={() => onNavigateToInvite('inv-demo-2026-partner')}
-                className="font-semibold text-[#C5A059] hover:underline cursor-pointer ml-1"
+                className="text-xs text-slate-500 hover:text-[#0D1B2A] font-medium"
               >
-                Accept Invitation
+                Received a partner invitation link? <strong className="text-[#C5A059] underline">Accept Invite</strong>
               </button>
             </div>
           )}
         </div>
 
-        <p className="text-[11px] text-center text-slate-400">
-          Governed by strict role-based access control and Supabase authentication.
-        </p>
+        {/* Security & Confidentiality Footer */}
+        <div className="text-center space-y-1">
+          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Strict Role-Based Confidentiality Active</span>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            The Royal Knot Luxury Wedding Management · Version 2.0.0
+          </p>
+        </div>
       </div>
     </div>
   );

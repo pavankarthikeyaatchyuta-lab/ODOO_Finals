@@ -5,6 +5,9 @@ import { AppLayout } from './components/layout/AppLayout';
 import { NavItemKey } from './components/layout/Sidebar';
 import { api } from './services/api';
 
+// Public Showcase & Landing Page
+import { LandingPage } from './pages/LandingPage';
+
 // Authentication Pages
 import { LoginPage } from './pages/auth/LoginPage';
 import { InvitationAcceptPage } from './pages/auth/InvitationAcceptPage';
@@ -61,7 +64,8 @@ function MainApplicationRouter() {
   const [currentAgencyTab, setCurrentAgencyTab] = useState<NavItemKey>('overview');
   const [currentVendorTab, setCurrentVendorTab] = useState<VendorTabKey>('overview');
   const [currentClientTab, setCurrentClientTab] = useState<ClientTabKey>('overview');
-  const [authView, setAuthView] = useState<'login' | 'invite' | 'forgot' | 'reset'>('login');
+  const [authView, setAuthView] = useState<'landing' | 'login' | 'invite' | 'forgot' | 'reset'>('landing');
+  const [showPublicLanding, setShowPublicLanding] = useState<boolean>(false);
 
   // Operational state
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
@@ -274,8 +278,42 @@ function MainApplicationRouter() {
     }
   };
 
-  // 1. Unauthenticated View: Auth Suite
+  // Preview Mode for Authenticated Users wanting to view Public Showcase
+  if (showPublicLanding) {
+    return (
+      <div>
+        <div className="bg-[#0D1B2A] text-white px-4 py-2 border-b border-[#C5A059]/40 flex items-center justify-between text-xs sticky top-0 z-50 shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>
+              Signed in as <strong>{user?.displayName}</strong> ({user?.role}) · Previewing Public Showcase
+            </span>
+          </div>
+          <button
+            onClick={() => setShowPublicLanding(false)}
+            className="px-3 py-1 rounded-lg bg-[#C5A059] text-[#0D1B2A] font-bold text-xs hover:bg-[#d8b46e] transition-colors"
+          >
+            &larr; Return to Workspace
+          </button>
+        </div>
+        <LandingPage
+          onEnterPortal={() => setShowPublicLanding(false)}
+          onNavigateToLogin={() => setShowPublicLanding(false)}
+        />
+      </div>
+    );
+  }
+
+  // 1. Unauthenticated Views: Landing Page & Auth Suite
   if (!isAuthenticated) {
+    if (authView === 'landing') {
+      return (
+        <LandingPage
+          onEnterPortal={() => {}}
+          onNavigateToLogin={() => setAuthView('login')}
+        />
+      );
+    }
     if (authView === 'invite') {
       return (
         <InvitationAcceptPage
@@ -304,6 +342,7 @@ function MainApplicationRouter() {
       <LoginPage
         onNavigateToForgotPassword={() => setAuthView('forgot')}
         onNavigateToInvite={() => setAuthView('invite')}
+        onBackToLanding={() => setAuthView('landing')}
       />
     );
   }
@@ -402,6 +441,7 @@ function MainApplicationRouter() {
       weddingsList={weddings}
       onSelectWedding={handleSelectWedding}
       onResetDemoData={api.resetDemoData}
+      onViewShowcase={() => setShowPublicLanding(true)}
       activeLateCount={activeLateCount}
       openIncidentsCount={openIncidentsCount}
       isBackendConnected={isBackendConnected}
