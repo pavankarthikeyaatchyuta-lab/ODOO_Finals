@@ -50,7 +50,10 @@ const base = '/api/v1';
 export function createApp(db: PrismaClient, identity: IdentityProvider, config: AppConfig, app = express()) {
   app.disable('x-powered-by');
   app.use((_req, res, next) => { res.locals.requestId = randomUUID(); res.setHeader('X-Request-Id', res.locals.requestId); next(); });
-  app.use(helmet());
+  const helmetMiddleware = typeof helmet === 'function' ? helmet : (helmet as any).default;
+  if (typeof helmetMiddleware === 'function') {
+    app.use(helmetMiddleware());
+  }
   app.use(cors({ origin(origin, done) {
     if (!origin || config.allowedOrigins.includes(origin)) done(null, true);
     else done(new ApiError(403, 'ORIGIN_FORBIDDEN', 'Origin is not allowed'));
