@@ -1,7 +1,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-export type ButtonVariant = 'primary' | 'gold' | 'secondary' | 'danger' | 'ghost';
+export type ButtonVariant = 'primary' | 'gold' | 'secondary' | 'outline' | 'danger' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -31,6 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
     primary: 'bg-[#1B3B6F] hover:bg-[#0D1B2A] text-white shadow-xs focus:ring-[#1B3B6F] border border-transparent',
     gold: 'bg-gradient-to-r from-[#DFCA9B] to-[#C5A059] hover:from-[#C5A059] hover:to-[#9D7C36] text-[#0D1B2A] font-bold shadow-xs focus:ring-[#C5A059] border border-[#C5A059]/40',
     secondary: 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs focus:ring-slate-300',
+    outline: 'bg-transparent hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs focus:ring-slate-300',
     danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs focus:ring-rose-500 border border-transparent',
     ghost: 'bg-transparent hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-transparent'
   };

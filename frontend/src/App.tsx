@@ -193,11 +193,19 @@ export function App() {
           enquiries={enquiries}
           onSignAgreement={handleSignAgreement}
           onNavigateToTab={setCurrentTab}
+          onRefreshEnquiries={async () => {
+            const enq = await api.getEnquiries();
+            setEnquiries(enq);
+          }}
         />
       )}
 
       {currentTab === 'clients' && (
-        <ClientsPage weddings={weddings} />
+        <ClientsPage
+          weddings={weddings}
+          onNavigateToTab={setCurrentTab}
+          onSelectWedding={handleSelectWedding}
+        />
       )}
 
       {currentTab === 'weddings' && (

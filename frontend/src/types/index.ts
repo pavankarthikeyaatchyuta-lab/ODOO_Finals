@@ -30,6 +30,8 @@ export type ChangeOrderStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export type SettlementStatus = 'PENDING' | 'RECONCILED' | 'PAID';
 
+export type ConsultationState = 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
 // --- Wedding Master Record ---
 export interface Wedding {
   id: string;
@@ -78,6 +80,43 @@ export interface Enquiry {
   createdAt: string;
 }
 
+// --- Consultation Record ---
+export interface Consultation {
+  id: string;
+  weddingId: string;
+  enquiryId?: string;
+  coupleName: string;
+  state: ConsultationState;
+  preferredAt: string;
+  message?: string;
+  startAt?: string;
+  endAt?: string;
+  plannerId?: string;
+  plannerName?: string;
+  internalNotes?: string;
+  createdAt: string;
+}
+
+// --- Agreement Details & Document Attachment ---
+export interface AgreementDetails {
+  id: string;
+  enquiryId: string;
+  weddingId: string;
+  coupleNames: string;
+  signedDate?: string;
+  status: 'DRAFT' | 'SENT_FOR_SIGNATURE' | 'SIGNED' | 'VERIFIED';
+  packageType: PackageType;
+  totalFee: number;
+  milestone1Deposit: number;
+  milestone2Advance: number;
+  milestone3Final: number;
+  pdfUrl?: string;
+  signedDocumentName?: string;
+  signedDocumentSize?: string;
+  clientSignerName?: string;
+  clientSignerIp?: string;
+}
+
 // --- Vendor & Quotation Records ---
 export interface CatererQuote {
   id: string;
@@ -98,6 +137,30 @@ export interface CatererQuote {
   inclusions: string[];
   exclusions: string[];
   submittedDate: string;
+}
+
+// --- Vendor Profile & Historical Directory ---
+export interface VendorProfile {
+  id: string;
+  name: string;
+  category: string;
+  location: string;
+  rating: number; // e.g. 4.9
+  punctuality: string; // "98%"
+  status: 'CONTRACTED' | 'STANDBY' | 'ACTIVE_LATE' | 'AVAILABLE';
+  contactPerson: string;
+  phone: string;
+  email: string;
+  specialties: string[];
+  pastWeddings: Array<{
+    weddingCode: string;
+    coupleNames: string;
+    seasonYear: number;
+    performanceReview: string;
+    rating: number;
+  }>;
+  incidentCount: number;
+  priceRange: string;
 }
 
 // --- Automated Planning Tasks ---

@@ -1,6 +1,9 @@
 import {
   Wedding,
   Enquiry,
+  Consultation,
+  AgreementDetails,
+  VendorProfile,
   CatererQuote,
   WeddingTask,
   RunSheetItem,
@@ -607,3 +610,192 @@ export const INITIAL_SEASON_METRICS: SeasonMetrics = {
     { weddingId: 'wed-005', name: 'Verma-Chopra (Taj Lake)', revenue: 42000000, cost: 29000000, labor: 3500000, profit: 9500000, margin: 22.62, status: 'CLOSED' }
   ]
 };
+
+export const INITIAL_CONSULTATIONS: Consultation[] = [
+  {
+    id: 'con-001',
+    weddingId: 'wed-001',
+    enquiryId: 'enq-101',
+    coupleName: 'Rahul Sharma & Ananya Singh',
+    state: 'COMPLETED',
+    preferredAt: '2026-08-10T14:30:00+05:30',
+    message: 'Review destination feasibility for Jagmandir Palace, Udaipur and review preliminary regional catering options.',
+    startAt: '2026-08-10T14:30:00+05:30',
+    endAt: '2026-08-10T15:30:00+05:30',
+    plannerId: 'usr-002',
+    plannerName: 'Priya Mehra (Lead Luxury Director)',
+    internalNotes: 'Client aligned on Full-Service package. Service agreement generated and e-signed.',
+    createdAt: '2026-08-05T10:00:00+05:30'
+  },
+  {
+    id: 'con-002',
+    weddingId: 'wed-002',
+    enquiryId: 'enq-102',
+    coupleName: 'Aditya Singhania & Meera Merchant',
+    state: 'CONFIRMED',
+    preferredAt: '2026-11-05T16:00:00+05:30',
+    message: 'First consultation to review Rambagh Palace dates and Jain catering standards for 500 guests.',
+    startAt: '2026-11-05T16:00:00+05:30',
+    endAt: '2026-11-05T17:00:00+05:30',
+    plannerId: 'usr-002',
+    plannerName: 'Priya Mehra',
+    internalNotes: 'Must complete digital agreement signing before sharing floral and layout designs.',
+    createdAt: '2026-10-25T11:30:00+05:30'
+  },
+  {
+    id: 'con-003',
+    weddingId: 'wed-003',
+    enquiryId: 'enq-103',
+    coupleName: 'Arjun Mehta & Sneha Reddy',
+    state: 'REQUESTED',
+    preferredAt: '2026-11-12T11:00:00+05:30',
+    message: 'Couple requested initial video consultation regarding Day-of coordination at Nahargarh Fort.',
+    plannerName: 'Siddharth Jain (Pending Confirmation)',
+    createdAt: '2026-10-30T15:00:00+05:30'
+  }
+];
+
+export const INITIAL_AGREEMENTS: AgreementDetails[] = [
+  {
+    id: 'agr-001',
+    enquiryId: 'enq-101',
+    weddingId: 'wed-001',
+    coupleNames: 'Rahul Sharma & Ananya Singh',
+    signedDate: '2026-08-15',
+    status: 'VERIFIED',
+    packageType: 'full_service',
+    totalFee: 3500000, // ₹35 Lakhs planning fee
+    milestone1Deposit: 1000000,
+    milestone2Advance: 1500000,
+    milestone3Final: 1000000,
+    pdfUrl: '/agreements/TheRoyalKnot_Agreement_SharmaSingh.pdf',
+    signedDocumentName: 'TRK-2026-SharmaSingh-Executed.pdf',
+    signedDocumentSize: '2.4 MB',
+    clientSignerName: 'Rahul Sharma & Ananya Singh',
+    clientSignerIp: '103.211.54.12 (Aadhaar / Mobile OTP Verified)'
+  },
+  {
+    id: 'agr-002',
+    enquiryId: 'enq-102',
+    weddingId: 'wed-002',
+    coupleNames: 'Aditya Singhania & Meera Merchant',
+    status: 'SENT_FOR_SIGNATURE',
+    packageType: 'full_service',
+    totalFee: 4500000,
+    milestone1Deposit: 1500000,
+    milestone2Advance: 2000000,
+    milestone3Final: 1000000
+  }
+];
+
+export const INITIAL_VENDOR_PROFILES: VendorProfile[] = [
+  {
+    id: 'v-01',
+    name: 'SpiceHeaven Royal Caterers',
+    category: 'Catering & Beverages',
+    location: 'Jaipur & Udaipur Hubs',
+    rating: 4.9,
+    punctuality: '98%',
+    status: 'CONTRACTED',
+    contactPerson: 'Chef Raghvendra Singh',
+    phone: '+91 98290 55443',
+    email: 'raghvendra@spiceheavenroyal.com',
+    specialties: ['Royal Mewari Thali', 'Ker Sangri', 'Live Charcoal Daal Baati', 'Ghevar Live Counter'],
+    priceRange: '₹1,600 – ₹2,500 / Plate',
+    incidentCount: 0,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-014', coupleNames: 'Kapoor-Singhania', seasonYear: 2025, performanceReview: 'Flawless Rajasthani live stations and butler service.', rating: 5.0 },
+      { weddingCode: 'WED-2025-021', coupleNames: 'Mehta-Bansal', seasonYear: 2025, performanceReview: 'Handled 50 unexpected guests smoothly with zero buffet delay.', rating: 4.8 }
+    ]
+  },
+  {
+    id: 'v-02',
+    name: 'Mewar Gourmet Kitchen',
+    category: 'Catering & Beverages',
+    location: 'Udaipur',
+    rating: 4.6,
+    punctuality: '92%',
+    status: 'STANDBY',
+    contactPerson: 'Kailash Meena',
+    phone: '+91 98291 22334',
+    email: 'kailash@mewargourmet.com',
+    specialties: ['Marwari Royal Platter', 'Continental Live Bar', 'Kulfi Falooda'],
+    priceRange: '₹1,500 – ₹2,000 / Plate',
+    incidentCount: 1,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-008', coupleNames: 'Shah-Desai', seasonYear: 2025, performanceReview: 'Good food quality, slight delay in midnight dessert refilling.', rating: 4.5 }
+    ]
+  },
+  {
+    id: 'v-03',
+    name: 'Jaipur Floral Arts & Decor',
+    category: 'Floral & Mandap Styling',
+    location: 'Jaipur',
+    rating: 4.8,
+    punctuality: '95%',
+    status: 'CONTRACTED',
+    contactPerson: 'Harsh Vardhan',
+    phone: '+91 94140 12345',
+    email: 'harsh@jaipurfloralarts.com',
+    specialties: ['Heritage Mandap Canopies', 'Marigold Tunnels', 'Imported Orchid Chandeliers'],
+    priceRange: '₹25,00,000 – ₹80,00,000 / Event',
+    incidentCount: 1,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-019', coupleNames: 'Rathore-Singh', seasonYear: 2025, performanceReview: 'Spectacular floral aesthetics; needed generator backup.', rating: 4.8 }
+    ]
+  },
+  {
+    id: 'v-04',
+    name: 'DJ Shadow & Sound Rig',
+    category: 'DJ & Sound Acoustics',
+    location: 'Mumbai & Udaipur',
+    rating: 4.5,
+    punctuality: '88%',
+    status: 'ACTIVE_LATE',
+    contactPerson: 'Sunny K (Road Manager)',
+    phone: '+91 98200 99881',
+    email: 'bookings@djshadowdubai.com',
+    specialties: ['Bollywood Celebrity Sets', 'Line Array Concert Audio', 'Cold Pyro Integration'],
+    priceRange: '₹1,00,000 – ₹3,50,000 / Night',
+    incidentCount: 2,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-022', coupleNames: 'Oberoi-Chadha', seasonYear: 2025, performanceReview: 'Unmatched energy; sound check delayed by 30 mins.', rating: 4.4 }
+    ]
+  },
+  {
+    id: 'v-05',
+    name: 'Stories by Joseph Radhik',
+    category: 'Photography & Cinematography',
+    location: 'Pan-India / International',
+    rating: 5.0,
+    punctuality: '100%',
+    status: 'CONTRACTED',
+    contactPerson: 'Mohit Rao',
+    phone: '+91 98199 00112',
+    email: 'studios@storiesbyjosephradhik.com',
+    specialties: ['Cinematic Royal Portraits', 'Drone Fleet Coverage', 'Same-Day Highlights Reel'],
+    priceRange: '₹15,00,000 – ₹40,00,000 / Wedding',
+    incidentCount: 0,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-001', coupleNames: 'Dugar-Lodha', seasonYear: 2025, performanceReview: 'World-class imagery, impeccably punctual crew.', rating: 5.0 }
+    ]
+  },
+  {
+    id: 'v-06',
+    name: 'Royal Nagada Drummers & Shehnai',
+    category: 'Traditional Folk & Baraat',
+    location: 'Udaipur Old City',
+    rating: 4.9,
+    punctuality: '96%',
+    status: 'CONTRACTED',
+    contactPerson: 'Ustad Banne Khan',
+    phone: '+91 94141 88990',
+    email: 'info@udaipurfolkarts.org',
+    specialties: ['Baraat Nagada Beats', 'Shehnai Welcome', 'Ghoomar Dancers Ensemble'],
+    priceRange: '₹50,000 – ₹2,00,000 / Procession',
+    incidentCount: 0,
+    pastWeddings: [
+      { weddingCode: 'WED-2025-004', coupleNames: 'Chauhan-Solanki', seasonYear: 2025, performanceReview: 'Authentic royal welcome for boat procession.', rating: 4.9 }
+    ]
+  }
+];

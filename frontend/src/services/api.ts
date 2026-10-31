@@ -1,6 +1,9 @@
 import {
   Wedding,
   Enquiry,
+  Consultation,
+  AgreementDetails,
+  VendorProfile,
   CatererQuote,
   WeddingTask,
   RunSheetItem,
@@ -15,6 +18,9 @@ import {
 import {
   INITIAL_WEDDINGS,
   INITIAL_ENQUIRIES,
+  INITIAL_CONSULTATIONS,
+  INITIAL_AGREEMENTS,
+  INITIAL_VENDOR_PROFILES,
   INITIAL_CATERER_QUOTES,
   INITIAL_TASKS,
   INITIAL_RUN_SHEET,
@@ -56,9 +62,94 @@ export const api = {
     return list.find(w => w.id === id);
   },
 
-  // Enquiries & Digital Agreement
+  // Enquiries & Intake
   getEnquiries: async (): Promise<Enquiry[]> => {
     return getItem('enquiries', INITIAL_ENQUIRIES);
+  },
+
+  createEnquiry: async (enquiry: Omit<Enquiry, 'id' | 'createdAt'>): Promise<Enquiry> => {
+    const list = getItem('enquiries', INITIAL_ENQUIRIES);
+    const newEnquiry: Enquiry = {
+      ...enquiry,
+      id: `enq-${Date.now().toString().slice(-4)}`,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [newEnquiry, ...list];
+    setItem('enquiries', updated);
+    return newEnquiry;
+  },
+
+  updateEnquiryStatus: async (enquiryId: string, status: Enquiry['status']): Promise<Enquiry> => {
+    const list = getItem('enquiries', INITIAL_ENQUIRIES);
+    const updated = list.map(e => (e.id === enquiryId ? { ...e, status } : e));
+    setItem('enquiries', updated);
+    return updated.find(e => e.id === enquiryId)!;
+  },
+
+  // Consultations & Scheduling
+  getConsultations: async (weddingIdOrEnquiryId?: string): Promise<Consultation[]> => {
+    const list = getItem('consultations', INITIAL_CONSULTATIONS);
+    if (!weddingIdOrEnquiryId) return list;
+    return list.filter(c => c.weddingId === weddingIdOrEnquiryId || c.enquiryId === weddingIdOrEnquiryId);
+  },
+
+  scheduleConsultation: async (
+    enquiryId: string,
+    data: {
+      weddingId?: string;
+      coupleName: string;
+      preferredAt: string;
+      startAt?: string;
+      endAt?: string;
+      plannerName?: string;
+      message?: string;
+    }
+  ): Promise<Consultation> => {
+    const list = getItem('consultations', INITIAL_CONSULTATIONS);
+    const newConsultation: Consultation = {
+      id: `con-${Date.now().toString().slice(-4)}`,
+      weddingId: data.weddingId || 'wed-001',
+      enquiryId,
+      coupleName: data.coupleName,
+      state: 'CONFIRMED',
+      preferredAt: data.preferredAt,
+      startAt: data.startAt || data.preferredAt,
+      endAt: data.endAt || data.preferredAt,
+      plannerName: data.plannerName || 'Priya Mehra (Lead Director)',
+      message: data.message || 'Consultation confirmed via The Royal Knot Concierge.',
+      createdAt: new Date().toISOString()
+    };
+    const updated = [newConsultation, ...list];
+    setItem('consultations', updated);
+
+    // Sync enquiry status to CONSULTATION_SCHEDULED
+    const enquiries = getItem('enquiries', INITIAL_ENQUIRIES);
+    const updatedEnquiries = enquiries.map(e => {
+      if (e.id === enquiryId) {
+        return {
+          ...e,
+          status: 'CONSULTATION_SCHEDULED' as const,
+          consultationDate: data.preferredAt.split('T')[0]
+        };
+      }
+      return e;
+    });
+    setItem('enquiries', updatedEnquiries);
+
+    return newConsultation;
+  },
+
+  updateConsultationState: async (id: string, state: Consultation['state']): Promise<Consultation> => {
+    const list = getItem('consultations', INITIAL_CONSULTATIONS);
+    const updated = list.map(c => (c.id === id ? { ...c, state } : c));
+    setItem('consultations', updated);
+    return updated.find(c => c.id === id)!;
+  },
+
+  // Digital Agreement & Document Verification
+  getAgreementDetails: async (enquiryIdOrWeddingId: string): Promise<AgreementDetails | undefined> => {
+    const list = getItem('agreements', INITIAL_AGREEMENTS);
+    return list.find(a => a.enquiryId === enquiryIdOrWeddingId || a.weddingId === enquiryIdOrWeddingId);
   },
 
   signAgreement: async (enquiryId: string): Promise<Enquiry> => {
@@ -75,6 +166,100 @@ export const api = {
     });
     setItem('enquiries', updated);
     return updated.find(e => e.id === enquiryId)!;
+  },
+
+  attachSignedAgreement: async (
+    enquiryId: string,
+    fileData: {
+      fileName: string;
+      fileSize?: string;
+      signerName: string;
+    }
+  ): Promise<{ agreement: AgreementDetails; enquiry: Enquiry }> => {
+    const agreements = getItem('agreements', INITIAL_AGREEMENTS);
+    const today = new Date().toISOString().split('T')[0];
+    
+    let agreement = agreements.find(a => a.enquiryId === enquiryId);
+    let updatedAgreements: AgreementDetails[];
+
+    if (agreement) {
+      updatedAgreements = agreements.map(a => {
+        if (a.enquiryId === enquiryId) {
+          return {
+            ...a,
+            status: 'VERIFIED' as const,
+            signedDate: today,
+            signedDocumentName: fileData.fileName,
+            signedDocumentSize: fileData.fileSize || '2.4 MB',
+            clientSignerName: fileData.signerName,
+            clientSignerIp: '103.211.54.12 (Aadhaar e-Sign Verified)'
+          };
+        }
+        return a;
+      });
+      agreement = updatedAgreements.find(a => a.enquiryId === enquiryId)!;
+    } else {
+      const newAgr: AgreementDetails = {
+        id: `agr-${Date.now().toString().slice(-4)}`,
+        enquiryId,
+        weddingId: 'wed-001',
+        coupleNames: fileData.signerName,
+        signedDate: today,
+        status: 'VERIFIED',
+        packageType: 'full_service',
+        totalFee: 3500000,
+        milestone1Deposit: 1000000,
+        milestone2Advance: 1500000,
+        milestone3Final: 1000000,
+        signedDocumentName: fileData.fileName,
+        signedDocumentSize: fileData.fileSize || '2.4 MB',
+        clientSignerName: fileData.signerName,
+        clientSignerIp: '103.211.54.12 (Aadhaar e-Sign Verified)'
+      };
+      updatedAgreements = [newAgr, ...agreements];
+      agreement = newAgr;
+    }
+    setItem('agreements', updatedAgreements);
+
+    // Update Enquiry status to AGREEMENT_SIGNED
+    const enquiries = getItem('enquiries', INITIAL_ENQUIRIES);
+    const updatedEnquiries = enquiries.map(e => {
+      if (e.id === enquiryId) {
+        return {
+          ...e,
+          agreementSigned: true,
+          status: 'AGREEMENT_SIGNED' as const
+        };
+      }
+      return e;
+    });
+    setItem('enquiries', updatedEnquiries);
+
+    return {
+      agreement,
+      enquiry: updatedEnquiries.find(e => e.id === enquiryId)!
+    };
+  },
+
+  // Vendors & Profiles
+  getVendorProfiles: async (): Promise<VendorProfile[]> => {
+    return getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
+  },
+
+  getVendorProfileById: async (id: string): Promise<VendorProfile | undefined> => {
+    const list = getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
+    return list.find(v => v.id === id);
+  },
+
+  createVendorProfile: async (vendor: Omit<VendorProfile, 'id'>): Promise<VendorProfile> => {
+    const list = getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
+    const newVendor: VendorProfile = {
+      ...vendor,
+      id: `v-${Date.now().toString().slice(-4)}`
+    };
+    const updated = [newVendor, ...list];
+    setItem('vendor_profiles', updated);
+    return newVendor;
   },
 
   // 3-Caterer Quotes & Selection
