@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Enquiry, Consultation, AgreementDetails } from '../types';
+import { useWedding } from '../context/WeddingContext';
 import { CurrencyDisplay } from '../components/common/CurrencyDisplay';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { SearchFilterBar } from '../components/common/SearchFilterBar';
@@ -34,12 +35,33 @@ interface EnquiriesPageProps {
 }
 
 export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
-  enquiries,
+  enquiries: propEnquiries,
   onSignAgreement,
   onNavigateToTab,
   onRefreshEnquiries
 }) => {
-  const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry>(enquiries[1] || enquiries[0]);
+  const weddingCtx = useWedding();
+
+  const enquiries: Enquiry[] = (weddingCtx?.enquiriesList && weddingCtx.enquiriesList.length > 0)
+    ? weddingCtx.enquiriesList
+    : propEnquiries;
+
+  const activeEnquiryFromContext = weddingCtx?.selectedEnquiry || 
+    enquiries.find((e: Enquiry) => e.id === weddingCtx?.selectedEnquiryId);
+
+  const [localSelectedEnquiry, setLocalSelectedEnquiry] = useState<Enquiry>(
+    activeEnquiryFromContext || enquiries[0]
+  );
+
+  const selectedEnquiry = activeEnquiryFromContext || localSelectedEnquiry || enquiries[0];
+
+  const handleSelectEnquiry = (enq: Enquiry) => {
+    setLocalSelectedEnquiry(enq);
+    if (weddingCtx?.selectEnquiry) {
+      weddingCtx.selectEnquiry(enq.id);
+    }
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStageFilter, setActiveStageFilter] = useState('ALL');
   
@@ -134,11 +156,13 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
     });
 
     if (onRefreshEnquiries) {
-      onRefreshEnquiries();
-    } else {
-      enquiries.unshift(created);
+      await onRefreshEnquiries();
     }
-    setSelectedEnquiry(created);
+    if (weddingCtx?.refreshEnquiries) {
+      await weddingCtx.refreshEnquiries();
+      weddingCtx.selectEnquiry(created.id);
+    }
+    setLocalSelectedEnquiry(created);
     setIsNewModalOpen(false);
     setNewCouple('');
     setNewPhone('');
@@ -159,11 +183,15 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
     });
 
     setConsultations(prev => [newCon, ...prev]);
-    setSelectedEnquiry(prev => ({
-      ...prev,
-      status: 'CONSULTATION_SCHEDULED',
+    const updated = {
+      ...selectedEnquiry,
+      status: 'CONSULTATION_SCHEDULED' as const,
       consultationDate: consultationDate.split('T')[0]
-    }));
+    };
+    setLocalSelectedEnquiry(updated);
+    if (weddingCtx?.refreshEnquiries) {
+      weddingCtx.refreshEnquiries();
+    }
     setIsConsultationModalOpen(false);
   };
 
@@ -179,8 +207,14 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
     });
 
     setAgreementDetails(result.agreement);
-    setSelectedEnquiry(result.enquiry);
+    setLocalSelectedEnquiry(result.enquiry);
     onSignAgreement(selectedEnquiry.id);
+    if (weddingCtx?.refreshEnquiries) {
+      weddingCtx.refreshEnquiries();
+    }
+    if (weddingCtx?.refreshWeddings) {
+      weddingCtx.refreshWeddings();
+    }
     setIsAttachmentModalOpen(false);
   };
 
@@ -243,7 +277,7 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
               return (
                 <div
                   key={enq.id}
-                  onClick={() => setSelectedEnquiry(enq)}
+                  onClick={() => handleSelectEnquiry(enq)}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                     isSelected
                       ? 'border-[#C5A059] bg-[#F5F1E8]/40 ring-1 ring-[#C5A059]/40 shadow-xs'

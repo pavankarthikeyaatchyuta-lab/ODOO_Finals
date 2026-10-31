@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { WeddingProvider, useWedding } from './context/WeddingContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { NavItemKey } from './components/layout/Sidebar';
 import { api } from './services/api';
 
+// Authentication Pages
+import { LoginPage } from './pages/auth/LoginPage';
+import { InvitationAcceptPage } from './pages/auth/InvitationAcceptPage';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+
+// Agency Workspace Pages
 import { OverviewPage } from './pages/OverviewPage';
 import { EnquiriesPage } from './pages/EnquiriesPage';
 import { ClientsPage } from './pages/ClientsPage';
@@ -14,6 +23,19 @@ import { CommandCentrePage } from './pages/CommandCentrePage';
 import { FinancePage } from './pages/FinancePage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
+
+// Vendor Portal
+import { VendorPortalLayout, VendorTabKey } from './components/vendor/VendorPortalLayout';
+import { VendorOverviewPage } from './pages/vendor/VendorOverviewPage';
+import { VendorScheduleAckPage } from './pages/vendor/VendorScheduleAckPage';
+import { VendorInvoicesPage } from './pages/vendor/VendorInvoicesPage';
+
+// Client / Couple Portal
+import { ClientPortalLayout, ClientTabKey } from './components/client/ClientPortalLayout';
+import { ClientOverviewPage } from './pages/client/ClientOverviewPage';
+import { ClientSchedulePage } from './pages/client/ClientSchedulePage';
+import { ClientDocumentsPage } from './pages/client/ClientDocumentsPage';
+import { ClientPaymentsPage } from './pages/client/ClientPaymentsPage';
 
 import {
   ClientPaymentSummary,
@@ -30,8 +52,18 @@ import {
   SeasonMetrics
 } from './types';
 
-export function App() {
-  const [currentTab, setCurrentTab] = useState<NavItemKey>('overview');
+// Inner Application Shell with Role & Portal Routing
+function MainApplicationRouter() {
+  const { user, isAuthenticated, activePortal } = useAuth();
+  const weddingCtx = useWedding();
+
+  // Navigation tab states
+  const [currentAgencyTab, setCurrentAgencyTab] = useState<NavItemKey>('overview');
+  const [currentVendorTab, setCurrentVendorTab] = useState<VendorTabKey>('overview');
+  const [currentClientTab, setCurrentClientTab] = useState<ClientTabKey>('overview');
+  const [authView, setAuthView] = useState<'login' | 'invite' | 'forgot' | 'reset'>('login');
+
+  // Operational state
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
   const [weddings, setWeddings] = useState<Wedding[]>([]);
   const [currentWedding, setCurrentWedding] = useState<Wedding | null>(null);
@@ -48,12 +80,27 @@ export function App() {
   const [clientPaymentSummary, setClientPaymentSummary] = useState<ClientPaymentSummary | null>(null);
   const [metrics, setMetrics] = useState<SeasonMetrics | null>(null);
 
+  // Auto-switch initial tab if role has restricted access
+  useEffect(() => {
+    if (user?.role === 'COORDINATOR' && currentAgencyTab === 'overview') {
+      setCurrentAgencyTab('command-centre');
+    }
+  }, [user?.role, currentAgencyTab]);
+
+  // Synchronize with WeddingContext
+  useEffect(() => {
+    if (weddingCtx.activeWedding) {
+      setCurrentWedding(weddingCtx.activeWedding);
+      loadWeddingContext(weddingCtx.activeWedding.id);
+    }
+  }, [weddingCtx.activeWeddingId]);
+
   // Initial Data Load
   useEffect(() => {
     async function loadData() {
       const wList = await api.getWeddings();
       setWeddings(wList);
-      if (wList.length > 0) {
+      if (wList.length > 0 && !currentWedding) {
         const defaultWed = wList[0];
         setCurrentWedding(defaultWed);
         loadWeddingContext(defaultWed.id);
@@ -97,6 +144,7 @@ export function App() {
 
   const handleSelectWedding = (wedding: Wedding) => {
     setCurrentWedding(wedding);
+    weddingCtx.selectWedding(wedding.id);
     loadWeddingContext(wedding.id);
   };
 
@@ -105,14 +153,15 @@ export function App() {
     await api.signAgreement(enquiryId);
     const updated = await api.getEnquiries();
     setEnquiries(updated);
+    weddingCtx.refreshEnquiries();
 
-    // Also update active wedding agreement status if matches
     if (currentWedding) {
       const updatedWeddings = weddings.map(w =>
         w.id === currentWedding.id ? { ...w, agreementSigned: true } : w
       );
       setWeddings(updatedWeddings);
       setCurrentWedding({ ...currentWedding, agreementSigned: true });
+      weddingCtx.refreshWeddings();
     }
   };
 
@@ -139,7 +188,7 @@ export function App() {
     setArrivals(prev => prev.map(a => a.id === arrivalId ? updated : a));
   };
 
-  // Key Differentiator: Closed-Loop Vendor Acknowledgement
+  // Closed-Loop Vendor Acknowledgement
   const handleAcknowledgeDelay = async (delayId: string, vendorId: string, note?: string) => {
     const updated = await api.acknowledgeDelayInstruction(delayId, vendorId, note);
     setDelays(prev => prev.map(d => d.id === delayId ? updated : d));
@@ -225,6 +274,112 @@ export function App() {
     }
   };
 
+  // 1. Unauthenticated View: Auth Suite
+  if (!isAuthenticated) {
+    if (authView === 'invite') {
+      return (
+        <InvitationAcceptPage
+          token="trk-invite-exec-2026"
+          onNavigateToLogin={() => setAuthView('login')}
+        />
+      );
+    }
+    if (authView === 'forgot') {
+      return (
+        <ForgotPasswordPage
+          onNavigateToLogin={() => setAuthView('login')}
+          onNavigateToReset={() => setAuthView('reset')}
+        />
+      );
+    }
+    if (authView === 'reset') {
+      return (
+        <ResetPasswordPage
+          token="trk-pwd-token-9812"
+          onNavigateToLogin={() => setAuthView('login')}
+        />
+      );
+    }
+    return (
+      <LoginPage
+        onNavigateToForgotPassword={() => setAuthView('forgot')}
+        onNavigateToInvite={() => setAuthView('invite')}
+      />
+    );
+  }
+
+  // 2. Vendor Partner Portal View
+  if (activePortal === 'VENDOR' || user?.role === 'VENDOR') {
+    return (
+      <VendorPortalLayout
+        currentTab={currentVendorTab}
+        onSelectTab={setCurrentVendorTab}
+        pendingAckCount={1}
+      >
+        {currentVendorTab === 'overview' && (
+          <VendorOverviewPage
+            onNavigateTab={setCurrentVendorTab}
+            pendingAckCount={1}
+          />
+        )}
+        {currentVendorTab === 'schedule' && (
+          <VendorScheduleAckPage />
+        )}
+        {currentVendorTab === 'invoices' && (
+          <VendorInvoicesPage />
+        )}
+        {currentVendorTab === 'issue' && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs max-w-2xl mx-auto space-y-4">
+            <h3 className="font-serif font-bold text-lg text-[#0D1B2A]">
+              Urgent Operational Issue Report
+            </h3>
+            <p className="text-xs text-slate-500">
+              Submit immediate equipment, power, or kitchen constraints directly to Command Centre.
+            </p>
+            <textarea
+              rows={4}
+              placeholder="e.g. Banquet stove generator required at Service Dock B..."
+              className="w-full p-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-[#C5A059]"
+            />
+            <button
+              onClick={() => {
+                alert('Incident dispatched directly to Lead Coordinator Priya Mehra!');
+                setCurrentVendorTab('overview');
+              }}
+              className="w-full py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700"
+            >
+              Dispatch High-Priority Alert
+            </button>
+          </div>
+        )}
+      </VendorPortalLayout>
+    );
+  }
+
+  // 3. Client / Couple & Family Portal View
+  if (activePortal === 'CLIENT' || user?.role === 'CLIENT' || user?.role === 'FAMILY') {
+    return (
+      <ClientPortalLayout
+        currentTab={currentClientTab}
+        onSelectTab={setCurrentClientTab}
+      >
+        {currentClientTab === 'overview' && (
+          <ClientOverviewPage onNavigateTab={setCurrentClientTab} />
+        )}
+        {currentClientTab === 'schedule' && (
+          <ClientSchedulePage />
+        )}
+        {currentClientTab === 'documents' && (
+          <ClientDocumentsPage />
+        )}
+        {currentClientTab === 'payments' && (
+          <ClientPaymentsPage />
+        )}
+      </ClientPortalLayout>
+    );
+  }
+
+  // 4. Default: Agency Workspace (Founder, Planner, Coordinator, Finance)
   if (!currentWedding || !metrics) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#FDFBF7] text-[#0D1B2A]">
@@ -241,8 +396,8 @@ export function App() {
 
   return (
     <AppLayout
-      currentTab={currentTab}
-      onSelectTab={setCurrentTab}
+      currentTab={currentAgencyTab}
+      onSelectTab={setCurrentAgencyTab}
       currentWedding={currentWedding}
       weddingsList={weddings}
       onSelectWedding={handleSelectWedding}
@@ -251,20 +406,20 @@ export function App() {
       openIncidentsCount={openIncidentsCount}
       isBackendConnected={isBackendConnected}
     >
-      {currentTab === 'overview' && (
+      {currentAgencyTab === 'overview' && (
         <OverviewPage
           metrics={metrics}
           weddings={weddings}
           onSelectWedding={handleSelectWedding}
-          onNavigateToTab={setCurrentTab}
+          onNavigateToTab={setCurrentAgencyTab}
         />
       )}
 
-      {currentTab === 'enquiries' && (
+      {currentAgencyTab === 'enquiries' && (
         <EnquiriesPage
           enquiries={enquiries}
           onSignAgreement={handleSignAgreement}
-          onNavigateToTab={setCurrentTab}
+          onNavigateToTab={setCurrentAgencyTab}
           onRefreshEnquiries={async () => {
             const enq = await api.getEnquiries();
             setEnquiries(enq);
@@ -272,37 +427,37 @@ export function App() {
         />
       )}
 
-      {currentTab === 'clients' && (
+      {currentAgencyTab === 'clients' && (
         <ClientsPage
           weddings={weddings}
-          onNavigateToTab={setCurrentTab}
+          onNavigateToTab={setCurrentAgencyTab}
           onSelectWedding={handleSelectWedding}
         />
       )}
 
-      {currentTab === 'weddings' && (
+      {currentAgencyTab === 'weddings' && (
         <WeddingsPage
           weddings={weddings}
           currentWedding={currentWedding}
           onSelectWedding={handleSelectWedding}
-          onNavigateToTab={setCurrentTab}
+          onNavigateToTab={setCurrentAgencyTab}
         />
       )}
 
-      {currentTab === 'vendors' && (
+      {currentAgencyTab === 'vendors' && (
         <VendorsPage />
       )}
 
-      {currentTab === 'quotations' && (
+      {currentAgencyTab === 'quotations' && (
         <QuotationsPage
           quotes={quotes}
           currentWedding={currentWedding}
           onSelectWinner={handleSelectWinningCaterer}
-          onNavigateToTab={setCurrentTab}
+          onNavigateToTab={setCurrentAgencyTab}
         />
       )}
 
-      {currentTab === 'tasks' && (
+      {currentAgencyTab === 'tasks' && (
         <PlanningTasksPage
           tasks={tasks}
           currentWedding={currentWedding}
@@ -311,7 +466,7 @@ export function App() {
         />
       )}
 
-      {currentTab === 'command-centre' && (
+      {currentAgencyTab === 'command-centre' && (
         <CommandCentrePage
           runSheet={runSheet}
           arrivals={arrivals}
@@ -329,7 +484,7 @@ export function App() {
         />
       )}
 
-      {currentTab === 'finance' && (
+      {currentAgencyTab === 'finance' && (
         <FinancePage
           currentWedding={currentWedding}
           weddingsList={weddings}
@@ -344,14 +499,25 @@ export function App() {
         />
       )}
 
-      {currentTab === 'reports' && (
+      {currentAgencyTab === 'reports' && (
         <ReportsPage metrics={metrics} weddingsList={weddings} />
       )}
 
-      {currentTab === 'settings' && (
+      {currentAgencyTab === 'settings' && (
         <SettingsPage />
       )}
     </AppLayout>
+  );
+}
+
+// Root Application Export wrapped in Context Providers
+export function App() {
+  return (
+    <AuthProvider>
+      <WeddingProvider>
+        <MainApplicationRouter />
+      </WeddingProvider>
+    </AuthProvider>
   );
 }
 

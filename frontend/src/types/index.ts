@@ -95,6 +95,7 @@ export interface Wedding {
   theme: string; // "Royal Heritage Rajputana"
   assignedPlanner: string;
   agreementSigned: boolean;
+  weddingId?: string;
   signedAgreementDate?: string;
   signedAgreementPdfUrl?: string;
   depositPaid: boolean;
@@ -123,6 +124,7 @@ export interface Enquiry {
   assignedPlanner: string;
   notes: string;
   agreementSigned: boolean;
+  weddingId?: string;
   createdAt: string;
 }
 
