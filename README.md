@@ -44,7 +44,7 @@ $$\text{Client Enquiry} \longrightarrow \text{Digital Agreement} \longrightarrow
 
 ```text
 ODOO_Finals/
-├── frontend/                         <-- Owned by Antigravity (Frontend Lead)
+├── frontend/                         # Frontend Application (React, Vite, Tailwind CSS)
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── common/               # Reusable UI system (Button, Input, Select, Modal, DataTable, etc.)
@@ -59,7 +59,7 @@ ODOO_Finals/
 │   ├── tsconfig.json
 │   └── vite.config.ts
 │
-├── backend/                          <-- Owned by Codex (Backend Lead)
+├── backend/                          # Backend Services (Node.js, Express, Prisma)
 │   ├── prisma/
 │   │   ├── migrations/               # Transactional SQL schema migrations
 │   │   └── schema.prisma             # PostgreSQL data model
@@ -108,7 +108,7 @@ sequenceDiagram
 
 ---
 
-## 5. Frontend Architecture & UI System (Antigravity)
+## 5. Frontend Architecture & UI System
 
 ### 5.1 Luxury Heritage Aesthetic
 Styled specifically for destination weddings at Udaipur's Lake Palaces and Jaipur's Royal Forts:
@@ -202,17 +202,16 @@ npm test
 
 ## 8. Development Phases & Roadmap
 
-| Phase | Description | Owner | Status |
-| :---: | :--- | :---: | :---: |
-| **Phase 0A** | Standalone Frontend Architecture, Design System Tokens, Mock Service | Antigravity | ✅ **Completed** |
-| **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | Codex | ✅ **Completed** |
-| **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | Antigravity | ✅ **Completed** |
-| **Phase 2A** | Client Dossiers, Enquiry Intake, Consultations, Agreement Gating & Vendor Directory | Antigravity | ✅ **Completed** |
-| **Phase 2B** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Backend Endpoints | Codex | ⏳ In Progress |
-| **Phase 3** | Automated 25+ Task Generation & Package Differentiation Engine | Joint | ⏳ Upcoming |
-| **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | Joint | ⏳ Upcoming |
-| **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | Joint | ⏳ Upcoming |
-| **Phase 6** | Founder Season Profitability Analytics & Executive Reporting | Joint | ⏳ Upcoming |
+| Phase | Description | Status |
+| :---: | :--- | :---: |
+| **Phase 0A** | Standalone Frontend Architecture, Design System Tokens, Mock Service | ✅ **Completed** |
+| **Phase 1** | Node.js/Express Backend, Prisma Schema, Supabase Auth, Enquiries & Weddings APIs | ✅ **Completed** |
+| **Phase 1A** | UI Foundation, Reusable Component Library, AppLayout, 11 Working Pages | ✅ **Completed** |
+| **Phase 2** | Digital Agreements, Vendor Procurement & 3-Caterer RFQ Comparison | ⏳ **In Progress** |
+| **Phase 3** | Automated 25+ Task Generation & Package Differentiation Engine | ⏳ Upcoming |
+| **Phase 4** | Live Command Centre, Vendor Arrival Check-In & Closed-Loop Delay Engine | ⏳ Upcoming |
+| **Phase 5** | Change Orders (+60 Guests), Financial Reconciliation & Anti-Duplicate Shield | ⏳ Upcoming |
+| **Phase 6** | Founder Season Profitability Analytics & Executive Reporting | ⏳ Upcoming |
 
 ---
 
@@ -220,6 +219,6 @@ npm test
 
 * **Branch Discipline**: Work exclusively on branch `main`. No feature branches, no pull requests, no force-pushes.
 * **Pull Before Starting**: Always run `git pull --rebase origin main` before starting a task.
-* **Clean Ownership**: Antigravity owns `frontend/`; Codex owns `backend/`.
+* **Architecture Separation**: Frontend code lives in `frontend/`; backend services live in `backend/`.
 * **Zero Fake UI**: All frontend elements have real state handlers; no nonfunctional buttons.
 * **Financial Authority**: Financial values and reconciliation calculations are authoritative on the backend.
