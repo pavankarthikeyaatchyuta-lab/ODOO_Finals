@@ -59,11 +59,17 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
   }, [selectedClient]);
 
   const filteredWeddings = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return weddings.filter(w => {
       const matchesSearch =
-        w.coupleNames.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        w.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        w.code.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        w.coupleNames.toLowerCase().includes(q) ||
+        w.location.toLowerCase().includes(q) ||
+        w.code.toLowerCase().includes(q) ||
+        w.partnerGroom.toLowerCase().includes(q) ||
+        w.partnerBride.toLowerCase().includes(q) ||
+        w.theme.toLowerCase().includes(q) ||
+        w.assignedPlanner.toLowerCase().includes(q);
 
       const matchesFilter =
         activePackageFilter === 'ALL' || w.packageType === activePackageFilter;
@@ -96,6 +102,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
       id: 'location',
       header: 'Venue Hub',
       accessorKey: 'location',
+      sortable: true,
       cell: (w) => (
         <div className="flex items-center gap-1.5 text-slate-700">
           <MapPin className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
@@ -134,6 +141,8 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
     {
       id: 'agreement',
       header: 'Agreement',
+      accessorKey: 'agreementSigned',
+      sortable: true,
       cell: (w) => (
         <span className="text-emerald-700 font-semibold flex items-center gap-1 text-[11px]">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -170,6 +179,9 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
             <Users2 className="w-5 h-5 text-[#C5A059]" />
             <h2 className="font-serif font-bold text-xl text-[#0D1B2A]">Client Portfolio & High-Net-Worth Profiles</h2>
           </div>
+          <span className="px-3 py-1 rounded-full bg-[#1B3B6F]/10 text-[#1B3B6F] text-xs font-bold font-mono">
+            {filteredWeddings.length} Active Client Profiles
+          </span>
           <p className="text-xs text-slate-500 mt-1">
             Section 1.2: Official client records, verified contact channels, digital service agreement status, consultation trail, and associated wedding operations.
           </p>
@@ -197,7 +209,8 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
         columns={columns}
         keyExtractor={(w) => w.id}
         onRowClick={(w) => setSelectedClient(w)}
-        pageSize={10}
+        pageSize={25}
+        pageSizeOptions={[10, 25, 50, 100, 200]}
       />
 
       {/* Client Dossier Profile Modal */}
@@ -410,7 +423,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                 </div>
                 <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-emerald-800">
                   <Check className="w-4 h-4 mx-auto text-emerald-600 mb-1" />
-                  <span className="font-bold block text-[11px]">Caterer Contracted</span>
+                  <span className="font-bold block text-[11px]">Vendor Contracted</span>
                   <span className="text-[10px] text-emerald-600">SpiceHeaven Winner</span>
                 </div>
                 <div className="bg-[#F5F1E8] border border-[#C5A059] p-2.5 rounded-lg text-[#0D1B2A]">

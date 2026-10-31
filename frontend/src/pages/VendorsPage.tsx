@@ -50,9 +50,14 @@ export const VendorsPage: React.FC = () => {
     { key: 'ALL', label: 'All Categories' },
     { key: 'Catering & Beverages', label: 'Catering & Beverages' },
     { key: 'Floral & Mandap Styling', label: 'Floral & Mandap' },
-    { key: 'DJ & Sound Acoustics', label: 'Sound & Acoustics' },
+    { key: 'DJ & Sound Acoustics', label: 'DJ & Sound' },
     { key: 'Photography & Cinematography', label: 'Photography' },
-    { key: 'Traditional Folk & Baraat', label: 'Traditional Folk' }
+    { key: 'Traditional Folk & Baraat', label: 'Traditional Folk' },
+    { key: 'Hair & Makeup Artistry', label: 'Hair & Makeup' },
+    { key: 'Royal Transport & Vintage Cars', label: 'Royal Transport' },
+    { key: 'Pyrotechnics & Special Effects', label: 'Pyrotechnics' },
+    { key: 'Hospitality & Protocol', label: 'Hospitality' },
+    { key: 'Light Architecture & Chandeliers', label: 'Lighting' }
   ];
 
   const filtered = useMemo(() => {
@@ -181,6 +186,8 @@ export const VendorsPage: React.FC = () => {
     {
       id: 'status',
       header: 'Status',
+      accessorKey: 'status',
+      sortable: true,
       cell: (v) => (
         <StatusBadge
           label={v.status}
@@ -220,6 +227,9 @@ export const VendorsPage: React.FC = () => {
               Vendor Directory & Reliability Scorecards
             </h2>
           </div>
+          <span className="px-3 py-1 rounded-full bg-[#C5A059]/15 text-[#9D7C36] text-xs font-bold font-mono">
+            {filtered.length} Certified Vendors
+          </span>
           <p className="text-xs text-slate-500 mt-1">
             Section 1.2: The Royal Knot coordinates approximately 18 vendor categories per wedding (caterers, decorators, drummers, sound, pyrotechnics) with verified on-time performance and incident logs.
           </p>
@@ -254,7 +264,8 @@ export const VendorsPage: React.FC = () => {
         columns={columns}
         keyExtractor={(v) => v.id}
         onRowClick={(v) => setSelectedVendor(v)}
-        pageSize={10}
+        pageSize={25}
+        pageSizeOptions={[10, 25, 50, 100, 200]}
       />
 
       {/* MODAL 1: Vendor Profile & Performance Scorecard */}

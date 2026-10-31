@@ -8,6 +8,8 @@
  */
 import {
   Wedding,
+  PackageType,
+  WeddingStatus,
   Enquiry,
   Consultation,
   AgreementDetails,
@@ -25,7 +27,117 @@ import {
   ClientPaymentSummary
 } from '../types';
 
-export const INITIAL_WEDDINGS: Wedding[] = [
+
+// --- Procedural Generation for 205+ Royal Destination Weddings ---
+const GROOM_NAMES = ['Aarav', 'Aditya', 'Rohan', 'Kabir', 'Dev', 'Arjun', 'Siddharth', 'Varun', 'Karan', 'Ranveer', 'Manish', 'Harsh', 'Vikram', 'Rishi', 'Nikhil', 'Gaurav', 'Samarth', 'Dhruv', 'Yuvraj', 'Jai', 'Nakul', 'Kunal', 'Abhimanyu', 'Pranav', 'Reyansh'];
+const BRIDE_NAMES = ['Ananya', 'Diya', 'Kiara', 'Isha', 'Meera', 'Rhea', 'Pooja', 'Tara', 'Sanya', 'Shruti', 'Radhika', 'Kavya', 'Tanvi', 'Natasha', 'Aditi', 'Shreya', 'Simran', 'Ishani', 'Alia', 'Aavya', 'Gayatri', 'Devika', 'Nandini', 'Pari', 'Mallika'];
+const SURNAMES = ['Singhania', 'Birla', 'Rathore', 'Scindia', 'Mittal', 'Oberoi', 'Jindal', 'Jaipuria', 'Somani', 'Godrej', 'Goenka', 'Ruia', 'Munjal', 'Adani', 'Ambani', 'Bansal', 'Agarwal', 'Chadha', 'Kapoor', 'Mehta', 'Kothari', 'Dugar', 'Lodha', 'Chauhan', 'Solanki'];
+const VENUES = [
+  'Jagmandir Island Palace, Udaipur',
+  'Rambagh Palace, Jaipur',
+  'Umaid Bhawan Palace, Jodhpur',
+  'The Oberoi Udaivilas, Udaipur',
+  'Samode Palace Heritage Haveli, Jaipur',
+  'Taj Lake Palace, Lake Pichola, Udaipur',
+  'Fairmont Luxury Palace, Jaipur',
+  'Alila Fort Bishangarh, Jaipur',
+  'Suryagarh Palace, Jaisalmer',
+  'Six Senses Fort Barwara, Sawai Madhopur',
+  'The Leela Palace, Lake Pichola, Udaipur',
+  'Jai Mahal Palace, Jaipur',
+  'Mundota Fort and Palace, Jaipur',
+  'Raas Chhatrasagar, Jodhpur',
+  'Gorbandh Palace, Jaisalmer'
+];
+const THEMES = [
+  'Royal Rajputana Heritage & Floating Palace Elegance',
+  'Vintage Marwar Royal Durbar',
+  'Contemporary Twilight Palace Chic',
+  'Mughal Garden Opulence & Sufi Night',
+  'Gilded Regal Baroque with Marigold Mandap',
+  'Floating Lotus Romance & Classical Shehnai',
+  'Desert Royal Mirage with Golden Amber Lighting',
+  'Modern Ivory Splendor with Crystal Chandeliers',
+  'Peacock Crest Grandeur & Heritage Courtyard',
+  'Royal Mewari Sangeet & Candlelit Zenana'
+];
+const PLANNERS = [
+  'Priya Mehra (Principal Luxury Director)',
+  'Devendra Kaviraj (Founder & Chief Architect)',
+  'Siddharth Jain (Lead Event Director)',
+  'Anita Roy (Hospitality Director)',
+  'Rohan Verma (AV & Production Lead)',
+  'Amit Sharma (Day-of Operations Director)'
+];
+
+function generateAdditionalWeddings(): Wedding[] {
+  const extra: Wedding[] = [];
+  const baseDate = new Date('2026-11-01');
+
+  for (let i = 4; i <= 205; i++) {
+    const idNum = String(i).padStart(3, '0');
+    const id = `wed-${idNum}`;
+    const code = `WED-2026-${idNum}`;
+    const groom = GROOM_NAMES[(i * 3) % GROOM_NAMES.length];
+    const bride = BRIDE_NAMES[(i * 5) % BRIDE_NAMES.length];
+    const groomSurname = SURNAMES[(i * 2) % SURNAMES.length];
+    const brideSurname = SURNAMES[(i * 7) % SURNAMES.length];
+    const coupleNames = `${groom} ${groomSurname} & ${bride} ${brideSurname}`;
+    
+    // Stagger dates across 2026-2027
+    const startDateObj = new Date(baseDate.getTime() + (i * 2.8) * 86400000);
+    const endDateObj = new Date(startDateObj.getTime() + 2 * 86400000);
+    const weddingDate = startDateObj.toISOString().slice(0, 10);
+    const endDate = endDateObj.toISOString().slice(0, 10);
+
+    const location = VENUES[i % VENUES.length];
+    const theme = THEMES[i % THEMES.length];
+    const assignedPlanner = PLANNERS[i % PLANNERS.length];
+    const guestCount = 200 + ((i * 37) % 650);
+    const budgetMax = (18000000 + ((i * 1234567) % 45000000)); // ₹1.8 Cr to ₹6.3 Cr
+    const packageType: PackageType = i % 4 === 0 ? 'day_of' : 'full_service';
+    
+    const statuses: WeddingStatus[] = ['EXECUTION', 'IN_PLANNING', 'CONFIRMED', 'CLOSED', 'RECONCILED', 'PROPOSAL_SENT'];
+    const status = statuses[i % statuses.length];
+    const agreementSigned = i % 6 !== 0;
+    const depositPaid = agreementSigned && (i % 5 !== 0);
+    const depositAmount = depositPaid ? Math.round(budgetMax * 0.15) : 0;
+    
+    const totalClientRevenue = budgetMax;
+    const totalVendorCost = Math.round(budgetMax * 0.72);
+    const totalLaborCost = Math.round(budgetMax * 0.08);
+    const netProfit = totalClientRevenue - totalVendorCost - totalLaborCost;
+    const profitMarginPercent = Number(((netProfit / totalClientRevenue) * 100).toFixed(2));
+
+    extra.push({
+      id,
+      code,
+      coupleNames,
+      partnerGroom: `${groom} ${groomSurname}`,
+      partnerBride: `${bride} ${brideSurname}`,
+      weddingDate,
+      endDate,
+      location,
+      guestCount,
+      budgetMax,
+      packageType,
+      status,
+      theme,
+      assignedPlanner,
+      agreementSigned,
+      depositPaid,
+      depositAmount,
+      totalClientRevenue,
+      totalVendorCost,
+      totalLaborCost,
+      netProfit,
+      profitMarginPercent
+    });
+  }
+  return extra;
+}
+
+const BASE_WEDDINGS: Wedding[] = [
   {
     id: 'wed-001',
     code: 'WED-2026-001',
@@ -102,6 +214,11 @@ export const INITIAL_WEDDINGS: Wedding[] = [
     netProfit: 2300000,
     profitMarginPercent: 19.16
   }
+];
+
+export const INITIAL_WEDDINGS: Wedding[] = [
+  ...BASE_WEDDINGS,
+  ...generateAdditionalWeddings()
 ];
 
 export const INITIAL_ENQUIRIES: Enquiry[] = [
@@ -899,7 +1016,108 @@ export const INITIAL_AGREEMENTS: AgreementDetails[] = [
   }
 ];
 
-export const INITIAL_VENDOR_PROFILES: VendorProfile[] = [
+
+// --- Procedural Generation for 210+ Certified Luxury Vendors ---
+const VENDOR_CATEGORIES = [
+  'Catering & Beverages',
+  'Floral & Mandap Styling',
+  'DJ & Sound Acoustics',
+  'Photography & Cinematography',
+  'Traditional Folk & Baraat',
+  'Hair & Makeup Artistry',
+  'Royal Transport & Vintage Cars',
+  'Pyrotechnics & Special Effects',
+  'Hospitality & Protocol',
+  'Light Architecture & Chandeliers'
+];
+
+const VENDOR_PREFIXES = [
+  'Royal', 'Imperial', 'Heritage', 'Palace', 'Maharaja', 'Rajputana', 'Golden',
+  'Crown', 'Vedic', 'Grand', 'Elite', 'Signature', 'Kohinoor', 'Regal', 'Shahi'
+];
+
+const VENDOR_SUFFIXES: Record<string, string[]> = {
+  'Catering & Beverages': ['Banquets', 'Gourmet Feast', 'Culinary Arts', 'Royal Rasoi', 'Kitchens'],
+  'Floral & Mandap Styling': ['Florals', 'Botanics', 'Mandap Crafts', 'Petals Design', 'Bloom Studio'],
+  'DJ & Sound Acoustics': ['Acoustics', 'Sound Rigs', 'Beats & DJ', 'Concert Audio', 'Bass Systems'],
+  'Photography & Cinematography': ['Films', 'Visuals', 'Cinematics', 'Frames Studio', 'Portraits'],
+  'Traditional Folk & Baraat': ['Nagada Ensemble', 'Shehnai Troupe', 'Baraat Drummers', 'Folk Troupe', 'Ghoomar Arts'],
+  'Hair & Makeup Artistry': ['Bridal Studio', 'Glamour Artistry', 'Makeover Lounge', 'Beauty Atelier'],
+  'Royal Transport & Vintage Cars': ['Vintage Fleets', 'Royal Chariots', 'Heritage Limousines', 'Palace Transit'],
+  'Pyrotechnics & Special Effects': ['Cold Pyro FX', 'Sparkle Systems', 'Atmospheric FX', 'Sky Illuminations'],
+  'Hospitality & Protocol': ['Concierge Desk', 'Guest Protocol', 'Royal Atithi', 'Welcome Chaperones'],
+  'Light Architecture & Chandeliers': ['Crystal Lights', 'Facade Illuminations', 'Chandelier Rigs', 'Ambient Lumens']
+};
+
+const VENDOR_LOCATIONS = [
+  'Jaipur & Udaipur Hubs',
+  'Udaipur Old City & Lake Pichola',
+  'Jaipur Pink City',
+  'Jodhpur Fort Area',
+  'Mumbai & Rajasthan',
+  'Delhi NCR & Jaipur',
+  'Jaisalmer Golden Fort',
+  'Pan-India / International'
+];
+
+const FIRST_NAMES = ['Rajendra', 'Sunil', 'Karan', 'Manish', 'Devendra', 'Umesh', 'Ramesh', 'Harsh', 'Vikram', 'Anil', 'Sanjay', 'Mukesh', 'Gopal', 'Ashok', 'Bhupendra', 'Pravin', 'Deepak', 'Naveen', 'Chirag', 'Hemant'];
+const LAST_NAMES = ['Vyas', 'Sharma', 'Rathore', 'Shekhawat', 'Chouhan', 'Gehlot', 'Meena', 'Jain', 'Solanki', 'Bhati', 'Panwar', 'Bishnoi', 'Gaur', 'Soni', 'Trivedi', 'Pareek'];
+
+function generateAdditionalVendors(): VendorProfile[] {
+  const extra: VendorProfile[] = [];
+  
+  for (let i = 7; i <= 210; i++) {
+    const id = `v-${String(i).padStart(3, '0')}`;
+    const cat = VENDOR_CATEGORIES[i % VENDOR_CATEGORIES.length];
+    const prefix = VENDOR_PREFIXES[(i * 3) % VENDOR_PREFIXES.length];
+    const suffixList = VENDOR_SUFFIXES[cat] || ['Enterprises'];
+    const suffix = suffixList[(i * 7) % suffixList.length];
+    const name = `${prefix} ${suffix}`;
+    
+    const location = VENDOR_LOCATIONS[i % VENDOR_LOCATIONS.length];
+    const contactFirst = FIRST_NAMES[(i * 2) % FIRST_NAMES.length];
+    const contactLast = LAST_NAMES[(i * 5) % LAST_NAMES.length];
+    const contactPerson = `${contactFirst} ${contactLast}`;
+    
+    const phone = `+91 9${Math.floor(1000 + (i * 4321) % 8999)} ${Math.floor(10000 + (i * 7891) % 89999)}`;
+    const email = `contact@${name.toLowerCase().replace(/[^a-z0-9]/g, '')}.in`;
+    
+    const rating = Number((4.2 + ((i * 17) % 8) / 10).toFixed(1));
+    const punctuality = `${88 + ((i * 13) % 12)}%`;
+    const incidentCount = i % 9 === 0 ? 1 : i % 23 === 0 ? 2 : 0;
+    
+    const statusOptions: VendorProfile['status'][] = ['CONTRACTED', 'AVAILABLE', 'STANDBY'];
+    const status = incidentCount > 1 ? 'ACTIVE_LATE' : statusOptions[i % statusOptions.length];
+    
+    extra.push({
+      id,
+      name,
+      category: cat,
+      location,
+      rating: Math.min(5.0, rating),
+      punctuality,
+      status,
+      contactPerson,
+      phone,
+      email,
+      specialties: ['Heritage Palace Expertise', 'Royal Protocol Compliant', 'Express Mobilization'],
+      priceRange: '₹50,000 – ₹15,00,000 / Event',
+      incidentCount,
+      pastWeddings: [
+        {
+          weddingCode: `WED-2025-${String((i % 40) + 1).padStart(3, '0')}`,
+          coupleNames: 'Royal Knot Premier Couple',
+          seasonYear: 2025,
+          performanceReview: 'Reliable execution, strictly adhered to venue heritage restrictions.',
+          rating
+        }
+      ]
+    });
+  }
+  return extra;
+}
+
+const BASE_VENDOR_PROFILES: VendorProfile[] = [
   {
     id: 'v-01',
     name: 'SpiceHeaven Royal Caterers',
@@ -1009,6 +1227,11 @@ export const INITIAL_VENDOR_PROFILES: VendorProfile[] = [
       { weddingCode: 'WED-2025-004', coupleNames: 'Chauhan-Solanki', seasonYear: 2025, performanceReview: 'Authentic royal welcome for boat procession.', rating: 4.9 }
     ]
   }
+];
+
+export const INITIAL_VENDOR_PROFILES: VendorProfile[] = [
+  ...BASE_VENDOR_PROFILES,
+  ...generateAdditionalVendors()
 ];
 
 

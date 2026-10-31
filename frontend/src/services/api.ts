@@ -315,8 +315,8 @@ export const api = {
   
   /** Fetches a single destination wedding by ID. */
   getWeddingById: async (id: string): Promise<Wedding | undefined> => {
-    const list = getItem('weddings', INITIAL_WEDDINGS);
-    return list.find(w => w.id === id);
+    const list = getItem<Wedding[]>('weddings', INITIAL_WEDDINGS);
+    return list.find((w: Wedding) => w.id === id);
   },
 
   // Enquiries & Intake
@@ -508,8 +508,8 @@ export const api = {
 
   /** Fetches specific vendor profile by vendor ID. */
   getVendorProfileById: async (id: string): Promise<VendorProfile | undefined> => {
-    const list = getItem('vendor_profiles', INITIAL_VENDOR_PROFILES);
-    return list.find(v => v.id === id);
+    const list = getItem<VendorProfile[]>('vendor_profiles', INITIAL_VENDOR_PROFILES);
+    return list.find((v: VendorProfile) => v.id === id);
   },
 
   createVendorProfile: async (vendor: Omit<VendorProfile, 'id'>): Promise<VendorProfile> => {
