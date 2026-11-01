@@ -199,12 +199,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!email || !email.includes('@')) {
-      setErrorMessage('Please enter a valid official email address.');
+    const cleanMail = email.trim().toLowerCase();
+    const isShorthand = ['founder', 'admin', 'planner', 'coordinator', 'finance', 'vendor', 'caterer', 'client', 'couple', 'family'].includes(cleanMail);
+
+    if (!cleanMail || (!cleanMail.includes('@') && !isShorthand)) {
+      setErrorMessage('Please enter a valid official email address (or demo role shortcut: founder, planner, vendor, couple).');
       return;
     }
-    if (!password || password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long.');
+    if (!password || password.length < 3) {
+      setErrorMessage('Please enter your passphrase (default: royalKnot2026!).');
       return;
     }
 

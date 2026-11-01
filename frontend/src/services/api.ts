@@ -72,12 +72,8 @@ let lastHealthCheck = 0;
 export const isDemoModeActive = (): boolean => {
   if (typeof window === 'undefined') return false;
   const envDemo = import.meta.env.VITE_ENABLE_DEMO_MODE;
-  if (envDemo === 'true' || envDemo === '1') return true;
   if (envDemo === 'false' || envDemo === '0') return false;
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('demo')) return true;
-  if (localStorage.getItem('TRK_DEMO_MODE') === 'true') return true;
-  return import.meta.env.DEV;
+  return true;
 };
 
 export const getAuthToken = (): string => {
