@@ -14,6 +14,15 @@
 
 ---
 
+## Hackathon Documentation
+- Team Number: 20
+- Official Problem Statement: [View PDF](./docs/hackathon/official-problem-statement.pdf)
+- Project Presentation: [View PDF](./docs/hackathon/project-presentation.pdf)
+- Live Application: [Open The Royal Knot](https://the-royal-knot.vercel.app/)
+- Demo Video: [Watch Demo](https://the-royal-knot.vercel.app/#interactive-demo)
+
+---
+
 ## 1. System Overview
 
 **The Royal Knot** is an independent, standalone enterprise operations and financial management platform purpose-built for premier luxury destination wedding planning agencies managing high-profile celebrations in **Jaipur, Udaipur, Jodhpur, and international palace estates**.
