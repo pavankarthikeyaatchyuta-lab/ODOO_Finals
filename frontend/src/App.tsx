@@ -158,6 +158,19 @@ function MainApplicationRouter() {
     }
   }, [weddingCtx.activeWeddingId]);
 
+  // Synchronize active wedding with authenticated user's assigned wedding (e.g. Clients & Vendors)
+  useEffect(() => {
+    if (user?.assignedWeddingIds && user.assignedWeddingIds.length > 0 && weddings.length > 0) {
+      const assignedId = user.assignedWeddingIds[0];
+      const found = weddings.find(w => w.id === assignedId);
+      if (found && (!currentWedding || currentWedding.id !== assignedId)) {
+        setCurrentWedding(found);
+        loadWeddingContext(found.id);
+        weddingCtx.selectWedding(found.id);
+      }
+    }
+  }, [user?.id, weddings]);
+
   // Initial Data Load
   useEffect(() => {
     async function loadData() {

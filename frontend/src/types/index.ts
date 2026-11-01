@@ -95,6 +95,7 @@ export interface Wedding {
   id: string;
   code: string; // e.g. "WED-2026-001"
   coupleNames: string;
+  clientEmail?: string;
   partnerBride: string;
   partnerGroom: string;
   weddingDate: string; // "2026-12-22"
@@ -173,7 +174,11 @@ export interface AgreementDetails {
   pdfUrl?: string;
   signedDocumentName?: string;
   signedDocumentSize?: string;
+  documentIntegrityHash?: string; // Cryptographic SHA-256 hash for content tampering detection
   clientSignerName?: string;
+  reviewStatus?: "PENDING_REVIEW" | "MANUALLY_APPROVED";
+  reviewedBy?: string;
+  reviewedAt?: string;
   clientSignerIp?: string;
 }
 

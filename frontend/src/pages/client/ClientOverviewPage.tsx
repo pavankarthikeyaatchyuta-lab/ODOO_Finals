@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useWedding } from '../../context/WeddingContext';
 import { Button } from '../../components/common/Button';
 import { ClientTabKey } from '../../components/client/ClientPortalLayout';
 import { MotionCard } from '../../components/common/MotionCard';
@@ -37,7 +38,17 @@ interface ClientOverviewPageProps {
  */
 export const ClientOverviewPage: React.FC<ClientOverviewPageProps> = ({ onNavigateTab }) => {
   const { user } = useAuth();
+  const weddingCtx = useWedding();
   const isFamily = user?.role === 'FAMILY' || user?.isFamilyMember;
+
+  const activeWed = weddingCtx?.activeWedding;
+  const coupleTitle = activeWed?.coupleNames ? `${activeWed.coupleNames}'s Royal Celebration` : (user?.displayName || "{coupleTitle}");
+  const venueLocation = activeWed?.location || 'Taj Lake Palace, Udaipur';
+  const guestCount = activeWed?.guestCount ? `${activeWed.guestCount}+` : '400+';
+
+  const daysToGo = activeWed?.weddingDate
+    ? Math.max(0, Math.ceil((new Date(activeWed.weddingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 84;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -56,18 +67,18 @@ export const ClientOverviewPage: React.FC<ClientOverviewPageProps> = ({ onNaviga
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
-            Welcome to your dedicated wedding portal. Our luxury planning team has curated every detail of your celebrations at the iconic Taj Lake Palace, Udaipur.
+            Welcome to your dedicated wedding portal. Our luxury planning team has curated every detail of your celebrations at {venueLocation}.
           </p>
 
           {/* Countdown & Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/10">
             <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 text-center">
-              <div className="text-2xl sm:text-3xl font-serif font-bold text-[#C5A059]">84</div>
+              <div className="text-2xl sm:text-3xl font-serif font-bold text-[#C5A059]">{daysToGo}</div>
               <div className="text-[11px] text-slate-300 uppercase font-semibold tracking-wider mt-1">Days To Go</div>
             </div>
 
             <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 text-center">
-              <div className="text-2xl sm:text-3xl font-serif font-bold text-white">400+</div>
+              <div className="text-2xl sm:text-3xl font-serif font-bold text-white">{guestCount}</div>
               <div className="text-[11px] text-slate-300 uppercase font-semibold tracking-wider mt-1">Honoured Guests</div>
             </div>
 

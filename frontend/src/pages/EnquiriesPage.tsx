@@ -14,6 +14,7 @@ import { Enquiry, Consultation, AgreementDetails } from '../types';
 import { useWedding } from '../context/WeddingContext';
 import { CurrencyDisplay } from '../components/common/CurrencyDisplay';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { validateAndFormatPhone } from '../utils/phone';
 import { SearchFilterBar } from '../components/common/SearchFilterBar';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
@@ -97,12 +98,13 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newDate, setNewDate] = useState('2027-01-20');
-  const [newGuests, setNewGuests] = useState('400');
-  const [newBudget, setNewBudget] = useState('35000000');
+  const [newGuests, setNewGuests] = useState('');
+  const [newBudget, setNewBudget] = useState('');
   const [newTheme, setNewTheme] = useState('Royal Rajputana Heritage');
   const [newPackage, setNewPackage] = useState<'full_service' | 'day_of'>('full_service');
   const [newSource, setNewSource] = useState<'INSTAGRAM' | 'WHATSAPP' | 'PHONE' | 'REFERRAL'>('INSTAGRAM');
   const [newNotes, setNewNotes] = useState('');
+  const [enquiryErrors, setEnquiryErrors] = useState<{ couple?: string; phone?: string; email?: string; guests?: string; budget?: string }>({});
 
   // Form State for Scheduling Consultation
   const [consultationDate, setConsultationDate] = useState('2026-11-15T15:00');
@@ -537,14 +539,14 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
                             </span>
                           </div>
                           <span className="text-[11px] text-slate-500">
-                            Authenticated by: {agreementDetails.clientSignerName || selectedEnquiry.coupleName} • {agreementDetails.clientSignerIp || 'Aadhaar e-Sign Verified'}
+                            Uploaded by: {agreementDetails.clientSignerName || selectedEnquiry.coupleName} • SHA-256 Checksum Logged
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Legally Enforceable
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Manual Review Approved
                         </span>
                       </div>
                     </div>
@@ -848,12 +850,12 @@ export const EnquiriesPage: React.FC<EnquiriesPageProps> = ({
 
           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
             <div className="flex justify-between text-slate-600">
-              <span>Verification Method:</span>
-              <strong className="text-slate-800">OTP / Aadhaar Mobile e-Sign</strong>
+              <span>Integrity Verification:</span>
+              <strong className="text-slate-800 font-mono text-[11px]">SHA-256 Checksum Logged</strong>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Audit IP Timestamp:</span>
-              <strong className="font-mono text-slate-800">103.211.54.12 • {new Date().toLocaleDateString('en-IN')}</strong>
+              <span>Approval Workflow:</span>
+              <strong className="text-slate-800">Manual Agency Founder Review</strong>
             </div>
           </div>
         </form>

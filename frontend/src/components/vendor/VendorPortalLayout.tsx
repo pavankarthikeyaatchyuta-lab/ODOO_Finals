@@ -175,7 +175,7 @@ export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header (Matching Agency TopHeader Standard) */}
-        <header className="h-16 bg-white border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+        <header className="h-16 bg-white dark:bg-[#0D1B2A] border-b border-slate-200/90 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors duration-200">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
@@ -186,13 +186,13 @@ export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
             </button>
 
             {/* Active Partner Context Pill */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-[#FDFBF7]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-[#FDFBF7] dark:bg-[#111D2E]">
               <div className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse" />
               <div>
                 <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400 leading-none">
                   Verified Partner
                 </div>
-                <div className="text-xs font-bold text-[#0D1B2A] mt-0.5">
+                <div className="text-xs font-bold text-[#0D1B2A] dark:text-[#FDFBF7] mt-0.5">
                   {user?.name || 'Chef Vikramaditya (SpiceHeaven Caterers)'} · Taj Lake Palace
                 </div>
               </div>
@@ -213,7 +213,7 @@ export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-[#C5A059]/60 transition-all cursor-pointer group"
+                className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111D2E] hover:border-[#C5A059]/60 transition-all cursor-pointer group"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#0D1B2A] text-[#DFCA9B] font-bold text-xs flex items-center justify-center shadow-xs">
                   <Building2 className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export const VendorPortalLayout: React.FC<VendorPortalLayoutProps> = ({
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2.5 px-2 z-50 space-y-2.5 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#0D1B2A] rounded-2xl shadow-xl border border-slate-200/90 dark:border-slate-800 py-2.5 px-2 z-50 space-y-2.5 animate-in fade-in zoom-in-95 duration-100">
                   <div className="px-2 pb-2 border-b border-slate-100">
                     <div className="font-bold text-xs text-[#0D1B2A]">{user?.name}</div>
                     <div className="text-[11px] text-slate-400 truncate">{user?.email}</div>

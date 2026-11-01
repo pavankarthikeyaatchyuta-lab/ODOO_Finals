@@ -16,6 +16,7 @@ import {
 } from '../types';
 import { CurrencyDisplay } from '../components/common/CurrencyDisplay';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { DataTable, ColumnDef } from '../components/common/DataTable';
 import {
   BarChart3,
   TrendingUp,
@@ -69,6 +70,128 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({
   const [selectedWeddingId, setSelectedWeddingId] = useState<string>('ALL');
   const [selectedQuarter, setSelectedQuarter] = useState<string>('ALL');
   const [activeViewTab, setActiveViewTab] = useState<'overview' | 'budgetVsActual' | 'teamHours' | 'vendors'>('overview');
+
+
+  // Vendor Performance Table Columns
+  const vendorPerformanceColumns: ColumnDef<any>[] = [
+    {
+      id: 'vendorName',
+      header: 'Vendor Partner',
+      accessorKey: 'vendorName',
+      sortable: true,
+      cell: (v) => <span className="font-bold text-[#0D1B2A]">{v.vendorName}</span>
+    },
+    {
+      id: 'category',
+      header: 'Category',
+      accessorKey: 'category',
+      sortable: true,
+      cell: (v) => <span className="text-slate-600">{v.category}</span>
+    },
+    {
+      id: 'rating',
+      header: 'Rating',
+      accessorKey: 'rating',
+      sortable: true,
+      cell: (v) => (
+        <span className="font-mono font-bold text-[#C5A059] bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+          ★ {v.rating.toFixed(1)} / 5.0
+        </span>
+      )
+    },
+    {
+      id: 'punctualityPct',
+      header: 'Punctuality Score',
+      accessorKey: 'punctualityPct',
+      sortable: true,
+      cell: (v) => (
+        <div className="flex items-center gap-2">
+          <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full ${v.punctualityPct >= 95 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+              style={{ width: `${v.punctualityPct}%` }}
+            />
+          </div>
+          <span className="font-mono font-bold text-slate-700">{v.punctualityPct}%</span>
+        </div>
+      )
+    },
+    {
+      id: 'weddingsServed',
+      header: 'Weddings Served',
+      accessorKey: 'weddingsServed',
+      sortable: true,
+      cell: (v) => <span className="font-mono text-slate-600">{v.weddingsServed} Events</span>
+    },
+    {
+      id: 'totalSpend',
+      header: 'Seasonal Spend',
+      accessorKey: 'totalSpend',
+      sortable: true,
+      align: 'right',
+      cell: (v) => <CurrencyDisplay amount={v.totalSpend} format="compact" className="font-bold text-[#1B3B6F]" />
+    }
+  ];
+
+  // Wedding Profitability Ledger Columns
+  const profitabilityColumns: ColumnDef<any>[] = [
+    {
+      id: 'name',
+      header: 'Wedding Name',
+      accessorKey: 'name',
+      sortable: true,
+      cell: (w) => <span className="font-bold text-[#0D1B2A] text-sm">{w.name}</span>
+    },
+    {
+      id: 'revenue',
+      header: 'Client Revenue',
+      accessorKey: 'revenue',
+      sortable: true,
+      cell: (w) => <CurrencyDisplay amount={w.revenue} format="compact" className="text-slate-800" />
+    },
+    {
+      id: 'cost',
+      header: 'Vendor Costs',
+      accessorKey: 'cost',
+      sortable: true,
+      cell: (w) => <CurrencyDisplay amount={w.cost} format="compact" className="text-rose-700" />
+    },
+    {
+      id: 'labor',
+      header: 'Team Labor',
+      accessorKey: 'labor',
+      sortable: true,
+      cell: (w) => <CurrencyDisplay amount={w.labor} format="compact" className="text-slate-600" />
+    },
+    {
+      id: 'profit',
+      header: 'Net Profit',
+      accessorKey: 'profit',
+      sortable: true,
+      cell: (w) => <CurrencyDisplay amount={w.profit} format="compact" className="text-emerald-700 font-bold" />
+    },
+    {
+      id: 'margin',
+      header: 'Margin %',
+      accessorKey: 'margin',
+      sortable: true,
+      cell: (w) => <span className="font-mono font-bold text-slate-800">{w.margin}%</span>
+    },
+    {
+      id: 'planningHours',
+      header: 'Hours Logged',
+      accessorKey: 'planningHours',
+      sortable: true,
+      cell: (w) => <span className="font-mono text-slate-600">{w.planningHours} hrs</span>
+    },
+    {
+      id: 'status',
+      header: 'Lifecycle Status',
+      accessorKey: 'status',
+      sortable: true,
+      cell: (w) => <StatusBadge label={w.status} variant="info" size="sm" />
+    }
+  ];
 
   // Filtered data based on wedding selector
   const filteredWeddings = useMemo(() => {

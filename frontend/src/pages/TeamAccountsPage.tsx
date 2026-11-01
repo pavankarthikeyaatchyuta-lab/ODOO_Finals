@@ -55,6 +55,10 @@ export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<AuthUser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
@@ -70,20 +74,25 @@ export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = currentPage, limit = pageSize) => {
     setIsLoading(true);
+    setErrorMessage(null);
     try {
-      const data = await api.getUsers();
-      setUsers(data);
-    } catch (err) {
-      console.error('Failed to load users:', err);
+      const res = await api.getUsersPaged(page, limit);
+      setUsers(res.data);
+      setTotalCount(res.total);
+      setCurrentPage(res.page);
+      setPageSize(res.pageSize);
+    } catch (err: any) {
+      console.error('Failed to load users from server:', err);
+      setErrorMessage('Could not synchronize accounts with the backend server.');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(1, pageSize);
   }, []);
 
   const handleOpenInviteModal = () => {
@@ -447,9 +456,18 @@ export const TeamAccountsPage: React.FC<TeamAccountsPageProps> = ({
             data={filteredUsers}
             columns={accountColumns}
             keyExtractor={(account) => account.id}
-            pageSize={5}
-            pageSizeOptions={[5, 10, 25, 50, 100]}
-            emptyMessage={`No matching accounts found for query "${searchQuery}".`}
+            paginationMode="server"
+            page={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={(p) => fetchUsers(p, pageSize)}
+            onPageSizeChange={(ps) => {
+              setPageSize(ps);
+              fetchUsers(1, ps);
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            resetPageKey={`${searchQuery}-${roleFilter}`}
+            emptyMessage={errorMessage || `No matching accounts found for query "${searchQuery}".`}
           />
         )}
       </div>

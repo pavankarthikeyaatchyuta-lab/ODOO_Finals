@@ -221,7 +221,8 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
         keyExtractor={(w) => w.id}
         onRowClick={(w) => setSelectedClient(w)}
         pageSize={25}
-        pageSizeOptions={[10, 25, 50, 100, 200]}
+        pageSizeOptions={[10, 25, 50, 100]}
+        resetPageKey={`${searchQuery}-${activePackageFilter}`}
       />
 
       {/* Client Dossier Profile Modal */}
@@ -333,7 +334,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                   <span className="font-bold text-slate-800 uppercase text-[11px] tracking-wider">Service Agreement</span>
                   <span className="text-emerald-700 font-bold text-xs flex items-center gap-1">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    {selectedClient.agreementSigned ? 'Verified & Binding' : 'Pending Signature'}
+                    {selectedClient.agreementSigned ? 'Executed & Approved' : 'Pending Upload'}
                   </span>
                 </div>
                 <div className="space-y-2 text-xs">
@@ -350,7 +351,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                       <FileText className="w-4 h-4 text-[#C5A059]" />
                       <span className="font-bold text-[11px] text-[#0D1B2A]">Official Executed Contract</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-mono">2.4 MB • SHA256 Verified</span>
+                    <span className="text-[10px] text-slate-400 font-mono">2.4 MB • SHA-256 Checksum Logged</span>
                   </div>
                 </div>
               </div>
@@ -430,7 +431,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                 <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-emerald-800">
                   <Check className="w-4 h-4 mx-auto text-emerald-600 mb-1" />
                   <span className="font-bold block text-[11px]">Agreement Signed</span>
-                  <span className="text-[10px] text-emerald-600">Mobile e-Sign Done</span>
+                  <span className="text-[10px] text-emerald-600">Document Executed</span>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-emerald-800">
                   <Check className="w-4 h-4 mx-auto text-emerald-600 mb-1" />

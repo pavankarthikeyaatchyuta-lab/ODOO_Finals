@@ -1,12 +1,12 @@
 # Phase 1 frontend contract
 
-**Phase 2 update:** [PHASE_2_API.md](PHASE_2_API.md) and current OpenAPI/shared types add client requirements, enquiry follow-up/assignment, verified agreement documents, gated sharing, vendors and transactional quotation comparison/selection. Historical Phase 1 examples below describe the original foundation; use the current generated schemas for additive response fields.
+**Phase 2 update:** [PHASE_2_API.md](docs/archive/phase-reports/PHASE_2_API.md) and current OpenAPI/shared types add client requirements, enquiry follow-up/assignment, verified agreement documents, gated sharing, vendors and transactional quotation comparison/selection. Historical Phase 1 examples below describe the original foundation; use the current generated schemas for additive response fields.
 
-**Phase 3 update:** [PHASE_3_API.md](PHASE_3_API.md) defines confirmed proposals, explicitly verified booking deposits, 35/30-task package templates, assignment/status/deadline workflows, function planning and concurrency controls. Current shared response fields include the client-visible proposal status; deposit/reviewer details remain in their dedicated authorized endpoints.
+**Phase 3 update:** [PHASE_3_API.md](docs/archive/phase-reports/PHASE_3_API.md) defines confirmed proposals, explicitly verified booking deposits, 35/30-task package templates, assignment/status/deadline workflows, function planning and concurrency controls. Current shared response fields include the client-visible proposal status; deposit/reviewer details remain in their dedicated authorized endpoints.
 
-**Phase 4 update:** [PHASE_4_API.md](PHASE_4_API.md) defines timeline versions/dependencies, vendor arrivals, private incidents, independently approved schedule changes, publication and individual in-app acknowledgements. Notification delivery and acknowledgement are separate; no WhatsApp delivery is fabricated.
+**Phase 4 update:** [PHASE_4_API.md](docs/archive/phase-reports/PHASE_4_API.md) defines timeline versions/dependencies, vendor arrivals, private incidents, independently approved schedule changes, publication and individual in-app acknowledgements. Notification delivery and acknowledgement are separate; no WhatsApp delivery is fabricated.
 
-**Phase 5 update:** [PHASE_5_API.md](PHASE_5_API.md) defines client receipts and vendor disbursements (initiated/claimed/verified/failed/reversed), approved additional expenses, verified final vendor bills, reconciliation, revenue recognition, labour, profitability and the founder dashboard. Money is a 2-decimal string computed server-side; the frontend must display, not recalculate, financial results.
+**Phase 5 update:** [PHASE_5_API.md](docs/archive/phase-reports/PHASE_5_API.md) defines client receipts and vendor disbursements (initiated/claimed/verified/failed/reversed), approved additional expenses, verified final vendor bills, reconciliation, revenue recognition, labour, profitability and the founder dashboard. Money is a 2-decimal string computed server-side; the frontend must display, not recalculate, financial results.
 
 This replaces all Odoo models, ORM methods and XML/OWL integration described in the historical frontend plan. Use React + Vite + TypeScript. API and financial authority belong to Express. Phase 1 has no agreements, vendor screens, financial workflows or command-centre endpoints.
 
@@ -59,7 +59,7 @@ Import request/response types from `src/contracts.ts` (or generated declarations
 
 All list endpoints accept `page` and `pageSize`. See OpenAPI for exact body and response schemas.
 
-See [PHASE_1B_API.md](PHASE_1B_API.md) for request/response examples, validation rules, model decisions and the authentication/archival contract.
+See [PHASE_1B_API.md](docs/archive/phase-reports/PHASE_1B_API.md) for request/response examples, validation rules, model decisions and the authentication/archival contract.
 
 ## Entities and lifecycle
 
@@ -69,7 +69,7 @@ See [PHASE_1B_API.md](PHASE_1B_API.md) for request/response examples, validation
 
 Direct wedding creation uses `{ clientIds, wedding }`, the same structure as enquiry creation without enquiry metadata. Use either direct wedding intake or the enquiry creation flow for an intended wedding; do not POST a second wedding after receiving one from enquiry creation. DELETE archives rather than physically deleting records. Archived weddings and their enquiries/consultations are excluded from normal APIs, including client access. Their UUIDs, links and audit history remain stored. Client responses for staff include nullable `archivedAt`.
 
-Reuse `UserProfile` for application users, `Role` for fixed roles and `PackageType` for the two supported packages. There is no duplicate User/Role/WeddingPackage table. `WeddingFunction` provides a child relation (`id`, `weddingId`, `type`, `name`, optional paired `startAt`/`endAt`, optional `venue`, timestamps) for Mehendi/Sangeet/Reception. Its implemented planning/task APIs are documented in `PHASE_3_API.md` and timeline integration in `PHASE_4_API.md`.
+Reuse `UserProfile` for application users, `Role` for fixed roles and `PackageType` for the two supported packages. There is no duplicate User/Role/WeddingPackage table. `WeddingFunction` provides a child relation (`id`, `weddingId`, `type`, `name`, optional paired `startAt`/`endAt`, optional `venue`, timestamps) for Mehendi/Sangeet/Reception. Its implemented planning/task APIs are documented in `docs/archive/phase-reports/PHASE_3_API.md` and timeline integration in `docs/archive/phase-reports/PHASE_4_API.md`.
 
 Enquiry stages: `NEW`, `CONTACTED`, `CONSULTATION_SCHEDULED`, `PROPOSAL_SENT`, `LOST`. Stage changes do not confirm a booking or automatically change wedding lifecycle.
 

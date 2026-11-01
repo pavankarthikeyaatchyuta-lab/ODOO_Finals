@@ -6,7 +6,7 @@
  * 3-caterer quotation rounds, ceremonial functions, and automated task blueprints.
  */
 import { z } from 'zod';
-import { uuid, timestamp, pageQuery, email } from './contracts.js';
+import { uuid, timestamp, pageQuery, email, phoneSchema } from './contracts.js';
 
 const text = z.string().trim().min(1).max(200);
 const longText = z.string().trim().min(1).max(5000);
@@ -14,7 +14,7 @@ export const currency = z.enum(['INR', 'USD', 'EUR', 'GBP', 'AED']);
 export const money = z.string().regex(/^\d{1,14}(\.\d{1,2})?$/);
 export const positiveMoney = money.refine(value => Number(value) > 0, 'Amount must be positive');
 export const functionType = z.enum(['MEHENDI', 'SANGEET', 'RECEPTION']);
-export const vendorInput = z.object({ name: text, categoryCode: z.string().regex(/^[A-Z_]{2,40}$/), contactName: text, email, phone: z.string().trim().min(3).max(40), serviceDetails: longText }).strict();
+export const vendorInput = z.object({ name: text, categoryCode: z.string().regex(/^[A-Z_]{2,40}$/), contactName: text, email, phone: phoneSchema, serviceDetails: longText }).strict();
 export const vendorPatch = vendorInput.partial().refine(v => Object.keys(v).length > 0);
 export const vendorDto = vendorInput.extend({ id: uuid, archivedAt: timestamp.nullable(), createdAt: timestamp, updatedAt: timestamp }).strict();
 export const categoryDto = z.object({ code: z.string(), name: z.string() }).strict();

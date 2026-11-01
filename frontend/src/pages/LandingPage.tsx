@@ -142,7 +142,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#0D1B2A] font-sans selection:bg-[#C5A059]/20 selection:text-[#0D1B2A]">
+    <div className="min-h-screen bg-[#FDFBF7] dark:bg-[#070E18] text-[#0D1B2A] dark:text-[#FDFBF7] font-sans selection:bg-[#C5A059]/20 selection:text-[#0D1B2A] transition-colors duration-200">
       {/* 1. Royal Top Announcement Bar */}
       <div className="bg-[#0D1B2A] text-white border-b border-[#C5A059]/20 px-4 py-2 text-center text-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 font-medium">

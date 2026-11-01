@@ -27,6 +27,7 @@ import {
   Compass
 } from 'lucide-react';
 import { Wedding } from '../../types';
+import { isDemoModeActive } from '../../services/api';
 import { CurrencyDisplay } from '../common/CurrencyDisplay';
 import { useAuth, AppRole, PortalType } from '../../context/AuthContext';
 import { ThemeToggle } from '../common/ThemeToggle';
@@ -80,7 +81,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <header className="h-16 bg-white dark:bg-[#0D1B2A] border-b border-slate-200/90 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors duration-200">
       {/* Left: Mobile Menu Toggle + Streamlined Active Event Selector */}
       <div className="flex items-center gap-3">
         {onOpenMobileMenu && (
@@ -97,14 +98,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-[#FDFBF7] hover:border-[#C5A059]/60 hover:bg-[#F5F1E8]/40 transition-all text-left group shadow-2xs"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-[#FDFBF7] dark:bg-[#111D2E] hover:border-[#C5A059]/60 hover:bg-[#F5F1E8]/40 dark:hover:bg-[#152338] transition-all text-left group shadow-2xs"
           >
             <div className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse" />
             <div>
               <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400 leading-none">
                 Active Wedding
               </div>
-              <div className="text-xs font-bold text-[#0D1B2A] group-hover:text-[#C5A059] transition-colors flex items-center gap-1.5 mt-0.5">
+              <div className="text-xs font-bold text-[#0D1B2A] dark:text-[#FDFBF7] group-hover:text-[#C5A059] transition-colors flex items-center gap-1.5 mt-0.5">
                 <span className="truncate max-w-[140px] sm:max-w-[200px]">
                   {currentWedding?.coupleNames || 'No Wedding Selected'}
                 </span>
@@ -114,7 +115,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute left-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#0D1B2A] rounded-2xl shadow-xl border border-slate-200/90 dark:border-slate-800 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Switch Operational Context
               </div>
@@ -164,15 +165,27 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right Controls: Telemetry Dot + Late Alert + User Menu */}
       <div className="flex items-center gap-3">
-        {/* Minimalist Live Backend Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-slate-50 text-slate-600 border-slate-200">
+        {/* Environment & Backend Telemetry Indicator */}
+        <div
+          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+            isBackendConnected
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              : isDemoModeActive()
+              ? 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
+              : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+          }`}
+        >
           <span
             className={`w-2 h-2 rounded-full ${
-              isBackendConnected ? 'bg-emerald-500 ring-2 ring-emerald-200' : 'bg-amber-500'
+              isBackendConnected
+                ? 'bg-emerald-500 ring-2 ring-emerald-200'
+                : isDemoModeActive()
+                ? 'bg-amber-500'
+                : 'bg-rose-500'
             }`}
           />
           <span className="tracking-wide uppercase text-[9px] font-bold">
-            {isBackendConnected ? 'API Live' : 'API Ready'}
+            {isBackendConnected ? 'API Live' : isDemoModeActive() ? 'Demo Sandbox' : 'API Offline'}
           </span>
         </div>
 
@@ -208,7 +221,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2.5 px-2 z-50 space-y-2.5 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#0D1B2A] rounded-2xl shadow-xl border border-slate-200/90 dark:border-slate-800 py-2.5 px-2 z-50 space-y-2.5 animate-in fade-in zoom-in-95 duration-100">
               {/* User Overview */}
               <div className="px-2 pb-2 border-b border-slate-100">
                 <div className="font-bold text-xs text-[#0D1B2A]">{user?.displayName}</div>
@@ -219,7 +232,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                 </div>
               </div>
 
-              {/* Quick Portal Switcher (For testing) */}
+              {/* Quick Portal Switcher (For testing - Agency Internal Staff Only) */}
+              {(role === 'FOUNDER' || role === 'PLANNER' || role === 'COORDINATOR' || role === 'FINANCE') && (
+                <>
               <div className="px-2 space-y-1">
                 <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                   Test Dedicated Portals:
@@ -292,6 +307,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                   ))}
                 </div>
               </div>
+                </>
+              )}
 
               {/* Actions: Landing Page, Reset Demo & Sign Out */}
               <div className="border-t border-slate-100 pt-2 space-y-1">

@@ -10,7 +10,8 @@
  */
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../services/api';
+import { api, isDemoModeActive } from '../services/api';
+import { INITIAL_VENDOR_PROFILES, INITIAL_WEDDINGS } from '../services/mockData';
 
 export type AppRole = 'FOUNDER' | 'PLANNER' | 'COORDINATOR' | 'FINANCE' | 'VENDOR' | 'CLIENT' | 'FAMILY';
 export type PortalType = 'AGENCY' | 'VENDOR' | 'CLIENT';
@@ -230,16 +231,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
         }
       } catch (backendErr: any) {
-        // Check if this email is an authorized demo evaluation persona
-        const isDemoPersona = Object.values(DEMO_PROFILES).some(
-          p => p.email.toLowerCase() === cleanEmail
-        );
-        const validDemoPasswords = ['royalKnot2026!', 'royalKnot2026', 'RoyalKnot2026!'];
-
-        if (isDemoPersona && validDemoPasswords.includes(cleanPassword)) {
-          // Seamless demo persona fallback for evaluator convenience
-        } else if (backendErr.message !== 'BACKEND_OFFLINE') {
-          // Backend is running but rejected non-demo credentials
+        // In production deployments, NEVER fall back to demo accounts or LocalStorage!
+        if (!isDemoModeActive()) {
           setFailedAttempts(prev => {
             const next = prev + 1;
             if (next >= 5) {
@@ -247,14 +240,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             return next;
           });
-          throw new Error(backendErr.message || 'Invalid email or security passphrase.');
+          if (backendErr.message === 'BACKEND_OFFLINE') {
+            throw new Error('Authentication Service Unavailable: The backend API server is unreachable. Please verify network connectivity.');
+          }
+          throw new Error(backendErr.message || 'Invalid email or password.');
+        }
+
+        // Demo mode IS explicitly active. If backend is online but actively rejected non-demo credentials, fail:
+        if (backendErr.message !== 'BACKEND_OFFLINE') {
+          // Check if this account is one of the official staff personas, certified vendors, or couples in demo sandbox
+          const isDemoPersona = Object.values(DEMO_PROFILES).some(
+            p => p.email.toLowerCase() === cleanEmail
+          ) || cleanEmail.endsWith('@royalwedding.com') || (isDemoModeActive() && cleanEmail.includes('@'));
+          if (!isDemoPersona) {
+            setFailedAttempts(prev => {
+              const next = prev + 1;
+              if (next >= 5) setLockoutTimestamp(Date.now() + 30000);
+              return next;
+            });
+            throw new Error(backendErr.message || 'Invalid email or password.');
+          }
         }
       }
 
-      // 3. If offline/mock demo mode, strictly authenticate against registered DEMO_PROFILES + dynamically invited users
+      // 3. Demo Mode Sandbox Authentication (Only permitted when demo mode is explicitly active)
       if (!authenticatedUser) {
+        if (!isDemoModeActive()) {
+          throw new Error('Authentication Service Unavailable: Please ensure production API services are accessible.');
+        }
+
         let matchedUser: AuthUser | null = null;
 
+        // A. Match staff accounts from presets
         const foundRole = (Object.keys(DEMO_PROFILES) as AppRole[]).find(
           r => DEMO_PROFILES[r].email.toLowerCase() === cleanEmail
         );
@@ -262,7 +279,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (foundRole) {
           matchedUser = DEMO_PROFILES[foundRole];
         } else {
-          // Check dynamically created/invited accounts in local storage
+          // B. Match invited staff accounts from local storage
           try {
             const raw = localStorage.getItem('TRK_managed_users');
             if (raw) {
@@ -275,6 +292,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch {}
         }
 
+        // C. Match any certified vendor account (210+ verified partners)
+        if (!matchedUser) {
+          try {
+            const rawVendors = localStorage.getItem('TRK_vendor_profiles');
+            const vendorsList: any[] = rawVendors ? JSON.parse(rawVendors) : INITIAL_VENDOR_PROFILES;
+            const vendorMatch = vendorsList.find(v => v.email && v.email.toLowerCase() === cleanEmail);
+            if (vendorMatch) {
+              matchedUser = {
+                id: vendorMatch.id,
+                email: vendorMatch.email,
+                displayName: vendorMatch.name,
+                name: vendorMatch.contactPerson || vendorMatch.name,
+                role: 'VENDOR',
+                active: true,
+                vendorId: vendorMatch.id,
+                vendorCategory: vendorMatch.category,
+                assignedWeddingIds: ['wed-001']
+              };
+            }
+          } catch {}
+        }
+
+        // D. Match any royal client or couple account (205+ weddings)
+        if (!matchedUser) {
+          try {
+            const rawWeddings = localStorage.getItem('TRK_weddings');
+            const weddingsList: any[] = rawWeddings ? JSON.parse(rawWeddings) : INITIAL_WEDDINGS;
+            const weddingMatch = weddingsList.find(w => {
+              if (w.clientEmail && w.clientEmail.toLowerCase() === cleanEmail) return true;
+              if (w.id) {
+                const num = w.id.replace('wed-', '');
+                if (cleanEmail === `client.${num}@royalwedding.com` || cleanEmail === `client.${w.id}@royalwedding.com`) return true;
+              }
+              if (w.id === 'wed-001' && (cleanEmail === 'rahul.ananya@destweddings.in' || cleanEmail === 'client@theroyalknot.com')) return true;
+              if (w.id === 'wed-002' && cleanEmail === 'aditya.singhania@group.com') return true;
+              if (w.id === 'wed-003' && cleanEmail === 'arjun.mehta@techfounders.io') return true;
+              return false;
+            });
+
+            if (weddingMatch) {
+              matchedUser = {
+                id: `client-${weddingMatch.id}`,
+                email: weddingMatch.clientEmail || cleanEmail,
+                displayName: weddingMatch.coupleNames,
+                name: weddingMatch.partnerGroom || weddingMatch.coupleNames,
+                role: 'CLIENT',
+                active: true,
+                clientId: `client-${weddingMatch.id}`,
+                assignedWeddingIds: [weddingMatch.id]
+              };
+            }
+          } catch {}
+        }
+
         if (!matchedUser) {
           setFailedAttempts(prev => {
             const next = prev + 1;
@@ -283,16 +354,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             return next;
           });
-          throw new Error('Access Denied: No account registered under this email address. Please select an authorized demo persona or verify your email.');
+          throw new Error('Access Denied: No account registered under this email address in demo sandbox.');
         }
 
         if (!matchedUser.active) {
-          throw new Error('Access Denied: This account has been deactivated by the Founder. Please contact agency administration.');
+          throw new Error('Access Denied: This account has been deactivated by the Founder.');
         }
 
-        // Validate security passphrase for demo personas
-        const validDemoPasswords = ['royalKnot2026!', 'royalKnot2026', 'RoyalKnot2026!'];
-        if (!validDemoPasswords.includes(cleanPassword)) {
+        // Strict CASE-SENSITIVE password comparison for demo mode
+        const isMatchingPass = cleanPassword === 'royalKnot2026!' || cleanPassword === 'RoyalKnot2026!';
+        if (!isMatchingPass) {
           setFailedAttempts(prev => {
             const next = prev + 1;
             if (next >= 5) {
@@ -300,11 +371,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             return next;
           });
-          throw new Error('Access Denied: Incorrect passphrase. For authorized demo accounts, enter: royalKnot2026!');
+          throw new Error('Access Denied: Incorrect passphrase. (Case-sensitive demo passphrase: royalKnot2026!)');
         }
 
         authenticatedUser = matchedUser;
-        sessionToken = `trk-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        sessionToken = `trk-demo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
 
       // 4. Successful Authentication: clear failure counters

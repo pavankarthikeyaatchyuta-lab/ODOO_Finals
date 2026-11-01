@@ -37,6 +37,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         onClick={toggleTheme}
         title={isDark ? 'Switch to Light Palace Mode' : 'Switch to Dark Royal Mode'}
         aria-label="Toggle theme mode"
+        aria-pressed={isDark}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
           isDark
             ? 'bg-[#132238] border-[#C5A059]/40 text-[#DFCA9B] hover:bg-[#1b2d49]'
@@ -64,6 +65,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       onClick={toggleTheme}
       title={isDark ? 'Switch to Light Palace Mode' : 'Switch to Dark Royal Mode'}
       aria-label="Toggle theme mode"
+      aria-pressed={isDark}
       className={`relative inline-flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer shadow-2xs ${
         isDark
           ? 'bg-[#132238] border-[#C5A059]/40 text-[#DFCA9B] hover:bg-[#1a2d4a]'

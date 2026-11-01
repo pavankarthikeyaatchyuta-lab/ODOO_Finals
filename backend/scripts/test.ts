@@ -63,7 +63,7 @@ try {
     await setup.query(statement.rows[0]!.sql);
   } finally { await setup.end(); }
   await run(['--import', 'tsx', 'scripts/openapi.ts', '--check']);
-  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts', 'tests/finance.test.ts', 'tests/e2e.test.ts', 'tests/qa.test.ts', 'tests/migration-upgrade.test.ts', 'tests/auth-security.test.ts']);
+  await run(['--import', 'tsx', '--test', '--test-concurrency=1', 'tests/integration.test.ts', 'tests/identity.test.ts', 'tests/foundation.test.ts', 'tests/workflows.test.ts', 'tests/security.test.ts', 'tests/operations.test.ts', 'tests/finance.test.ts', 'tests/e2e.test.ts', 'tests/qa.test.ts', 'tests/migration-upgrade.test.ts', 'tests/auth-security.test.ts', 'tests/phone-validation.test.ts', 'tests/security-authorization.test.ts']);
 } finally {
   await pg.stop();
   const target = resolve(directory);

@@ -6,6 +6,18 @@
  * for authentication, user profiles, clients, destination weddings, and enquiries.
  */
 import { z } from 'zod';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
+export const phoneSchema = z.string().trim().min(3).max(40)
+  .refine(val => !/[a-zA-Z]/.test(val), { message: 'Phone number cannot contain alphabetic characters' })
+  .refine(val => {
+    const parsed = parsePhoneNumberFromString(val, 'IN');
+    return Boolean(parsed && parsed.isValid());
+  }, { message: 'Invalid phone number format' })
+  .transform(val => {
+    const parsed = parsePhoneNumberFromString(val, 'IN');
+    return parsed ? parsed.format('E.164') : val;
+  });
 
 export const uuid = z.uuid();
 export const role = z.enum(['FOUNDER', 'PLANNER', 'COORDINATOR', 'FINANCE', 'CLIENT']);
@@ -18,7 +30,7 @@ const text = z.string().trim().min(1).max(200);
 export const email = z.email().max(254).transform(v => v.toLowerCase());
 const notes = z.string().trim().max(5000).nullable();
 export const pageQuery = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(25) }).strict();
-export const clientInput = z.object({ name: text, email, phone: z.string().trim().min(3).max(40).nullable().optional(), requirements: z.string().trim().max(5000).nullable().optional() }).strict();
+export const clientInput = z.object({ name: text, email, phone: phoneSchema.nullable().optional(), requirements: z.string().trim().max(5000).nullable().optional() }).strict();
 export const clientPatch = clientInput.partial().refine(v => Object.keys(v).length > 0);
 export const weddingInput = z.object({
   title: text, weddingDate: z.iso.date().nullable().optional(), packageType,

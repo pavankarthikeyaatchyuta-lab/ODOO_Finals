@@ -162,6 +162,18 @@ html.dark [class*="divide-slate-200"] > * {
 html.dark [class*="text-[#0D1B2A]"] {
   color: #F8FAFC !important;
 }
+
+/* Preserve deep navy text on gold surfaces */
+html.dark [class*="from-[#DFCA9B]"] [class*="text-[#0D1B2A]"],
+html.dark [class*="bg-[#C5A059]"] [class*="text-[#0D1B2A]"],
+html.dark [class*="bg-[#DFCA9B]"] [class*="text-[#0D1B2A]"],
+html.dark .bg-\[\#C5A059\] [class*="text-[#0D1B2A]"],
+html.dark [class*="bg-[#C5A059]"] span,
+html.dark [class*="from-[#DFCA9B]"] span,
+html.dark .bg-\[\#C5A059\],
+html.dark [class*="from-[#DFCA9B]"] {
+  color: #0D1B2A !important;
+}
 html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-slate-700,
@@ -176,11 +188,11 @@ html.dark [class*="text-slate-600"] {
 }
 html.dark .text-slate-500,
 html.dark [class*="text-slate-500"] {
-  color: #7889A0 !important;
+  color: #94A3B8 !important;
 }
 html.dark .text-slate-400,
 html.dark [class*="text-slate-400"] {
-  color: #64748B !important;
+  color: #94A3B8 !important;
 }
 
 /* --- 4. Form Controls & Inputs --- */
@@ -331,4 +343,18 @@ html.dark .shadow-md,
 html.dark .shadow-lg,
 html.dark .shadow-xl {
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.7) !important;
+}
+
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
 }

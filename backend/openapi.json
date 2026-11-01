@@ -11153,11 +11153,7 @@
                       "maxLength": 200
                     },
                     "email": {},
-                    "phone": {
-                      "type": "string",
-                      "minLength": 3,
-                      "maxLength": 40
-                    },
+                    "phone": {},
                     "serviceDetails": {
                       "type": "string",
                       "minLength": 1,
@@ -11384,11 +11380,7 @@
                             "maxLength": 200
                           },
                           "email": {},
-                          "phone": {
-                            "type": "string",
-                            "minLength": 3,
-                            "maxLength": 40
-                          },
+                          "phone": {},
                           "serviceDetails": {
                             "type": "string",
                             "minLength": 1,
@@ -11606,11 +11598,7 @@
                       "maxLength": 200
                     },
                     "email": {},
-                    "phone": {
-                      "type": "string",
-                      "minLength": 3,
-                      "maxLength": 40
-                    },
+                    "phone": {},
                     "serviceDetails": {
                       "type": "string",
                       "minLength": 1,
@@ -11854,11 +11842,7 @@
                       "maxLength": 200
                     },
                     "email": {},
-                    "phone": {
-                      "type": "string",
-                      "minLength": 3,
-                      "maxLength": 40
-                    },
+                    "phone": {},
                     "serviceDetails": {
                       "type": "string",
                       "minLength": 1,
@@ -12232,11 +12216,7 @@
                             "maxLength": 200
                           },
                           "email": {},
-                          "phone": {
-                            "type": "string",
-                            "minLength": 3,
-                            "maxLength": 40
-                          },
+                          "phone": {},
                           "serviceDetails": {
                             "type": "string",
                             "minLength": 1,

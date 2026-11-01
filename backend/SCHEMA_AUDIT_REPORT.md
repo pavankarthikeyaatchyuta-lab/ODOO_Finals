@@ -57,12 +57,12 @@ The first plain `prisma validate` attempt reported missing `DIRECT_URL` in local
 - `src/routes/enquiries.ts`, `src/routes/consultations.ts`: scope rechecks and wedding locking.
 - `tests/qa.test.ts`: new database/report/workflow regressions; migration inventory updated to ten.
 - `tests/migration-upgrade.test.ts`, `scripts/test.ts`: existing-data upgrade and failure rollback test, integrated with the isolated runner.
-- `PHASE_5_API.md`, `DEPLOYMENT.md`, this report: response/dues semantics, environment setup and migration release guidance.
+- `docs/archive/phase-reports/PHASE_5_API.md`, `DEPLOYMENT.md`, this report: response/dues semantics, environment setup and migration release guidance.
 
 No dependencies added. Existing endpoints, permissions, UUID identities, request body limits and input amount precision are preserved. Authoritative totals remain server calculations using decimal arithmetic. Updated shared contracts remain available to Antigravity through `openapi.json` and the TypeScript contract modules.
 
 ## Remaining integration/configuration work
 
-The frontend still uses demo login/localStorage for business actions. Its successful build does **not** mean live API integration or secure hosted login is complete. The exact mappings and integration sequence remain in `PHASE_6_INTEGRATION_AUDIT.md`. No Antigravity source was overwritten.
+The frontend still uses demo login/localStorage for business actions. Its successful build does **not** mean live API integration or secure hosted login is complete. The exact mappings and integration sequence remain in `docs/archive/phase-reports/PHASE_6_INTEGRATION_AUDIT.md`. No Antigravity source was overwritten.
 
 Hosted Supabase credentials/pooler settings, real invitation/recovery email delivery, Storage policies and Vercel deployment checks remain pending user configuration. No production-data compatibility or browser end-to-end verification is claimed. No additional history rewriting is used for this fix; the verified changes are committed and pushed normally with Mohan's requested identity, with the final hash and push result reported in the delivery message.

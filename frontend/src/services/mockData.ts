@@ -113,6 +113,7 @@ function generateAdditionalWeddings(): Wedding[] {
       id,
       code,
       coupleNames,
+      clientEmail: `client.${idNum}@royalwedding.com`,
       partnerGroom: `${groom} ${groomSurname}`,
       partnerBride: `${bride} ${brideSurname}`,
       weddingDate,
@@ -142,6 +143,7 @@ const BASE_WEDDINGS: Wedding[] = [
     id: 'wed-001',
     code: 'WED-2026-001',
     coupleNames: 'Rahul Sharma & Ananya Singh',
+    clientEmail: 'client.001@royalwedding.com',
     partnerGroom: 'Rahul Sharma',
     partnerBride: 'Ananya Singh',
     weddingDate: '2026-12-22',
@@ -1000,7 +1002,9 @@ export const INITIAL_AGREEMENTS: AgreementDetails[] = [
     signedDocumentName: 'TRK-2026-SharmaSingh-Executed.pdf',
     signedDocumentSize: '2.4 MB',
     clientSignerName: 'Rahul Sharma & Ananya Singh',
-    clientSignerIp: '103.211.54.12 (Aadhaar / Mobile OTP Verified)'
+    documentIntegrityHash: '8f4c2e6b7d1a9f0e3c5b8a2d4e6f1a9b0c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
+    reviewStatus: 'MANUALLY_APPROVED',
+    reviewedBy: 'Devendra Kaviraj (Founder Approval)'
   },
   {
     id: 'agr-002',

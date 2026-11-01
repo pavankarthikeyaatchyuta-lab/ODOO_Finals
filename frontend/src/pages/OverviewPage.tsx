@@ -340,8 +340,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           data={weddings}
           columns={weddingColumns}
           keyExtractor={(w) => w.id}
-          pageSize={5}
-          pageSizeOptions={[5, 10, 25, 50, 100, 200]}
+          pageSize={25}
+          pageSizeOptions={[10, 25, 50, 100]}
           onRowClick={(w) => onSelectWedding(w)}
         />
       </div>

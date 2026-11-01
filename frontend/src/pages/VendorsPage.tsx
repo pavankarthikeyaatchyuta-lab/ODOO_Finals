@@ -14,6 +14,7 @@ import { Store, Star, Phone, Mail, MapPin, Award, AlertTriangle, Plus, Eye, Chec
 import { StatusBadge } from '../components/common/StatusBadge';
 import { SearchFilterBar } from '../components/common/SearchFilterBar';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
+import { validateAndFormatPhone } from '../utils/phone';
 import { Modal } from '../components/common/Modal';
 import { Button } from '../components/common/Button';
 import { FormField } from '../components/common/FormField';
@@ -45,6 +46,7 @@ export const VendorsPage: React.FC = () => {
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newSpecialties, setNewSpecialties] = useState('');
+  const [formErrors, setFormErrors] = useState<{ phone?: string; email?: string }>({});
   const [newPriceRange, setNewPriceRange] = useState('₹1,500 – ₹2,500 / Plate');
 
   useEffect(() => {
